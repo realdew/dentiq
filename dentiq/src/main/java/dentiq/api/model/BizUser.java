@@ -13,3 +13,4 @@ public class BizUser extends User {
 	private String bizRegNo;
 
 }
+ 
