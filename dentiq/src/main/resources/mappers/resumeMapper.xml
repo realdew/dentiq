@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dentiq.api.repository.ResumeMapper">
+
+	<select id="countResume" resultType="int">
+		select count(1) from RESUME where USER_ID=#{userId}
+	</select>
+	
+	<select id="getResumeListByUserId" resultType="dentiq.api.model.Resume">
+		select * from RESUME where USER_ID=#{userId} order by LAST_MOD_DT DESC
+	</select>	
+	
+	<select id="getResumeById" resultType="dentiq.api.model.Resume">
+		select * from RESUME where ID=#{id}
+	</select>
+	
+	<select id="getLastResumeByUserId" resultType="dentiq.api.model.Resume">
+		select * from RESUME where USER_ID=#{userId}
+		order by LAST_MOD_DT DESC limit=1
+	</select>
+	
+	<insert id="insertResume" useGeneratedKeys="true" keyProperty="id" parameterType="dentiq.api.model.Resume">
+		insert into RESUME (USER_ID, TITLE, CONTENT)
+		values (#{userId}, #{title}, #{content})
+	</insert>
+
+	<update id="updateResume" parameterType="dentiq.api.model.Resume">
+		update RESUME set TITLE=#{title}, CONTENT=#{content}
+		where ID=#{id} and USER_ID=#{userId}
+	</update>
+
+	<delete id="deleteResumeById">
+		delete from RESUME where ID=#{id}
+	</delete>
+	
+
+</mapper>

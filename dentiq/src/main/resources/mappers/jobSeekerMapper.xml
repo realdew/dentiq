@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dentiq.api.repository.JobSeekerMapper">
+
+	<!--  관심지역 -->
+	<select id="listUserConcernedLocationCodes" resultType="dentiq.api.model.LocationCode">
+		select LOCATION_CODE
+		from USER_CONCERNED_LOCATION
+		where USER_ID=#{userId}
+	</select>
+	<insert id="insertConcernedLocationCodeList">
+		insert into USER_CONCERNED_LOCATION (USER_ID, LOCATION_CODE)
+		values 
+		<foreach item="locationCode" collection="locationCodeList" separator=",">
+			( #{userId}, #{locationCode} )
+		</foreach>
+	</insert>
+	<delete id="deleteConcernedLocationCodeList">
+		delete from USER_CONCERNED_LOCATION where USER_ID=#{userId}
+	</delete>
+	
+	
+	
+	
+	<!--  스크랩 공고 -->
+	
+	
+	<delete id="deleteAllScrappedJobAds">
+		delete * from USER_SCRAPPED_JOB_AD where USER_ID=#{userId}
+	</delete>
+	
+	<insert id="insertAllScrappedJobAds">
+		insert into USER_SCRAPPED_JOB_AD (USER_ID, JOB_AD_ID)
+		values 
+		<foreach item="jobAdId" collection="jobAdIdList" separator=",">
+			( #{userId}, #{jobAdId} )
+		</foreach>
+	</insert>
+	
+	
+	
+	<insert id="insertScrappedJobAd">
+		insert into USER_SCRAPPED_JOB_AD (USER_ID, JOB_AD_ID, MEMO)
+		values ( #{userId}, #{jobAdId}, #{memo})
+	</insert>
+	<update id="updateScrappedJobAd">
+		update USER_SCRAPPED_JOB_AD set MEMO=#{memo}, LAST_MOD_DT=current_timestamp
+		where USER_ID=#{userId} and JOB_AD_ID=#{jobAdId}
+	</update>
+	<delete id="deleteScrappedJobAd">
+		delete from USER_SCRAPPED_JOB_AD where USER_ID=#{userId} and JOB_AD_ID=#{jobAdId}
+	</delete>
+	
+	<select id="listScrappedJobAdIds" resultType="Long">
+		select JOB_AD_ID from USER_SCRAPPED_JOB_AD where USER_ID=#{userId}
+		order by LAST_MOD_DT;
+	</select>
+	
+		
+	<select id="listScrappedJobAds" resultType="dentiq.api.model.JobAd">
+		select J.*, S.LAST_MOD_DT as LAST_MOD_DT
+		from USER_SCRAPPED_JOB_AD S, JOB_AD J
+		where S.JOB_AD_ID=J.ID and S.USER_ID=#{userId} and J.USE_YN='Y'
+		order by LAST_MOD_DT;
+	</select>
+	
+	<select id="getScrappedJobAd" resultType="dentiq.api.model.JobAd">
+		select J.*, S.LAST_MOD_DT
+		from USER_SCRAPPED_JOB_AD S, JOB_AD J
+		where	S.JOB_AD_ID=J.ID 
+			and S.USER_ID=#{userId}
+			and S.JOB_AD_ID=#{jobAdId} and J.USE_YN='Y'
+	</select>
+	
+	
+	
+	
+	<!-- 
+	<insert id="insertConcernedHospital">
+		insert into USER_CONCERNED_HOSPITAL (USER_ID, HOSPITAL_ID, MEMO)
+		values ( #{userId}, #{hospitalId}, #{memo})
+	</insert>
+	<update id="updateConcernedHospital">
+		update USER_CONCERNED_HOSPITAL set MEMO=#{memo}, LAST_MOD_DT=current_timestamp
+		where USER_ID=#{userId} and HOSPITAL_ID=#{hospitalId}
+	</update>
+	<delete id="deleteConcernedHospital">
+		delete * from USER_CONCERNED_HOSPITAL where USER_ID=#{userId} and HOSPITAL_ID=#{hospitalId}
+	</delete>
+	
+	<select id="getConcernedHospitalList" resultType="dentiq.api.model.Hospital">
+		select H.*, C.LAST_MOD_DT
+		from USER_CONCERNED_HOSPITAL C, HOSPITAL H
+		where C.JOB_AD_ID=H.ID and C.USER_ID=#{userId} and H.USE_YN='Y'
+		order by LAST_MOD_DT;
+	</select>
+	
+	<select id="getConcernedHospital" resultType="dentiq.api.model.Hospital">
+		select H.*, C.LAST_MOD_DT
+		from USER_CONCERNED_HOSPITAL C, HOSPITAL H
+		where	C.JOB_AD_ID=H.ID 
+			and C.USER_ID=#{userId}
+			and C.JOB_AD_ID=#{hospitalId} and H.USE_YN='Y'
+	</select>
+	-->
+	
+	
+	
+
+</mapper>
+

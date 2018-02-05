@@ -1,0 +1,619 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dentiq.api.repository.JobAdMapper">
+
+
+	<!--  특정 사용자의 관심지역 내에서의 공고 개수를 조회 -->
+	
+	
+	<!--  특정 사용자의 우리동네에 대한 공고 개수를 조회 -->
+	<!-- 
+		select 
+		
+	
+	 -->
+
+	
+	<!-- 주어진 공고 속성 그룹 내에서 각 속성별 개수 조회 (예:그룹-고용형태(EMP) 별 정규직/계약직/아르바이트 건수 -->
+	<!--
+	<select id="countJobAdOnAttrGroup" resultType="dentiq.api.model.NameCountPair">
+		select ATTR_CODE_ID, count(ATTR_CODE_ID) as CNT
+		from JOB_AD_ATTR
+		where ATTR_GROUP_ID=#{jobAdAttrGroupId}
+		group by ATTR_CODE_ID;
+	</select>
+	-->
+	<select id="countJobAdOnAttrGroup" resultType="dentiq.api.model.JobAdAttrCounter">
+		select	C.GROUP_ID as GROUP_ID, C.GROUP_NAME as GROUP_NAME, C.GROUP_DISPLAY_ORDER as GROUP_DISPLAY_ORDER,
+					C.CODE_ID as CODE_ID, C.CODE_NAME as CODE_NAME, C.CODE_DISPLAY_ORDER as CODE_DISPLAY_ORDER, 
+					ifnull(A.CNT, 0) as CNT
+		from
+			(
+				select GROUP_ID, GROUP_NAME, GROUP_DISPLAY_ORDER, CODE_ID, CODE_NAME, CODE_DISPLAY_ORDER
+				from JOB_AD_ATTR_CODE
+				where GROUP_ID=#{jobAdAttrGroupId}
+			) C
+			left join 
+			(
+				select ATTR_CODE_ID, count(ATTR_CODE_ID) as CNT
+				from JOB_AD_ATTR
+				where ATTR_GROUP_ID=#{jobAdAttrGroupId}
+				group by ATTR_CODE_ID
+			) A
+			on C.CODE_ID=A.ATTR_CODE_ID
+		order by CODE_DISPLAY_ORDER
+	</select>
+
+
+
+	<!--  (시도)시군별 공고 건수 출력 -->
+	<!-- 
+	<select id="getJobAdDashboardBySigu" resultType="dentiq.api.model.JobAdGroupByLocationCode">
+		select
+			A.SIDO_CODE as SIDO_CODE, L.SIDO_CODE_NAME as SIDO_CODE_NAME, 
+			A.SIGU_CODE as SIGU_CODE, L.SIGU_CODE_NAME as SIGU_CODE_NAME, A.CNT as CNT
+		from
+			(
+				select distinct(SIGU_CODE) as SIGU_CODE, SIDO_CODE, count(1) as CNT 
+				from
+					JOB_AD_VIEW
+				group by SIGU_CODE, SIDO_CODE
+			) A,
+		    LOCATION_CODE L
+		where
+			A.SIGU_CODE=L.SIGU_CODE
+	</select>
+	
+	<select id="getJobAdDashboardBySido" resultType="dentiq.api.model.JobAdGroupByLocationCode">
+		select A.SIDO_CODE as SIDO_CODE, L.SIDO_CODE_NAME as SIDO_CODE_NAME, A.CNT as CNT
+		from
+			(
+				select distinct(SIDO_CODE) as SIDO_CODE, count(1) as CNT
+				from JOB_AD_VIEW
+				group by SIDO_CODE
+			) A,
+		    (
+				select distinct(SIDO_CODE), SIDO_CODE_NAME from LOCATION_CODE
+			) L
+		where A.SIDO_CODE=L.SIDO_CODE
+	</select>
+	-->
+
+		
+	<!-- 특정 공고를 ID로 가져온다. -->
+	<select id="getJobAd" resultType="dentiq.api.model.JobAd">
+		select * from JOB_AD_VIEW where ID=#{id}
+	</select>
+	
+
+	<!--  조건에 맞는 공고의 숫자를 리턴한다 -->
+	<select id="countJobAds" resultType="long">
+		select count(*)
+		<include refid="listJobAdGenericPartSql"></include>
+	</select>
+	
+	<!--  조건에 맞는 공고의 숫자를 리턴한다. 첫 화면과 liveboard등에서는 요청건수가 많으므로 이것을 사용한다. 일반공고와 프리미어공고를 동시에 counting한다. -->
+	<select id="countJobAdsGroupByAdType" resultType="hashmap">
+		select J.AD_TYPE as AD_TYPE, count(1) as CNT
+		<include refid="listJobAdGenericPartSql"></include>
+		group by J.AD_TYPE
+	</select>
+	
+	
+	
+	
+	
+	
+	<!-- 특정 시도에 대한 Aggregation 수행 -
+	<!-
+		locationCode에 시도코드들이 입력되면, 각 시도들에 대해서 group by 결과 리턴
+		locationCode가 입력되지 않으면, 전체 시도들에 대해서 group by 결과 리턴 ==> ** 대쉬보드 첫 화면용 **
+		locationCode에는 반드시 시도 레벨의 값만 입력되어야 함. (시구 레벨은 안됨)
+	 -
+	<select id="aggregateJobAdsBySido" resultType="dentiq.api.model.JobAdGroupByLocationCode">
+		select L.LOCATION_CODE as LOCATION_CODE, L.LOCATION_TYPE as LOCATION_TYPE,
+			   L.SIDO_CODE as SIDO_CODE,	L.SIDO_NAME as SIDO_NAME,
+			   L.SIGU_NAME as SIGU_CODE,	L.SIGU_NAME as SIGU_NAME,
+			   IFNULL(A.CNT,0) as CNT
+		from
+			(
+				select LOCATION_CODE, LOCATION_TYPE, SIDO_CODE, SIGU_CODE, SIDO_NAME, SIGU_NAME from LOCATION_CODE where LOCATION_TYPE='1'				
+				<if test="searchCriteria != null and searchCriteria.locationCodeCriteria != null and searchCriteria.locationCodeCriteria.sidoCodeList != null">
+					and SIDO_CODE in
+					<foreach item="sidoCode" index="index" collection="searchCriteria.locationCodeCriteria.sidoCodeList" open="(" separator="," close=")">
+		        		#{sidoCode}
+					</foreach>
+				</if>
+				
+			) L
+		left join
+			(
+				select distinct(J.SIDO_CODE) as SIDO_CODE, count(1) as CNT 
+				<include refid="listJobAdGenericPartSql"></include>
+				group by SIDO_CODE
+			) A
+		on L.SIDO_CODE=A.SIDO_CODE;
+	</select>
+	
+		
+	
+	
+	<!- 특정 시구에 대한 Aggregation 수행 
+	<!-
+		locationCode에 시구코드들이 입력되면, 각 시구들에 대해서 group by 결과 리턴 ==> ** 관심지역용 **
+		locationCode가 입력되지 않으면, 전체 시구들에 대해서 group by 결과 리턴
+		locationCode에는 반드시 시구 레벨의 값만 입력되어야 함. (시도 레벨은 안됨)
+	 -
+	<select id="aggregateJobAdsBySigu" resultType="dentiq.api.model.JobAdGroupByLocationCode">
+		select L.LOCATION_CODE as LOCATION_CODE, L.LOCATION_TYPE as LOCATION_TYPE,
+			   L.SIDO_CODE as SIDO_CODE,	L.SIDO_NAME as SIDO_NAME,
+			   L.SIGU_CODE as SIGU_CODE,	L.SIGU_NAME as SIGU_NAME,
+			   IFNULL(A.CNT,0) as CNT
+		from
+			(
+				select LOCATION_CODE, LOCATION_TYPE, SIDO_CODE, SIGU_CODE, SIDO_NAME, SIGU_NAME from LOCATION_CODE where LOCATION_TYPE='2'
+				<if test="searchCriteria !=null and searchCriteria.locationCodeCriteria != null">
+					<trim prefix=" and " >
+						<if test = "searchCriteria.locationCodeCriteria.siguCodeList != null">
+							<trim prefix="SIGU_CODE in">
+								<foreach item="siguCode" index="index" collection="searchCriteria.locationCodeCriteria.siguCodeList" open="(" separator="," close=")">
+					        		#{siguCode}
+								</foreach>
+							</trim>
+						</if>
+					</trim>
+				</if>
+			) L
+		left join
+			(
+				select distinct(J.LOCATION_CODE) as LOCATION_CODE, count(1) as CNT 
+				<include refid="listJobAdGenericPartSql"></include>
+				group by SIGU_CODE
+			) A
+		on L.LOCATION_CODE=A.LOCATION_CODE;
+	</select>
+	
+	<!-
+		특정 시도에 포함된 시구들을 group by 처리
+		입력값은 시도코드					==> ** 대쉬보드 두번째 화면(시도선택 후 해당 시도의 소속 시구들 group by) **
+	 -
+	<select id="aggregateJobAdsBySiguInSpecificSido" resultType="dentiq.api.model.JobAdGroupByLocationCode">
+		select L.LOCATION_CODE as LOCATION_CODE, L.LOCATION_TYPE as LOCATION_TYPE,
+			   L.SIDO_CODE as SIDO_CODE,	L.SIDO_NAME as SIDO_NAME,
+			   L.SIGU_CODE as SIGU_CODE,	L.SIGU_NAME as SIGU_NAME,
+			   IFNULL(A.CNT,0) as CNT
+		from
+			(
+				select LOCATION_CODE, LOCATION_TYPE, SIDO_CODE, SIGU_CODE, SIDO_NAME, SIGU_NAME from LOCATION_CODE where LOCATION_TYPE='2'				
+				<if test="searchCriteria != null and searchCriteria.locationCodeCriteria != null and searchCriteria.locationCodeCriteria.sidoCodeList != null">
+					and SIDO_CODE in
+					<foreach item="sidoCode" index="index" collection="searchCriteria.locationCodeCriteria.sidoCodeList" open="(" separator="," close=")">
+		        		#{sidoCode}
+					</foreach>
+				</if>
+			) L
+		left join
+			(
+				select distinct(J.LOCATION_CODE) as LOCATION_CODE, count(1) as CNT 
+				<include refid="listJobAdGenericPartSql"></include>
+				group by SIGU_CODE
+			) A
+		on L.LOCATION_CODE=A.LOCATION_CODE;
+	</select>
+	-->
+	
+	
+	
+	
+	<!--  
+		시도 or 시구(지역코드)가 입력되면 해당 시도 or 시구에 대한 공고수를 groupping
+		지역코드가 아무것도 입력되지 않으면 에러!!!
+		입력된 해당 지역코드들에 대해서만 출력한다.
+	 -->
+	<select id="aggregateJobAds" resultType="dentiq.api.model.JobAdGroupByLocationCode">
+		select L.LOCATION_CODE as LOCATION_CODE, L.LOCATION_TYPE as LOCATION_TYPE,
+			   L.SIDO_CODE as SIDO_CODE,	L.SIDO_NAME as SIDO_NAME,
+			   L.SIGU_CODE as SIGU_CODE,	L.SIGU_NAME as SIGU_NAME,
+			   IFNULL(A.CNT,0) as CNT
+		from
+			(
+				select LOCATION_CODE, LOCATION_TYPE, SIDO_CODE, SIGU_CODE, SIDO_NAME, SIGU_NAME from LOCATION_CODE				
+				<if test="searchCriteria !=null and searchCriteria.locationCodeCriteria != null">
+					<trim prefix=" where " >
+						<if test = "searchCriteria.locationCodeCriteria.sidoCodeList != null">
+							<trim prefix="LOCATION_CODE in"> <!--  주의 : 여기서는 시도 코드임 -->
+								<foreach item="sidoCode" index="index" collection="searchCriteria.locationCodeCriteria.sidoCodeList" open="(" separator="," close=")">
+					        		#{sidoCode}
+								</foreach>
+							</trim>
+						</if>
+						
+						<if test="searchCriteria.locationCodeCriteria.sidoCodeList != null and searchCriteria.locationCodeCriteria.siguCodeList != null">
+							or
+						</if>
+						
+						<if test = "searchCriteria.locationCodeCriteria.siguCodeList != null">
+							<trim prefix="SIGU_CODE in">
+								<foreach item="siguCode" index="index" collection="searchCriteria.locationCodeCriteria.siguCodeList" open="(" separator="," close=")">
+					        		#{siguCode}
+								</foreach>
+							</trim>
+						</if>
+					</trim>
+				</if>
+			) L
+		left join
+			(
+				<!--
+					union에서 사용되는 listJobAdGenericPartSql은 SIDO_CODE와 SIGU_CODE를 공통적으로 조회조건으로 하므로, 
+					향후에는 aggregateJobAdPartSqlSido 와 aggregateJobAdPartSqlSigu로 구분하여야 한다.
+				-->	
+				<if test = "searchCriteria.locationCodeCriteria.sidoCodeList != null">
+					select J.SIDO_CODE as LOCATION_CODE, count(1) as CNT
+					<include refid="listJobAdGenericPartSql"></include>
+					group by J.SIDO_CODE
+				</if>
+				
+				<if test="searchCriteria.locationCodeCriteria.sidoCodeList != null and searchCriteria.locationCodeCriteria.siguCodeList != null">
+					union
+				</if>
+				
+				<if test = "searchCriteria.locationCodeCriteria.siguCodeList != null">
+					select J.LOCATION_CODE as LOCATION_CODE, count(1) as CNT
+					<include refid="listJobAdGenericPartSql"></include>
+					group by J.LOCATION_CODE
+				</if>
+					
+			) A
+		on L.LOCATION_CODE=A.LOCATION_CODE;
+	</select>
+	
+	
+	
+	<!--  
+		대쉬보드 생성 - 대쉬보드는 시도단위로만 작동되며, 특정시도가 요청되더라도 형제 시도를 출력함
+		
+		1. 시도단위로만 작동. 따라서 Service나 Controller단에서 입력된 지역코드가 시구인 경우는 소속된 시도코드로 변환하여야 함
+		2. 시도코드가 입력되지 않으면 전국단위에서 시도를 보여준다.
+		3. 시도가 하나 입력되면, 해당 시도의 소속 시구를 보여준다.
+		4. 시도가 여러개 입력되면, 해당 시도들의 소속 시구를 보여준다.
+	 -->
+	<select id="aggregateJobAdsForDashboard" resultType="dentiq.api.model.JobAdGroupByLocationCode">
+		select L.LOCATION_CODE as LOCATION_CODE, L.LOCATION_TYPE as LOCATION_TYPE,
+			   L.SIDO_CODE as SIDO_CODE,	L.SIDO_NAME as SIDO_NAME,
+			   L.SIGU_CODE as SIGU_CODE,	L.SIGU_NAME as SIGU_NAME,
+			   IFNULL(A.CNT,0) as CNT
+		from
+			(
+				select LOCATION_CODE, LOCATION_TYPE, SIDO_CODE, SIGU_CODE, SIDO_NAME, SIGU_NAME from LOCATION_CODE
+				<if test="searchCriteria !=null and searchCriteria.locationCodeCriteria != null">
+					<trim prefix=" where LOCATION_TYPE='2' and" >
+						<if test = "searchCriteria.locationCodeCriteria.sidoCodeList != null">
+							<!--  <trim prefix="LOCATION_CODE in"> 주의 : SIDO_CODE가 아니라 LOCATION_CODE임 
+							-->
+							<trim prefix="SIDO_CODE in"> <!--  주의 : SIDO_CODE가 아니라 LOCATION_CODE임 -->
+								<foreach item="sidoCode" index="index" collection="searchCriteria.locationCodeCriteria.sidoCodeList" open="(" separator="," close=")">
+					        		#{sidoCode}
+								</foreach>
+							</trim>
+						</if>
+					</trim>
+				</if>
+				<if test="searchCriteria == null or searchCriteria.locationCodeCriteria == null or searchCriteria.locationCodeCriteria.sidoCodeList == null">
+					where LOCATION_TYPE='1'
+				</if>
+			) L
+		left join
+			(								
+				<if test = "searchCriteria.locationCodeCriteria.sidoCodeList != null">
+					select J.LOCATION_CODE as LOCATION_CODE, count(1) as CNT
+					<include refid="listJobAdGenericPartSql"></include>
+					group by J.LOCATION_CODE
+				</if>
+				<if test="searchCriteria.locationCodeCriteria.sidoCodeList == null">
+					select J.SIDO_CODE as LOCATION_CODE, count(1) as CNT
+					<include refid="listJobAdGenericPartSql"></include>
+					group by J.SIDO_CODE
+				</if>				
+			) A
+		on L.LOCATION_CODE=A.LOCATION_CODE;
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<!-- 
+	<select id="getJobAdDashboard2" resultType="dentiq.api.model.JobAdGroupByLocationCode">
+		select L.SIGU_CODE as LOCATION_CODE, L.SIGU_CODE_NAME as LOCATION_CODE_NAME,
+			L.SIDO_CODE as SIDO_CODE, L.SIDO_CODE_NAME as SIDO_CODE_NAME, 
+			L.SIGU_CODE as SIGU_CODE, L.SIGU_CODE_NAME as SIGU_CODE_NAME, IFNULL(A.CNT,0) as CNT
+		from
+			(
+				select SIDO_CODE, SIGU_CODE, SIDO_CODE_NAME, SIGU_CODE_NAME from LOCATION_CODE
+				where
+				<if test="searchCriteria !=null and searchCriteria.locationCodeCriteria != null and searchCriteria.locationCodeCriteria.sidoCodeList != null">
+					<trim prefix="SIDO_CODE in">
+						<foreach item="sidoCode" index="index" collection="searchCriteria.locationCodeCriteria.sidoCodeList" open="(" separator="," close=")">
+				   			#{sidoCode}
+						</foreach>
+					</trim>
+				</if>
+			) L			
+			left join
+			(
+				select distinct(J.SIGU_CODE) as SIGU_CODE, J.SIDO_CODE as SIDO_CODE, count(1) as CNT 
+				<include refid="listJobAdGenericPartSql"></include>
+				group by SIGU_CODE, SIDO_CODE
+			) A
+			on L.SIGU_CODE=A.SIGU_CODE;
+	</select>
+	-->
+	
+	
+	<select id="getJobAdDashboard2" resultType="dentiq.api.model.JobAdGroupByLocationCode">
+		select L.LOCATION_CODE as LOCATION_CODE, L.LOCATION_TYPE as LOCATION_TYPE,			
+			L.SIDO_CODE as SIDO_CODE, L.SIDO_NAME as SIDO_NAME, 
+			L.SIGU_CODE as SIGU_CODE, L.SIGU_NAME as SIGU_NAME,
+			IFNULL(A.CNT,0) as CNT
+		from
+			(
+				select LOCATION_CODE, LOCATION_TYPE, SIDO_CODE, SIGU_CODE, SIDO_NAME, SIGU_NAME from LOCATION_CODE
+				<if test="searchCriteria !=null and searchCriteria.locationCodeCriteria != null">
+					<trim prefix=" where " >
+						<if test = "searchCriteria.locationCodeCriteria.sidoCodeList != null">
+							<trim prefix="SIDO_CODE in">
+								<foreach item="sidoCode" index="index" collection="searchCriteria.locationCodeCriteria.sidoCodeList" open="(" separator="," close=")">
+					        		#{sidoCode}
+								</foreach>
+							</trim>
+						</if>
+						
+						<if test="searchCriteria.locationCodeCriteria.sidoCodeList != null and searchCriteria.locationCodeCriteria.siguCodeList != null">
+							or
+						</if>
+						
+						<if test = "searchCriteria.locationCodeCriteria.siguCodeList != null">
+							<trim prefix="SIGU_CODE in">
+								<foreach item="siguCode" index="index" collection="searchCriteria.locationCodeCriteria.siguCodeList" open="(" separator="," close=")">
+					        		#{siguCode}
+								</foreach>
+							</trim>
+						</if>
+					</trim>
+				</if>
+			) L
+			left join
+			(
+				select distinct(J.SIGU_CODE) as SIGU_CODE, count(1) as CNT 
+				<include refid="listJobAdGenericPartSql"></include>
+				group by SIGU_CODE
+			) A
+			on L.SIGU_CODE=A.SIGU_CODE;
+	</select>
+	<!-- 
+	<select id="getJobAdDashboard2" resultType="dentiq.api.model.JobAdGroupByLocationCode">
+		select L.SIGU_CODE as LOCATION_CODE, L.SIGU_CODE_NAME as LOCATION_CODE_NAME,
+			L.SIDO_CODE as SIDO_CODE, L.SIDO_CODE_NAME as SIDO_CODE_NAME, 
+			L.SIGU_CODE as SIGU_CODE, L.SIGU_CODE_NAME as SIGU_CODE_NAME, IFNULL(A.CNT,0) as CNT
+		from
+			(
+				select SIDO_CODE, SIGU_CODE, SIDO_CODE_NAME, SIGU_CODE_NAME from LOCATION_CODE
+				where SIDO_CODE in (				
+					<foreach item="sidoCode" index="index" collection="searchCriteria.locationCodeCriteria.sidoCodeList" separator=",">
+						#{sidoCode}
+					</foreach>
+					)
+				
+			) L			
+			left join
+			(
+				select distinct(J.SIGU_CODE) as SIGU_CODE, J.SIDO_CODE as SIDO_CODE, count(1) as CNT 
+				<include refid="listJobAdGenericPartSql"></include>
+				group by SIGU_CODE, SIDO_CODE
+			) A
+			on L.SIGU_CODE=A.SIGU_CODE;
+	</select>
+	-->
+	<select id="getJobAdDashboard2BySido" resultType="dentiq.api.model.JobAdGroupByLocationCode">
+		select L.LOCATION_CODE as LOCATION_CODE, L.LOCATION_TYPE as LOCATION_TYPE,
+			   L.SIDO_CODE as SIDO_CODE,     L.SIDO_NAME as SIDO_NAME,
+			   IFNULL(A.CNT,0) as CNT
+		from
+			(
+				select LOCATION_CODE, LOCATION_TYPE, SIDO_CODE, SIDO_NAME from LOCATION_CODE where LOCATION_TYPE='1'
+			) L
+			left join
+			(
+				select distinct(SIDO_CODE) as SIDO_CODE, count(1) as CNT
+				<include refid="listJobAdGenericPartSql"></include>
+				group by SIDO_CODE
+			) A
+			on L.SIDO_CODE=A.SIDO_CODE;
+	</select>
+	<!-- 
+	<select id="getJobAdDashboard2BySido" resultType="dentiq.api.model.JobAdGroupByLocationCode">
+		select L.SIDO_CODE as LOCATION_CODE, L.SIDO_CODE_NAME as LOCATION_CODE_NAME,
+				L.SIDO_CODE as SIDO_CODE, L.SIDO_CODE_NAME as SIDO_CODE_NAME, IFNULL(A.CNT,0) as CNT
+		from
+			(
+				select distinct(SIDO_CODE), SIDO_CODE_NAME from LOCATION_CODE
+			) L
+			left join
+			(
+				select distinct(SIDO_CODE) as SIDO_CODE, count(1) as CNT
+				<include refid="listJobAdGenericPartSql"></include>
+				group by SIDO_CODE
+			) A
+			on L.SIDO_CODE=A.SIDO_CODE;
+	</select>
+	-->
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<!-- 
+		정상적인 순서
+		
+		1. 먼저 HOSPITAL_GEO에서 거리에 해당하는 것들을 찾는다.
+		2. 1의 행들에 대하여, HOSPITAL과 병원id로 outer join. ('병원id'에 대하여, HOSPITAL의 행수 >= HOSPITAL_GEO의 행수. 결과는 HOSPITAL의 행수)
+		3. 2의 행들에 대하여, JOB_AD과     병원id로 outer join. ('병원id'에 대하여, JOB_AD의 행수 <> [2]의 행수.            결과는 JOB_AD의 행수)
+		4. 3의 행들에 대하여, 기타 조회 조건으로 처리
+	
+	 -->
+	<!-- 조건에 맞는 공고의 리스트를 가져온다.	 -->
+	<select id="listJobAdsGeneric2" resultType="dentiq.api.model.JobAd">
+		select	J.ID as ID, J.TITLE as TITLE, 
+				J.HOSPITAL_ID as HOSPITAL_ID, J.HOSPITAL_NAME as HOSPITAL_NAME, J.ADDR as ADDR,
+				J.SIDO_CODE, J.SIGU_CODE, J.LOGO_URL, J.ATTR_VAL
+				<if test="searchCriteria !=null and searchCriteria.distanceCriteria != null">
+					, DISTANCE_VIEW.DISTANCE as DISTANCE
+				</if>
+		
+		<include refid="listJobAdGenericPartSql"></include>
+		
+		<if test="searchCriteria !=null and searchCriteria.sortCriteria != null">
+			<trim prefix="order by">
+				<foreach item="sortColumn" index="index" collection="searchCriteria.sortCriteria" separator=",">
+					${sortColumn}
+				</foreach>
+			</trim>
+		</if>
+		<if test="searchCriteria !=null and searchCriteria.sortCriteria == null and searchCriteria.distanceCriteria != null">
+			order by DISTANCE
+		</if>
+		
+		
+		<if test="searchCriteria !=null and searchCriteria.pageCriteria != null">
+			limit #{searchCriteria.pageCriteria.startIndexOnPage}, #{searchCriteria.pageCriteria.itemCountPerPage}
+		</if>
+		<if test="searchCriteria ==null or searchCriteria.pageCriteria == null">
+			limit 0, 10
+		</if>
+		
+	</select>
+	
+	
+	
+	<!-- =========================================================================== -->
+	<!-- =========================================================================== -->
+	<!-- =========================================================================== -->
+	
+	<!-- listJobAdsGeneric2과  countJobAds에서 사용하는 SQL문장 (FROM절, WHERE절)	-->
+	<sql id="listJobAdGenericPartSql">
+		from JOB_AD_VIEW J
+			<if test="searchCriteria !=null and searchCriteria.distanceCriteria != null">
+				,
+				(
+					select
+						HOSPITAL_ID, X_POS, Y_POS, 
+						ST_Distance(HOSPITAL_GEO.geo, POINT(#{searchCriteria.distanceCriteria.xPos}, #{searchCriteria.distanceCriteria.yPos})) as DISTANCE
+					from HOSPITAL_GEO 
+					where
+						ST_Distance(HOSPITAL_GEO.geo, POINT(#{searchCriteria.distanceCriteria.xPos}, #{searchCriteria.distanceCriteria.yPos})) <![CDATA[ <= ]]> #{searchCriteria.distanceCriteria.distance}
+				) DISTANCE_VIEW
+			</if>
+		
+		where	1=1
+			<if test="searchCriteria !=null and searchCriteria.hospitalName != null">
+				and J.HOSPITAL_NAME like CONCAT('%',#{searchCriteria.hospitalName},'%')
+			</if>
+			
+			<if test="searchCriteria !=null and searchCriteria.hospitalAddr != null">
+				and J.ADDR like CONCAT('%',#{searchCriteria.hospitalAddr},'%')
+			</if>
+	
+			<if test="searchCriteria !=null and searchCriteria.distanceCriteria != null">
+				and J.HOSPITAL_ID=DISTANCE_VIEW.HOSPITAL_ID
+			</if>
+			
+			<if test="searchCriteria !=null and searchCriteria.adType != null">
+				and J.AD_TYPE=#{searchCriteria.adType}
+			</if>
+			
+			
+			<if test="searchCriteria !=null and searchCriteria.locationCodeCriteria != null">
+				<trim prefix=" and ( " suffix=" ) ">
+					<if test = "searchCriteria.locationCodeCriteria.sidoCodeList != null">
+						<trim prefix="J.SIDO_CODE in">
+							<foreach item="sidoCode" index="index" collection="searchCriteria.locationCodeCriteria.sidoCodeList" open="(" separator="," close=")">
+				        		#{sidoCode}
+							</foreach>
+						</trim>
+					</if>
+					
+					<if test="searchCriteria.locationCodeCriteria.sidoCodeList != null and searchCriteria.locationCodeCriteria.siguCodeList != null">
+						or
+					</if>
+					
+					<if test = "searchCriteria.locationCodeCriteria.siguCodeList != null">
+						<trim prefix="J.SIGU_CODE in">
+							<foreach item="siguCode" index="index" collection="searchCriteria.locationCodeCriteria.siguCodeList" open="(" separator="," close=")">
+				        		#{siguCode}
+							</foreach>
+						</trim>
+					</if>
+				</trim>
+			</if>
+			
+			
+			<if test="searchCriteria !=null and searchCriteria.attrGroupList != null">
+				<trim prefix="and J.ID in  ( select distinct JOB_AD_ID from ( " prefixOverrides="AND |OR"  suffix=" ) TEMP_TABLE)">
+					<foreach item="attrGroup" index="index" collection="searchCriteria.attrGroupList" open="(" separator=" intersect " close=")">
+						
+						select distinct JOB_AD_ID from JOB_AD_ATTR where ATTR_GROUP_ID=#{attrGroup.groupId}
+						<if test="attrGroup.attrList != null">
+							<trim prefix=" and ATTR_CODE_ID in " prefixOverrides="AND |OR ">
+								<foreach item="attr" index="index" collection="attrGroup.attrList" open="(" separator="," close=")">
+									#{attr.codeId}
+								</foreach>
+							</trim>
+						</if>
+						
+					</foreach>
+				</trim>
+			</if>			
+				
+	</sql>
+	
+	<!-- For TESTING O.N.L.Y.      공고 속성 (고용형태, 채용부분, 담당업무)를 조회한다. -->
+	<select id="listJobAdAttrs" resultType="dentiq.api.model.JobAd">
+			select J.ID from JOB_AD_VIEW J where 1=1
+			<if test="searchCriteria !=null and searchCriteria.attrGroupList != null">
+				<trim prefix="and J.ID in  ( select distinct JOB_AD_ID from ( " prefixOverrides="AND |OR"  suffix=" ) TEMP_TABLE)">
+					<foreach item="attrGroup" index="index" collection="searchCriteria.attrGroupList" open="(" separator=" intersect " close=")">
+						
+						select distinct JOB_AD_ID from JOB_AD_ATTR where ATTR_GROUP_ID=#{attrGroup.groupId}
+						<if test="attrGroup.attrList != null">
+							<trim prefix=" and ATTR_CODE_ID in " prefixOverrides="AND |OR ">
+								<foreach item="attr" index="index" collection="attrGroup.attrList" open="(" separator="," close=")">
+									#{attr.codeId}
+								</foreach>
+							</trim>
+						</if>
+						
+					</foreach>
+				</trim>
+			</if>
+			
+	</select>
+	
+
+</mapper>
+

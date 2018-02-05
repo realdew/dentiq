@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dentiq.api.repository.UserMapper">
+
+	<!-- 
+	<update id="updateUserAddr">
+		update USER set ADDR_ROAD=#{addrRoad}, ADDR_JIBUN=#{addJibun}, ADDR_DETAIL=#{addrDetail}, ZIP_NO=#{zipNo} where ID=#{userId}
+	</update>
+	-->
+	
+	<update id="updateUserAddr2">
+		update USER set 
+			ROAD_ADDR=#{juso.roadAddr}, ROAD_ADDR_PART1=#{juso.roadAddrPart1}, JIBUN_ADDR=#{juso.jibunAddr}, 
+			ADM_CD=#{juso.admCd}, RN_MGT_SN=#{juso.rnMgtSn}, UDRT_YN=#{juso.udrtYn}, BULD_MNNM=#{juso.buldMnnm}, BULD_SLNO=#{juso.buldSlno},			
+			ADDR_MAIN=#{juso.addrMain}, ADDR_DETAIL=#{juso.addrDetail}, ZIP_NO=#{juso.zipNo},
+			ENT_X=#{entX}, ENT_Y=#{entY}
+		where ID=#{userId}
+	</update>
+	
+	<select id="getUserAddr" resultType="dentiq.api.model.juso.AddrJuso">
+		select ROAD_ADDR, ROAD_ADDR_PART1, JIBUN_ADDR, 
+			ADM_CD, RN_MGT_SN, UDRT_YN, BULD_MNNM, BULD_SLNO,			
+			ADDR_MAIN, ADDR_DETAIL, ZIP_NO,
+			ENT_X, ENT_Y
+		from USER
+		where ID=#{userId}
+	</select>
+	
+	<insert id="createUser" useGeneratedKeys="true" keyProperty="id" parameterType="dentiq.api.model.User">
+		insert into USER (EMAIL, PASSWORD, NAME, USE_YN, PERM_LOGIN)
+		values (#{email}, SHA1(#{password}), #{name}, 'Y', #{permLogin});
+	</insert>
+	
+	<insert id="createBizUser" useGeneratedKeys="true" keyProperty="id" parameterType="dentiq.api.model.User">
+		insert into USER (EMAIL, PASSWORD, NAME, USE_YN, BIZ_REG_NO, PERM_LOGIN)
+		values (#{email}, SHA1(#{password}), #{name}, 'Y', #{bizRegNo}, #{permLogin});
+	</insert>
+	
+	<select id="loginByEmailAndPassword" resultType="dentiq.api.model.User">
+		select * from USER
+			where	USE_YN='Y'
+				and EMAIL=#{email} and PASSWORD=SHA1(#{password})
+	</select>
+	
+	<select id="getUserByEmail" resultType="dentiq.api.model.User">
+		select * from USER where EMAIL=#{email} and USE_YN='Y'
+	</select>
+	
+	<select id="getUsers" resultType="dentiq.api.model.User">
+		select * from USER where USE_YN='Y'
+	</select>
+	
+	<select id="countUsersByEmail" resultType="int">
+		select count(ID) from USER where EMAIL=#{email} and USE_YN='Y'
+	</select>
+	
+	<select id="countUsersByBizRegNo" resultType="int">
+		select count(ID) from USER where BIZ_REG_NO=#{bizRegNo} and USE_YN='Y' and USER_TYPE='2'
+	</select>
+	
+	
+	<select id="getUserById" resultType="dentiq.api.model.User">
+		select * from USER where ID=#{id} and USE_YN='Y'
+	</select>
+	
+	
+	
+	<select id="countHospitalsByBizRegNo" resultType="int">
+		select count(ID) from HOSPITAL where BIZ_REG_NO=#{bizRegNo} and USE_YN='Y';
+	</select>
+	
+	
+	<!-- 
+	<update id="updateUserById">
+		update USER set NAME=#{name} 
+		where ID=#{id}
+	</update>
+	<update id="updateUserByEmail">
+		update USER set NAME=#{name} 
+		where EMAIL=#{email}
+	</update>
+	
+
+	<update id="deleteUserById">
+		update USER set USE_YN='N' where ID=#{id}
+	</update>
+	<update id="deleteUserByEmail">
+		update USER set USE_YN='N' where EMAIL=#{email}
+	</update>
+	
+	-->
+
+</mapper>
+

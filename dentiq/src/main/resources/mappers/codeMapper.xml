@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dentiq.api.repository.CodeMapper">
+
+	<select id="listLocationCode" resultType="dentiq.api.model.LocationCode">
+		select LOCATION_CODE, LOCATION_TYPE, SIDO_CODE, SIDO_NAME, SIGU_CODE, SIGU_NAME from LOCATION_CODE
+		order by SIDO_CODE, SIGU_CODE
+	</select>
+	
+	<select id="listSidoCode" resultType="dentiq.api.model.LocationCode">
+		select LOCATION_CODE, LOCATION_TYPE, SIDO_CODE, SIDO_NAME, SIGU_CODE, SIGU_NAME from LOCATION_CODE
+		where LOCATION_TYPE='1'
+		order by SIDO_CODE, SIGU_CODE
+	</select>
+	
+	<select id="listSiguCode" resultType="dentiq.api.model.LocationCode">
+		select LOCATION_CODE, LOCATION_TYPE, SIDO_CODE, SIDO_NAME, SIGU_CODE, SIGU_NAME from LOCATION_CODE
+		where LOCATION_TYPE='2'
+		order by SIDO_CODE, SIGU_CODE
+	</select>
+	
+
+	<!--  주의 : 정렬 순서가 DISPLAY_ORDER가 아니다. jobAdAttrGroup를 생성할 때, GROUP_ID 순서로 query되었을 것을 필요로 하기 때문이다. -->
+	<select id="getJobAdAttrList" resultType="dentiq.api.model.JobAdAttr">
+		select GROUP_ID, GROUP_DISPLAY_ORDER, GROUP_NAME, CODE_ID, CODE_DISPLAY_ORDER, CODE_NAME, DEPRECATED_YN
+		from JOB_AD_ATTR_CODE
+		order by GROUP_ID, CODE_ID
+	</select>
+
+</mapper>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dentiq.api.repository.HospitalMapper">
+
+	<insert id="createHospital" useGeneratedKeys="true" keyProperty="id" parameterType="dentiq.api.model.Hospital">
+		insert into HOSPITAL (
+			ID, BIZ_REG_NO, BIZ_REG_NAME, Y_KIHO, USER_ID, NAME, CL_CODE, CL_CODE_NAME, 
+			LOCATION_CODE, SIDO_CODE, SIDO_NAME, SIGU_CODE, SIGU_NAME, 
+			ADDR_MAIN, ADDR_DETAIL, JIBUN_ADDR, ADM_CD, RN_MGT_SN, UDRT_YN, BULD_MNNM, BULD_SLNO, BD_NM, EMD_NM, ENT_X, ENT_Y, ZIP_NO,
+			TEL_NO, HOSP_URL, 
+			EMAIL, CEO_NAME, EST_DATE, TDR_CNT, GDR_CNT, IDR_CNT, RDR_CNT, SDR_CNT, X_POS, Y_POS, LOGO_URL, 
+			HOSPITAL_TYPE_CODE, HOSPITAL_TYPE_TEXT,			
+			HOLIDAY_VALUE, HOLIDAY_TEXT, WORKING_TIME_WEEKDAY_START, WORKING_TIME_WEEKDAY_END, WORKING_TIME_WEEKEND_START, WORKING_TIME_WEEKEND_END, WORKING_TIME_TEXT, LUNCH_TIME_START, LUNCH_TIME_END, 
+			CLINIC_SUBJECT, TOTAL_MEMBER_CNT,
+			DEFAULT_HR_TEL_NO, DEFAULT_HR_OFFICER_NAME, DEFAULT_HR_EMAIL
+		)
+		values (
+			#{id}, #{bizRegNo}, #{bizRegName}, #{yKiho}, #{userId}, #{name}, #{clCode}, #{clCodeName}, 
+			#{locationCode}, #{sidoCode}, #{sidoName}, #{siguCode}, #{siguName},
+			#{addrMain}, #{addrDetail}, #{jibunAddr}, #{admCd}, #{rnMgtSn}, #{udrtYn}, #{buldMnnm}, #{buldSlno}, #{bdNm}, #{emdNm}, #{entX}, #{entY}, #{zipNo},
+			#{telNo}, #{hospUrl},
+			#{email}, #{ceoName}, #{estDate}, #{tdrCnt}, #{gdrCnt}, #{idrCnt}, #{rdrCnt}, #{sdrCnt}, #{xPos}, #{yPos}, #{logoUrl},
+			#{hospitalTypeCode}, #{hospitalTypeText},
+			#{holidayValue}, #{holidayText}, #{workingTimeWeekdayStart}, #{workingTimeWeekdayEnd}, #{workingTimeWeekendStart}, #{workingTimeWeekendEnd}, #{workingTimeText}, #{lunchTimeStart}, #{lunchTimeEnd},
+			#{clinicSubject}, #{totalMemberCnt},
+			#{defaultHrTelNo}, #{defaultHrOfficerName}, #{defaultHrEmail}
+		)
+	</insert>
+	
+	<!--
+	<select id="countHospitals"		resultType="int">
+		select count(*) from HOSPITAL
+	</select>
+	
+	
+	<select id="readHospital"		resultType="dentiq.api.model.Hospital">
+		select	* from HOSPITAL where ID=#{id}
+	</select>
+	
+	
+	<select id="listHospitals"		resultType="dentiq.api.model.Hospital">
+		select	* from HOSPITAL limit #{startIndexOnPage}, #{itemCountPerPage}
+	</select>
+	-->
+	
+	<!--  searchHospitals 필요함 -->
+
+</mapper>
+
+
+
+<!-- 
+<mapper namespace="dentiq.api.repository.HospitalMapperOLD">
+	
+	<select id="countHospitals"		resultType="int">
+		select count(*) from HOSPITAL
+	</select>
+	
+	<select id="readHospital"		resultType="dentiq.api.model.Hospital">
+		select	ID				 as "id", 
+				Y_KIHO			 as "yKiho", 
+				NAME			 as "name", 
+				CL_CODE			 as "clCode", 
+				CL_CODE_NAME	 as "clCodeName", 
+				SIDO_CODE		 as "sidoCode", 
+				SIDO_CODE_NAME	 as "sidoCodeName", 
+				SIGU_CODE		 as "siguCode", 
+				SIGU_CODE_NAME	 as "siguCodeName", 
+				EMDONG_NAME		 as "emdongName", 
+				POST_NO			 as "postNo", 
+				ADDR			 as "addr", 
+				TEL_NO			 as "telNo", 
+				HOSP_URL		 as "hospUrl", 
+				EST_DATE		 as "estDate", 
+				TDR_CNT			 as "tdrCnt", 
+				GDR_CNT			 as "gdrCnt", 
+				IDR_CNT			 as "idrCnt", 
+				RDR_CNT			 as "rdrCnt", 
+				SDR_CNT			 as "sdrCnt", 
+				X_POS			 as "xPos", 
+				Y_POS			 as "yPos", 
+				USE_YN			 as "useYn" 
+			from HOSPITAL
+			where ID=#{id}
+	</select>
+	
+	<select id="listHospitals"		resultType="dentiq.api.model.Hospital">
+		select	ID				 as "id", 
+				Y_KIHO			 as "yKiho", 
+				NAME			 as "name", 
+				CL_CODE			 as "clCode", 
+				CL_CODE_NAME	 as "clCodeName", 
+				SIDO_CODE		 as "sidoCode", 
+				SIDO_CODE_NAME	 as "sidoCodeName", 
+				SIGU_CODE		 as "siguCode", 
+				SIGU_CODE_NAME	 as "siguCodeName", 
+				EMDONG_NAME		 as "emdongName", 
+				POST_NO			 as "postNo", 
+				ADDR			 as "addr", 
+				TEL_NO			 as "telNo", 
+				HOSP_URL		 as "hospUrl", 
+				EST_DATE		 as "estDate", 
+				TDR_CNT			 as "tdrCnt", 
+				GDR_CNT			 as "gdrCnt", 
+				IDR_CNT			 as "idrCnt", 
+				RDR_CNT			 as "rdrCnt", 
+				SDR_CNT			 as "sdrCnt", 
+				X_POS			 as "xPos", 
+				Y_POS			 as "yPos", 
+				USE_YN			 as "useYn" 
+			from HOSPITAL
+			limit #{startIndexOnPage}, #{itemCountPerPage}
+	</select>
+
+
+
+</mapper>
+-->
