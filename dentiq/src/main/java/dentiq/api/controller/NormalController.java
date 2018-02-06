@@ -23,7 +23,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import dentiq.api.model.BizUser;
+
 import dentiq.api.model.Hospital;
 import dentiq.api.model.JobAd;
 import dentiq.api.model.JsonArrayValue;
@@ -33,6 +33,7 @@ import dentiq.api.model.juso.AddrJuso;
 import dentiq.api.service.HospitalService;
 import dentiq.api.service.JobSeekerService;
 import dentiq.api.service.UserService;
+import dentiq.api.service.exception.LogicalException;
 
 /**
  * 로그인하지 않고 사용할 수 있는 API 세트
@@ -355,41 +356,71 @@ public class NormalController {
 		return null;
 	}
 	
-	/*
-	//TODO 회원가입  파라미터 방식으로 바꿀 것
-	@RequestMapping(value="/user/", method=RequestMethod.POST)
-	public ResponseEntity<JsonResponse<User>> createUser(@RequestBody User user) {
-	}
-	*/
-	//일반 회원 가입
-	@RequestMapping(value="/user/", method=RequestMethod.POST)
+	
+//	@RequestMapping(value="/user/", method=RequestMethod.POST)
+//	public ResponseEntity<JsonResponse<User>> createUser(@RequestBody User user) {
+	
+	@RequestMapping(value="/user/", method=RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public ResponseEntity<JsonResponse<User>> createUser(
-				@RequestParam(value="bizRegNo",		required=false)		String bizRegNo,
-				@RequestParam(value="email",		required=true)		String email,
-				@RequestParam(value="password",		required=true)		String password,
-				@RequestParam(value="permLogin",	defaultValue="0")	String permLogin		// 로그인상태유지(0:유지안함, 1:유지함)
-			) {
-		
-		//logger.info("파라미터 받았음 [" + email + "], [" + password + "], [" + name + "]");
-		//System.out.println("-- 파라미터 받았음 [" + email + "], [" + password + "], [" + name + "]");
-		
-				
+										//@RequestBody User newUser
+										User newUserRequested) {
 		
 		JsonResponse<User> res = new JsonResponse<User>();
 		try {
-			User newUser;
-			if ( bizRegNo!=null )	// 사업자(병원) 회원 가입
-				newUser = userService.createBizUser(bizRegNo, email, password, permLogin);
-			else					// 일반 회원 가입
-				newUser = userService.createUser(email, password, permLogin);
-			newUser.filter();
-			res.setResponseData(newUser);
+			User newUserCreated = null;
+			
+			newUserCreated = userService.createCommonUser(newUserRequested);
+			
+			res.setResponseData(newUserCreated);
 		} catch(Exception ex) {
 			res.setException(ex);
 		}
+		
 		return new ResponseEntity<JsonResponse<User>>(res, HttpStatus.CREATED);
 	}
 	
+//	/*
+//	//TODO 회원가입  파라미터 방식으로 바꿀 것
+//	@RequestMapping(value="/user/", method=RequestMethod.POST)
+//	public ResponseEntity<JsonResponse<User>> createUser(@RequestBody User user) {
+//	}
+//	*/
+//	//일반 회원 가입
+//	@RequestMapping(value="/user/", method=RequestMethod.POST)
+//	public ResponseEntity<JsonResponse<User>> createUser(
+//				@RequestParam(value="bizRegNo",		required=false)		String bizRegNo,
+//				@RequestParam(value="email",		required=true)		String email,
+//				@RequestParam(value="password",		required=true)		String password,
+//				@RequestParam(value="permLogin",	defaultValue="0")	String permLogin		// 로그인상태유지(0:유지안함, 1:유지함)
+//			) {
+//		
+//		//logger.info("파라미터 받았음 [" + email + "], [" + password + "], [" + name + "]");
+//		//System.out.println("-- 파라미터 받았음 [" + email + "], [" + password + "], [" + name + "]");
+//		
+//				
+//		
+//		JsonResponse<User> res = new JsonResponse<User>();
+//		try {
+//			User newUser;
+//			if ( bizRegNo!=null )	// 사업자(병원) 회원 가입
+//				newUser = userService.createBizUser(bizRegNo, email, password, permLogin);
+//			else					// 일반 회원 가입
+//				newUser = userService.createUser(email, password, permLogin);
+//			newUser.filter();
+//			res.setResponseData(newUser);
+//		} catch(Exception ex) {
+//			res.setException(ex);
+//		}
+//		return new ResponseEntity<JsonResponse<User>>(res, HttpStatus.CREATED);
+//	}
+	
+	/**
+	 * 사업자 번호가 동일한 것이 있는지 확인용
+	 * 현재는 사업자번호를 입력받아서 개수를 리턴한다.
+	 * @param type
+	 * @param value
+	 * @return
+	 */
 	@RequestMapping(value="/user/count/", method=RequestMethod.GET)
 	public ResponseEntity<JsonResponse<Integer>> countBizRegNo(
 			@RequestParam(value="type",			required=true)		String type,

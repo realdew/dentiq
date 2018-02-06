@@ -6,7 +6,6 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
-import dentiq.api.model.BizUser;
 import dentiq.api.model.User;
 import dentiq.api.model.juso.AddrCoordinate;
 import dentiq.api.model.juso.AddrJuso;
@@ -21,9 +20,11 @@ public interface UserMapper {
 
 	public User getUserByEmail(@Param("email") String email) throws Exception;
 	
-	public int createUser(User user) throws Exception;
+//	public int createUser(User user) throws Exception;
+//	
+//	public int createBizUser(BizUser user) throws Exception;
 	
-	public int createBizUser(BizUser user) throws Exception;
+	public int createCommonUser(User user) throws Exception;
 	
 	public List<User> getUsers() throws Exception;
 	

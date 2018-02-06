@@ -27,6 +27,20 @@
 		where ID=#{userId}
 	</select>
 	
+	<insert id="createCommonUser" useGeneratedKeys="true" keyProperty="id" parameterType="dentiq.api.model.User">
+		insert into USER (
+					EMAIL, NAME, PASSWORD, USER_TYPE, BIZ_REG_NO, USE_YN, 
+					KEEPING_LOGIN_TYPE, EULA_VER, CUPI_VER, 
+					AGREEMENT_NOTICE_NEWS_YN, AGREEMENT_HIRING_NEWS_YN, AGREEMENT_EVENT_YN, AGREEMENT_AD_YN
+				)
+		values (
+					#{email}, #{name}, SHA1(#{password}), #{userType}, #{bizRegNo}, 'Y',
+					#{keepingLoginType}, #{eulaVer}, #{cupiVer},
+					#{agreementNoticeNewsYn}, #{agreementHiringNewsYn}, #{agreementEventYn}, #{agreementAdYn}
+				);
+	</insert>
+	
+	<!--
 	<insert id="createUser" useGeneratedKeys="true" keyProperty="id" parameterType="dentiq.api.model.User">
 		insert into USER (EMAIL, PASSWORD, NAME, USE_YN, PERM_LOGIN)
 		values (#{email}, SHA1(#{password}), #{name}, 'Y', #{permLogin});
@@ -36,6 +50,8 @@
 		insert into USER (EMAIL, PASSWORD, NAME, USE_YN, BIZ_REG_NO, PERM_LOGIN)
 		values (#{email}, SHA1(#{password}), #{name}, 'Y', #{bizRegNo}, #{permLogin});
 	</insert>
+	-->
+	
 	
 	<select id="loginByEmailAndPassword" resultType="dentiq.api.model.User">
 		select * from USER

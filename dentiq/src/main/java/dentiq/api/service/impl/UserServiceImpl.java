@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import dentiq.api.model.BizUser;
+
 import dentiq.api.model.Hospital;
 import dentiq.api.model.JobAd;
 import dentiq.api.model.User;
@@ -84,49 +84,77 @@ public class UserServiceImpl implements UserService {
 	public AddrJuso getUserAddr(Integer userId) throws Exception {
 		return mapper.getUserAddr(userId);
 	}
-	
+//	
+//	@Override
+//	public User createUser(User user) throws Exception {
+//		if ( existsUserByEmail(user.getEmail()) ) {
+//			throw new ConflictUserException(user.getEmail());
+//		}
+//		
+//		int updatedRows = mapper.createUser(user);
+//		if ( updatedRows==1 ) return user;
+//		else throw new LogicalException("");
+//	}
+//		
+//	@Override
+//	public User createUser(String email, String password, String permLogin) throws Exception {
+//		User user = new User();
+//		user.setEmail(email);
+//		user.setPassword(password);
+//		user.setPermLogin(permLogin);
+//		
+//		return createUser(user);
+//	}
+//	
+//	
+//	@Override
+//	public BizUser createBizUser(String bizRegNo, String email, String password, String permLogin) throws Exception {
+//		BizUser user = new BizUser();
+//		user.setEmail(email);
+//		user.setPassword(password);
+//		user.setBizRegNo(bizRegNo);
+//		user.setPermLogin(permLogin);
+//		
+//		// 사업자 번호 중복 확인
+//		if ( existsBizRegNo(bizRegNo) ) throw new LogicalException("사업자번호 기존재");
+//		
+//		// 기존 가업 여부(email) 확인
+//		if ( existsUserByEmail(user.getEmail()) ) throw new ConflictUserException(email);
+//		
+//		// 등록 실행
+//		int updatedRows = mapper.createBizUser(user);
+//		if ( updatedRows==1 ) return user;
+//		else throw new LogicalException("");
+//		
+//	}
 	@Override
-	public User createUser(User user) throws Exception {
-		if ( existsUserByEmail(user.getEmail()) ) {
-			throw new ConflictUserException(user.getEmail());
+	public User createCommonUser(User user) throws Exception {
+		
+		if ( user.getUserType()==User.USER_TYPE_HOSPITAL ) {
+			// 사업자 번호 중복 확인
+			String bizRegNo = user.getBizRegNo();
+			if ( bizRegNo == null ) throw new LogicalException("사업자번호 미입력");
+			if ( existsBizRegNo(bizRegNo) ) throw new LogicalException("사업자번호 기존재");
 		}
-		
-		int updatedRows = mapper.createUser(user);
-		if ( updatedRows==1 ) return user;
-		else throw new LogicalException("");
-	}
-		
-	@Override
-	public User createUser(String email, String password, String permLogin) throws Exception {
-		User user = new User();
-		user.setEmail(email);
-		user.setPassword(password);
-		user.setPermLogin(permLogin);
-		
-		return createUser(user);
-	}
-	
-	
-	@Override
-	public BizUser createBizUser(String bizRegNo, String email, String password, String permLogin) throws Exception {
-		BizUser user = new BizUser();
-		user.setEmail(email);
-		user.setPassword(password);
-		user.setBizRegNo(bizRegNo);
-		user.setPermLogin(permLogin);
-		
-		// 사업자 번호 중복 확인
-		if ( existsBizRegNo(bizRegNo) ) throw new LogicalException("사업자번호 기존재");
+				
 		
 		// 기존 가업 여부(email) 확인
-		if ( existsUserByEmail(user.getEmail()) ) throw new ConflictUserException(email);
+		if ( existsUserByEmail(user.getEmail()) ) throw new ConflictUserException(user.getEmail());
 		
-		// 등록 실행
-		int updatedRows = mapper.createBizUser(user);
-		if ( updatedRows==1 ) return user;
+		// 약관 및 개인정보 활용 동의 확인
+		if ( user.getEulaVer()==null || user.getEulaVer().trim().equals("") )
+			throw new LogicalException("약관 버전 입력 안됨");
+		
+		if ( user.getCupiVer()==null || user.getCupiVer().trim().equals("") )
+			throw new LogicalException("개인정보활용 버전 입력 안됨");
+				
+		
+		int updatedRows = mapper.createCommonUser(user);	// MyBatis가 insert성공되면, user 객체에 ID가 자동 세팅됨
+		if ( updatedRows==1 ) return mapper.getUserById(user.getId());
 		else throw new LogicalException("");
-		
 	}
+	
+	
 	
 	@Override
 	public int countUsers(String searchType, String searchValue) throws Exception {

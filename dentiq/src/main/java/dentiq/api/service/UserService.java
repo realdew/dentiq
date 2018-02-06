@@ -2,7 +2,7 @@ package dentiq.api.service;
 
 import java.util.List;
 
-import dentiq.api.model.BizUser;
+
 import dentiq.api.model.Hospital;
 import dentiq.api.model.JobAd;
 import dentiq.api.model.User;
@@ -16,13 +16,14 @@ import dentiq.api.service.exception.UserNotFoundException;
 public interface UserService {
 	
 	/* 회원 가입 */
-	@Deprecated
-	public User createUser(User user) throws Exception;
-	public User createUser(String email, String password, String permLogin) throws Exception;
+//	@Deprecated
+//	public User createUser(User user) throws Exception;
+//	public User createUser(String email, String password, String permLogin) throws Exception;
+//	
+//	/* 사업자 회원 등록 */
+//	public BizUser createBizUser(String bizRegNo, String email, String password, String permLogin) throws Exception;
 	
-	/* 사업자 회원 등록 */
-	public BizUser createBizUser(String bizRegNo, String email, String password, String permLogin) throws Exception;
-	
+	public User createCommonUser(User user) throws Exception;
 	
 	
 	/* 회원 존재 여부 확인 */

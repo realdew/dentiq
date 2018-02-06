@@ -112,16 +112,17 @@ public class LocationCode {
 		}
 	}
 	
+	@JsonIgnore
 	public boolean isSido() {
 		if ( this.type.equals(SIDO_CODE) ) return true;
 		else return false;
 	}
-	
+	@JsonIgnore
 	public boolean isSigu() {
 		if ( this.type.equals(SIGU_CODE) ) return true;
 		else return false;
 	}
-	
+	@JsonIgnore
 	public String test() {
 		return " (test) " + this.toString();
 	}
