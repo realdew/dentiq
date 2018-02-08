@@ -55,6 +55,8 @@ public class User {
 	@Getter @Setter private String agreementEventYn;		// 선택정보수신 동의 : 이벤트
 	@Getter @Setter private String agreementAdYn;			// 선택정보수신 동의 : 광고
 	
+	//@Getter @Setter private AddrJuso addrJuso;
+	
 	
 	
 	// For Testing Only

@@ -9,23 +9,22 @@ import org.springframework.stereotype.Service;
 
 import dentiq.api.model.Hospital;
 import dentiq.api.model.JobAd;
+import dentiq.api.model.LocationCode;
 import dentiq.api.model.User;
 import dentiq.api.model.juso.AddrJuso;
-import dentiq.api.model.kakao.coordinate.KakaoCoordinateResult;
-import dentiq.api.model.kakao.coordinate.KakaocoordinateDocument;
+import dentiq.api.repository.CodeMapper;
 import dentiq.api.repository.UserMapper;
 import dentiq.api.service.UserService;
 import dentiq.api.service.exception.ConflictUserException;
 import dentiq.api.service.exception.InvalidPasswordException;
 import dentiq.api.service.exception.LogicalException;
 import dentiq.api.service.exception.UserNotFoundException;
-import dentiq.api.util.JusoUtil;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-	@Autowired
-	private UserMapper mapper;
+	@Autowired private UserMapper mapper;
+	@Autowired private CodeMapper codeMapper;
 	
 
 //	@Override
@@ -35,48 +34,78 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void updateUserAddr(Integer userId, AddrJuso juso) throws Exception {		
 		
-		// 좌표 정보 조회. 실패할 경우에는 skip. UI에서 다음에 처리
-		String entX = null;
-		String entY = null;
-		try {
-			JusoUtil jusoUtil = new JusoUtil();
-			KakaoCoordinateResult result = jusoUtil.searchCoordinateWithKakao(juso.getRoadAddrPart1());		// 도로명 주소 첫번째 PART만 사용하여 좌표를 구한다.
-			List<KakaocoordinateDocument> coordinatelist = result.getDocuments();
-			if ( coordinatelist==null || coordinatelist.size()==0 ) {
-				// 검색이 안된 상황임.
-				System.out.println("FATAL : 카카오 좌표 검색 결과 없음");
-				throw new Exception("FATAL : 카카오 좌표 검색 결과 없음");
-			}
-			
-			if ( coordinatelist.size() != 1 ) {
-				System.out.println("WARN : 카카오 좌표 검색 결과가 1이 아님.");
-				throw new Exception("WARN : 카카오 좌표 검색 결과가 1이 아님.");
-			}
-			
-			entX = coordinatelist.get(0).getRoad_address().getX();
-			entY = coordinatelist.get(0).getRoad_address().getY();
-			
-			
-			
-			
-			/* 기존 : 지역개발원 juso.go.kr 사용 ===> 입력값이 너무 많은 문제가 있음
-			AddrCoordinate[] coordinates = jusoUtil.searchCoordinate(juso);
-			if ( coordinates!=null && coordinates.length>0 ) {
-				// 첫번째 값만 사용한다.
-				
-				System.out.println("좌표 검색 : 선택된 주소 [" + juso + "] ==> \n\t ==>" + coordinates[0]);
-				
-				entX = coordinates[0].getEntX();
-				entY = coordinates[0].getEntY();
-			} else {
-				System.out.println("좌표 검색 실패");
-			}
-			*/
-		} catch(Exception ignore) {}
+//		// 좌표 정보 조회. 실패할 경우에는 skip. UI에서 다음에 처리
+//		String entX = null;
+//		String entY = null;
+//		try {
+//			// 카카오 주소 이용 방식
+////			JusoUtil jusoUtil = new JusoUtil();
+////			KakaoCoordinateResult result = jusoUtil.searchCoordinateWithKakao(juso.getRoadAddrPart1());		// 도로명 주소 첫번째 PART만 사용하여 좌표를 구한다.
+////			List<KakaocoordinateDocument> coordinatelist = result.getDocuments();
+////			if ( coordinatelist==null || coordinatelist.size()==0 ) {
+////				// 검색이 안된 상황임.
+////				System.out.println("FATAL : 카카오 좌표 검색 결과 없음");
+////				throw new Exception("FATAL : 카카오 좌표 검색 결과 없음");
+////			}
+////			
+////			if ( coordinatelist.size() != 1 ) {
+////				System.out.println("WARN : 카카오 좌표 검색 결과가 1이 아님.");
+////				throw new Exception("WARN : 카카오 좌표 검색 결과가 1이 아님.");
+////			}
+////			
+////			entX = coordinatelist.get(0).getRoad_address().getX();
+////			entY = coordinatelist.get(0).getRoad_address().getY();
+//			
+//			
+//			
+//			
+//			/* 기존 : 지역개발원 juso.go.kr 사용 ===> 입력값이 너무 많은 문제가 있음
+//			AddrCoordinate[] coordinates = jusoUtil.searchCoordinate(juso);
+//			if ( coordinates!=null && coordinates.length>0 ) {
+//				// 첫번째 값만 사용한다.
+//				
+//				System.out.println("좌표 검색 : 선택된 주소 [" + juso + "] ==> \n\t ==>" + coordinates[0]);
+//				
+//				entX = coordinates[0].getEntX();
+//				entY = coordinates[0].getEntY();
+//			} else {
+//				System.out.println("좌표 검색 실패");
+//			}
+//			*/
+//		} catch(Exception ignore) {}
 		
 		
 		// 회원 정보에 주소 정보 update
-		if ( mapper.updateUserAddr2(userId, juso, entX, entY) != 1 ) throw new Exception("회원주소 업데이트가 1건이 아님");
+		//if ( mapper.updateUserAddr2(userId, juso, entX, entY) != 1 ) throw new Exception("회원주소 업데이트가 1건이 아님");
+		
+		
+		//--------------------------- LOCATION 코드 검증 및 처리 ------------------------
+		LocationCode locationCode = null;
+		String admCd = juso.getAdmCd();	// 행정구역 코드
+		try {
+			Long.parseLong(admCd);	// 숫자 형식 여부 확인
+			
+			String sidoCode = admCd.substring(0, 2);
+			String siguCode = admCd.substring(0,  5);			
+			String locCode = sidoCode + LocationCode.CODE_DELIMETER + siguCode;
+			
+			// 여기서 DB 검증 한번 하여야 한다.			
+			locationCode = codeMapper.getLocationCode(locCode);
+			if ( locationCode != null && locationCode.getSidoCode().equals(sidoCode) && locationCode.getSiguCode().equals(siguCode) ) {
+				System.out.println("지역코드 찾았음 [" + locationCode + "]");
+			} else {
+				throw new LogicalException("LOCATION_CODE 처리 중 오류 locationCode[" + locCode + "] ==> " + locationCode);
+			}
+			
+		} catch(Exception ex) {
+			System.out.println(ex);
+			ex.printStackTrace(System.out);
+			throw new LogicalException("행정구역코드(admCd) 포맷 오류 [" + admCd + "] <== [" + ex + "]");
+		}
+		//------------------------------------------------------------------------------
+		
+		
+		if ( mapper.updateUserAddr(userId, juso, locationCode) != 1 ) throw new Exception("회원주소 업데이트가 1건이 아님");
 		
 	}
 	

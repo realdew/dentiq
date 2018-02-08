@@ -28,6 +28,29 @@
 		)
 	</insert>
 	
+	<!--  병원정보 수정 : 사업자번호, 사업장명, 요양기관암호화번호, 사용자ID, 병원명, 종별코드는 수정 불가 -->
+	<update id="updateHospital" parameterType="dentiq.api.model.Hospital">
+		update HOSPITAL
+		set
+			<!-- ID, BIZ_REG_NO, BIZ_REG_NAME, Y_KIHO, USER_ID, NAME, CL_CODE, CL_CODE_NAME, -->
+			LOCATION_CODE=#{locationCode}, SIDO_CODE=#{sidoCode}, SIDO_NAME=#{sidoName}, SIGU_CODE=#{siguCode}, SIGU_NAME=#{siguName}, 
+			ADDR_MAIN=#{addrMain}, ADDR_DETAIL=#{addrDetail}, JIBUN_ADDR=#{jibunAddr}, 
+			ADM_CD=#{admCd}, RN_MGT_SN=#{rnMgtSn}, UDRT_YN=#{udrtYn}, BULD_MNNM=#{buldMnnm}, BULD_SLNO=#{buldSlno}, BD_NM=#{bdNm}, EMD_NM=#{emdNm}, ENT_X=#{entX}, ENT_Y=#{entY}, ZIP_NO=#{zipNo},
+			TEL_NO=#{telNo}, HOSP_URL=#{hostUrl},
+			EMAIL=#{email}, CEO_NAME=#{ceoName}, EST_DATE=#{estDate}, TDR_CNT=#{tdrCnt}, GDR_CNT=#{gdrCnt}, IDR_CNT=#{idrCnt}, RDR_CNT=#{rdrCnt}, SDR_CNT=#{sdrCnt},
+			LOGO_URL=#{logoUrl},
+			HOSPITAL_TYPE_CODE=#{hospitalTypeCode}, HOSPITAL_TYPE_TEXT=#{hospitalTypeText},
+			HOLIDAY_VALUE=#{holidayValue}, HOLIDAY_TEXT=#{holidayText},
+			WORKING_TIME_WEEKDAY_START=#{workingTimeWeekdayStart}, WORKING_TIME_WEEKDAY_END=#{workingTimeWeekdayEnd}, 
+			WORKING_TIME_WEEKEND_START=#{workingTimeWeekendStart}, WORKING_TIME_WEEKEND_END=#{workingTimeWeekendEnd}, WORKING_TIME_TEXT=#{workingTimeText},
+			LUNCH_TIME_START=#{lunchTimeStart}, LUNCH_TIME_END=#{lunchTimeEnd},
+			CLINIC_SUBJECT=#{clinicSubject}, TOTAL_MEMBER_CNT=#{totalMemberCnt},			
+			DEFAULT_HR_TEL_NO=#{defaultHrTelNo}, DEFAULT_HR_OFFICER_NAME=#{defaultHrOfficerName}, DEFAULT_HR_EMAIL=#{defaultHrEmail}
+		where ID=#{id}
+	</update>
+	
+	<!--  공고와 동일한 형태의 list가 하나 필요함 -->
+	
 	<!--
 	<select id="countHospitals"		resultType="int">
 		select count(*) from HOSPITAL

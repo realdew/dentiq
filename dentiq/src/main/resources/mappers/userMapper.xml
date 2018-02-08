@@ -3,12 +3,20 @@
 
 <mapper namespace="dentiq.api.repository.UserMapper">
 
-	<!-- 
-	<update id="updateUserAddr">
-		update USER set ADDR_ROAD=#{addrRoad}, ADDR_JIBUN=#{addJibun}, ADDR_DETAIL=#{addrDetail}, ZIP_NO=#{zipNo} where ID=#{userId}
-	</update>
-	-->
 	
+	<update id="updateUserAddr">
+		update USER set
+			ADDR_MAIN=#{juso.addrMain}, ADDR_DETAIL=#{juso.addrDetail},
+			JIBUN_ADDR=#{juso.jibunAddr},
+			ADM_CD=#{juso.admCd}, RN_MGT_SN=#{juso.rnMgtSn}, UDRT_YN=#{juso.udrtYn}, BULD_MNNM=#{juso.buldMnnm}, BULD_SLNO=#{juso.buldSlno},
+			BD_NM=#{juso.bdNm}, EMD_NM=#{juso.emdNm},
+			ENT_X=#{juso.entX}, ENT_Y=#{juso.entY},
+			ZIP_NO=#{juso.zipNo},
+			LOCATION_CODE=#{locationCode.locationCode}, SIDO_CODE=#{locationCode.sidoCode}, SIGU_CODE=#{locationCode.siguCode}
+		where ID=#{userId}
+	</update>
+	
+	<!--
 	<update id="updateUserAddr2">
 		update USER set 
 			ROAD_ADDR=#{juso.roadAddr}, ROAD_ADDR_PART1=#{juso.roadAddrPart1}, JIBUN_ADDR=#{juso.jibunAddr}, 
@@ -17,11 +25,16 @@
 			ENT_X=#{entX}, ENT_Y=#{entY}
 		where ID=#{userId}
 	</update>
+	-->
 	
 	<select id="getUserAddr" resultType="dentiq.api.model.juso.AddrJuso">
-		select ROAD_ADDR, ROAD_ADDR_PART1, JIBUN_ADDR, 
-			ADM_CD, RN_MGT_SN, UDRT_YN, BULD_MNNM, BULD_SLNO,			
-			ADDR_MAIN, ADDR_DETAIL, ZIP_NO,
+		select 
+			LOCATION_CODE, SIDO_CODE, SIGU_CODE,
+			ADDR_MAIN, ADDR_DETAIL, 
+			JIBUN_ADDR, 
+			ADM_CD, RN_MGT_SN, UDRT_YN, BULD_MNNM, BULD_SLNO,
+			BD_NM, EMD_NM,
+			ZIP_NO,
 			ENT_X, ENT_Y
 		from USER
 		where ID=#{userId}

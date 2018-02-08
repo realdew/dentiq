@@ -1,5 +1,7 @@
 package dentiq.api.model;
 
+
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import dentiq.api.service.exception.LogicalException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -129,6 +132,23 @@ public class LocationCode {
 
 	
 	
+	
+	
+	public static String getSidoCodeFromAdmCd(String admCd) throws Exception {
+		if ( admCd==null || admCd.trim().length()<2 ) throw new Exception();
+		
+		String temp = admCd.trim().substring(0, 2);
+		Integer.parseInt(temp);
+		return temp;
+	}
+	
+	public static String getSiguCodeFromAdmCd(String admCd) throws Exception {
+		if ( admCd==null || admCd.trim().length()<5 ) throw new Exception();
+		
+		String temp = admCd.trim().substring(0, 2);
+		Integer.parseInt(temp);
+		return temp;
+	}
 	
 	
 	

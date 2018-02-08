@@ -1,5 +1,9 @@
 package dentiq.api.model.juso;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import dentiq.api.model.LocationCode;
+import dentiq.api.service.exception.LogicalException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -33,12 +37,13 @@ public class AddrJuso {
 	@Getter @Setter private	String	emdNo;			//	읍면동일련번호	Y	String	
 	
 	
-	//@Getter @Setter private	String	detailAddr;		//	상세주소									- 화면으로부터 입력됨	
-	//@Getter @Setter private	String	addrDetail;
-	
-	//@Getter @Setter private	String	addrMain;		// 주 주소
-	
+	@Getter @Setter private	String	addrMain;		// 주 주소 - 화면으로부터 입력됨
+	@Getter @Setter private	String	addrDetail;		// 상세주소 - 화면으로부터 입력됨	
 	
 	@Getter @Setter private String entX;			//	입구 좌표 X
 	@Getter @Setter private String entY;			//	입구 좌표 Y
+	
+	
+	
+	
 }

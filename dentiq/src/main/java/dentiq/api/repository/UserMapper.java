@@ -6,8 +6,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import dentiq.api.model.LocationCode;
 import dentiq.api.model.User;
-import dentiq.api.model.juso.AddrCoordinate;
 import dentiq.api.model.juso.AddrJuso;
 
 @Mapper
@@ -38,6 +38,8 @@ public interface UserMapper {
 	
 	/* 회원 주소 수정 */
 	public int updateUserAddr2(@Param("userId") Integer userId, @Param("juso") AddrJuso juso, @Param("entX") String entX, @Param("entY") String entY) throws Exception;
+	
+	public int updateUserAddr(@Param("userId") Integer userId, @Param("juso") AddrJuso juso, @Param("locationCode") LocationCode locationCode) throws Exception;
 	
 	public AddrJuso getUserAddr(@Param("userId") Integer userId) throws Exception;
 	
