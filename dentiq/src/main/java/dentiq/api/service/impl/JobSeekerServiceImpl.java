@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import dentiq.api.model.JobAd;
 import dentiq.api.model.LocationCode;
+import dentiq.api.model.Resume;
 import dentiq.api.repository.JobSeekerMapper;
 import dentiq.api.service.JobSeekerService;
 
@@ -16,7 +17,31 @@ public class JobSeekerServiceImpl implements JobSeekerService {
 	@Autowired
 	private JobSeekerMapper mapper;
 	
+	@Override
+	public Resume getResumeById(Integer resumeId) throws Exception {
+		return mapper.getResumeById(resumeId);
+	}
 	
+	
+	@Override
+	public Resume getResumeByUserID(Integer userId) throws Exception {
+		return mapper.getResumeByUserId(userId);
+	}
+	
+	@Override
+	public Resume createOrUpdateResume(Resume resume) throws Exception {
+		Integer userId = resume.getUserId();
+		
+		Resume oldResume = mapper.getResumeByUserId(userId);
+		if ( oldResume != null ) {
+			int updatedRows = mapper.updateResume(resume);
+			if (  updatedRows != 1 ) throw new Exception("변경된 행이 1이 아님");
+		} else {
+			mapper.insertResume(resume);
+		}
+		
+		return mapper.getResumeById(userId);
+	}
 	
 
 	@Override

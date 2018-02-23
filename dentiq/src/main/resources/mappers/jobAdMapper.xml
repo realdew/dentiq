@@ -2,6 +2,82 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="dentiq.api.repository.JobAdMapper">
+	
+	<!-- ======================================================================================================================= -->	
+	<!-- JOB_AD_ATTR 관련 처리 -->
+	<!-- JOB_AD_ATTR은 update가 없음. update는 delete 후 insert 처리함. -->
+	
+	<delete id="deleteJobAdAttr">
+		delete from JOB_AD_ATTR where JOB_AD_ID=#{jobAdId}
+	</delete>
+	
+	<insert id="createJobAdAttr">
+		insert into JOB_AD_ATTR
+			(JOB_AD_ID, ATTR_CODE_ID, ATTR_GROUP_ID)
+		values
+			<foreach item="attr"  collection="attrCodeList" separator=",">
+				( #{jobAdId}, #{attr.codeId}, #{attr.groupId} )
+			</foreach>
+	</insert>
+	
+	<select id="getJobAdAttrList" resultType="dentiq.api.model.JobAdAttr">
+		select * from JOB_AD_ATTR where JOB_AD_ID=#{jobAdId}
+	</select>
+	<!-- ======================================================================================================================= -->
+
+
+	<insert id="createJobAd" useGeneratedKeys="true" keyProperty="id" parameterType="dentiq.api.model.JobAd">
+		insert into JOB_AD
+			(
+				AD_STATUS, AD_TYPE, HOSPITAL_ID,
+				TITLE, AD_REG_DATE, AD_REG_TIME, 
+				AD_OPEN_DATE, AD_OPEN_TIME, AD_CLOSE_DATE, AD_CLOSE_TIME,
+				HIRING_TERM_TYPE, 
+				HIRING_START_DATE, HIRING_START_TIME, HIRING_END_DATE, HIRING_END_TIME,
+				APPLY_WAY_JSON, WORK_DESC, HIRING_CNT, SALARY_TYPE, SALARY_TEXT,
+				HIRING_ROLE_TYPE, HIRING_ROLE_TEXT, EDU_LEVEL, EXP_TYPE, LICENSE_TEXT,
+				WORKING_DAY, WORKING_TIME_WEEKDAY_START, WORKING_TIME_WEEKDAY_END, WORKING_TIME_WEEKEND_START, WORKING_TIME_WEEKEND_END, WORKING_TIME_TEXT,
+				LUNCH_TIME_START, LUNCH_TIME_END,
+				HR_OFFICER_NAME, HR_TEL_NO, HR_EMAIL,
+				RETIREMENT_PAY_TYPE, RETIREMENT_PAY,
+				ATTR_VAL, ATTR_JSON
+			)
+		values
+			(
+				'A', '1', #{hospitalId},
+				#{title}, date_format(now(), '%Y%m%d'), date_format(now(), '%H%i%S'), 
+				null, '000000', null, '235959',
+				#{hiringTermType}, 
+				#{hiringStartDate}, '000000', #{hiringEndDate}, '235959',
+				#{applyWayJson}, #{workDesc}, #{hiringCnt}, #{salaryType}, #{salaryText},
+				#{hiringRoleType}, #{hiringRoleText}, #{eduLevel}, #{expType}, #{licenseText},
+				#{workingDay}, #{workingTimeWeekdayStart}, #{workingTimeWeekdayEnd}, #{workingTimeWeekendStart}, #{workingTimeWeekendEnd}, #{workingTimeText},
+				#{lunchTimeStart}, #{lunchTimeEnd},
+				#{hrOfficerName}, #{hrTelNo}, #{hrEmail},
+				#{retirementPayType}, #{retirementPay},
+				null, #{attrJson}
+			)
+	</insert>
+	
+	<!--  register_jobad.html에서 오는 수정 처리 -->
+	<update id="updateJobAdBasic" parameterType="dentiq.api.model.JobAd">
+		update JOB_AD set
+				TITLE=#{title},
+				HIRING_TERM_TYPE=#{hiringTermType}, 
+				HIRING_START_DATE=#{hiringStartDate}, HIRING_START_TIME=#{hiringStartTime}, HIRING_END_DATE=#{hiringEndDate}, HIRING_END_TIME=#{hiringEndTime},
+				APPLY_WAY_JSON=#{applyWayJson}, WORK_DESC=#{workDesc}, HIRING_CNT=#{hiringCnt}, SALARY_TYPE=#{salaryType}, SALARY_TEXT=#{sararyText},
+				HIRING_ROLE_TYPE=#{hiringRuleType}, HIRING_ROLE_TEXT=#{hiringRoleText}, EDU_LEVEL=#{eduLevel}, EXP_TYPE=#{expType}, LICENSE_TEXT=#{licenseText},
+				WORKING_DAY=#{workingDay},
+				WORKING_TIME_WEEKDAY_START=#{workingTimeWeekdayStart}, WORKING_TIME_WEEKDAY_END=#{workingTimeWeekdayEnd}, 
+				WORKING_TIME_WEEKEND_START=#{workingTimeWeekendStart}, WORKING_TIME_WEEKEND_END=#{workingTimeWeekendEnd}, 
+				WORKING_TIME_TEXT=#{workingTimeText},
+				LUNCH_TIME_START=#{lunchTimeStart}, LUNCH_TIME_END=#{lunchTimeEnd},
+				HR_OFFICER_NAME=#{hrOfficeName}, HR_TEL_NO=#{hrTelNo}, HR_EMAIL=#{hrEmail},
+				ATTR_VAL=null, ATTR_JSON=#{attrJson}
+		
+		where ID=#{id}
+	</update>
+
 
 
 	<!--  특정 사용자의 관심지역 내에서의 공고 개수를 조회 -->
@@ -81,10 +157,16 @@
 	-->
 
 		
-	<!-- 특정 공고를 ID로 가져온다. -->
+	<!-- 특정 공고를 ID로 가져온다. 공고 자체의 정보만 가져온다. -->
 	<select id="getJobAd" resultType="dentiq.api.model.JobAd">
+		select * from JOB_AD where ID=#{id}
+	</select>
+	<!-- 특정 공고를 ID로 가져온다. 공고와 병원 정보를 함께 조합해서 가져온다. -->
+	<select id="getJobAdWithHospital" resultType="dentiq.api.model.JobAd">
 		select * from JOB_AD_VIEW where ID=#{id}
 	</select>
+	
+	
 	
 
 	<!--  조건에 맞는 공고의 숫자를 리턴한다 -->
@@ -573,6 +655,7 @@
 			</if>
 			
 			
+			<!-- 나중에 이것은 IN 조건에 걸리는 것을 적게 하기 위해서 공고 상태와 공고 마감기간을 넣어야 한다. -->
 			<if test="searchCriteria !=null and searchCriteria.attrGroupList != null">
 				<trim prefix="and J.ID in  ( select distinct JOB_AD_ID from ( " prefixOverrides="AND |OR"  suffix=" ) TEMP_TABLE)">
 					<foreach item="attrGroup" index="index" collection="searchCriteria.attrGroupList" open="(" separator=" intersect " close=")">
@@ -588,7 +671,7 @@
 						
 					</foreach>
 				</trim>
-			</if>			
+			</if>
 				
 	</sql>
 	

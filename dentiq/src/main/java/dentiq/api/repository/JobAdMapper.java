@@ -5,17 +5,31 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 import dentiq.api.model.JobAd;
+import dentiq.api.model.JobAdAttr;
 import dentiq.api.model.JobAdAttrCounter;
 import dentiq.api.model.JobAdGroupByLocationCode;
-import dentiq.api.model.NameCountPair;
 import dentiq.api.repository.criteria.JobAdSearchCriteria;
 
 @Mapper
 @Repository
 public interface JobAdMapper {
+	
+	
+	public int createJobAd(JobAd jobAd) throws Exception;
+	
+	public int updateJobAdBasic(JobAd jobAd) throws Exception;
+	
+	@Update("update JOB_AD set USE_YN='N' where ID=#{jobAdId}")
+	public int deleteJobAd(Long jobAdId) throws Exception;
+	
+	public int deleteJobAdAttr(Long jobAdId) throws Exception;
+	public int createJobAdAttr(@Param("jobAdId") Long jobAdId, @Param("attrCodeList") List<JobAdAttr> locationCodeList) throws Exception;
+	public List<JobAdAttr> getJobAdAttrList(@Param("jobAdId") Long jobAdId) throws Exception;
 	
 	/**
 	 * 공고의 내용을 읽어 온다.
@@ -24,6 +38,8 @@ public interface JobAdMapper {
 	 * @throws Exception
 	 */
 	public JobAd getJobAd(@Param("id") long id) throws Exception;
+	
+	public JobAd getJobAdWithHospital(@Param("id") long id) throws Exception;
 	
 	
 	

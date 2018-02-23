@@ -59,7 +59,7 @@ public class JobAdAttr implements Comparable<JobAdAttr> {
 	 * @throws LogicalException
 	 */
 	private void deserialize(String attrCode) throws LogicalException {
-		if ( attrCode==null ) throw new LogicalException();
+		if ( attrCode==null || attrCode.trim().equals("") ) throw new LogicalException();
 		
 		try {
 			int separatorPos = attrCode.indexOf(GROUP_CODE_SEPARATOR);		
@@ -83,7 +83,7 @@ public class JobAdAttr implements Comparable<JobAdAttr> {
 	
 	
 	public String toString() {
-		return this.groupId + " (" + this.groupName + " , G_ORDER:" + this.groupDisplayOrder + "), " + this.codeId + " (" + this.codeName + ") C_ORDER:" + this.codeDisplayOrder;
+		return "{" + this.groupId + " (" + this.groupName + " , G_ORDER:" + this.groupDisplayOrder + ") - " + this.codeId + " (" + this.codeName + ") C_ORDER:" + this.codeDisplayOrder + "}";
 	}
 	
 	public boolean equals(Object other) {

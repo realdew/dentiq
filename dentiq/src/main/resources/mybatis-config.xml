@@ -12,4 +12,8 @@
         <mapper resource="classpath:mappers/*Mapper.xml"/>
     </mappers>
     -->
+    
+    <typeHandlers>
+		<typeHandler handler="dentiq.api.util.SingleColumnListTypeHandler"/>
+	</typeHandlers>
 </configuration>

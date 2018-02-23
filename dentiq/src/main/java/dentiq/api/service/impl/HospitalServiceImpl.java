@@ -58,7 +58,7 @@ public class HospitalServiceImpl implements HospitalService {
 	}
 	
 	@Override
-	public Hospital createHospital(Hospital hospital) throws Exception {
+	public Hospital createHospital(Integer userId, Hospital hospital) throws Exception {
 		
 		
 		//--------------------------- LOCATION 코드 검증 및 처리 ------------------------
@@ -91,10 +91,11 @@ public class HospitalServiceImpl implements HospitalService {
 		}
 		//------------------------------------------------------------------------------
 		
+		hospital.setUserId(userId);
 		
 		
-		int count = mapper.createHospital(hospital);
-		if ( count == 1 ) {
+		int rowsUpdated = mapper.createHospital(hospital);
+		if ( rowsUpdated == 1 ) {
 			return mapper.readHospital(hospital.getId());
 		} else {
 			throw new LogicalException("");
@@ -109,7 +110,7 @@ public class HospitalServiceImpl implements HospitalService {
 	 * @return	등록/수정된 병원 정보
 	 * @throws	Exception
 	 */
-	public Hospital update(Hospital hospital) throws Exception {
+	public Hospital updateHospital(Integer userId, Hospital hospital) throws Exception {
 		return null;
 	}
 	

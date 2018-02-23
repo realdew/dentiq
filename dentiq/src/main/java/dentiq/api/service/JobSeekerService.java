@@ -4,8 +4,14 @@ import java.util.List;
 
 import dentiq.api.model.JobAd;
 import dentiq.api.model.LocationCode;
+import dentiq.api.model.Resume;
 
 public interface JobSeekerService {
+	
+	public Resume getResumeByUserID(Integer userId) throws Exception;
+	public Resume getResumeById(Integer resumeId) throws Exception;
+	
+	public Resume createOrUpdateResume(Resume resume) throws Exception;
 	
 	/************************************ 공고 스크랩 ******************************************/
 	

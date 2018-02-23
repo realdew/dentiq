@@ -1,28 +1,27 @@
 package dentiq.api.model;
 
 
-
 import java.util.List;
-// import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-import dentiq.api.service.exception.LogicalException;
+import dentiq.api.util.JsonUtil;
+import dentiq.api.util.SingleColumnList;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-//import org.json.JSONObject;
-import org.json.JSONArray;
 
 @JsonInclude(Include.NON_NULL)
 @ToString
 public class Hospital {
+
+	
 	
 	@Getter @Setter private Integer id;							// ID				ID	
-	@Getter @Setter private String userId;						// 사용자 ID
+	@Getter @Setter private Integer userId;						// 사용자 ID
 	
 	@Getter @Setter private String name;						// 병원명				NAME
 	
@@ -106,7 +105,12 @@ public class Hospital {
 	@Getter @Setter private String hospitalTypeText;			// 병원 유형 텍스트
 	
 	
-	@Getter @Setter private List<String> holiday;				// 휴일정보 유형(checkbox에서 선택)	==> holiday value와 연결됨	
+	//@Getter @Setter private SingleColumnList holiday;				// 휴일정보 유형(checkbox에서 선택)	==> holiday value와 연결됨	
+	@Getter @Setter private List<String> holiday;				// 휴일정보 유형(checkbox에서 선택)	==> holidayJson와 연결됨	
+		@JsonIgnore public String getHolidayJson() throws Exception			{	return JsonUtil.toJson(this.holiday);	}
+		@JsonIgnore public void setHolidayJson(String json) throws Exception	{	this.holiday = JsonUtil.<List<String>>toGenericObject(json); }
+	
+	
 	@Getter @Setter private String holidayText;					// 휴일정보 - 기타/추가
 	
 	@Getter @Setter private String workingTimeWeekdayStart;		// 진료시간-평일 : 시작	
@@ -118,7 +122,7 @@ public class Hospital {
 	@Getter @Setter private String lunchTimeStart;				// 점심시간 : 시작	
 	@Getter @Setter private String lunchTimeEnd;				// 점심시간 : 시작
 	
-	@Getter @Setter private Integer totalMemberCnt;				// 총구성원 수	
+	@Getter @Setter private String totalMemberCnt;				// 총구성원 수	(문자형식으로 사용될 수도 있다. 예:) 0명, 무관, 00명 등
 	@Getter @Setter private String clinicSubject;				// 진료과목
 	
 	
@@ -128,116 +132,6 @@ public class Hospital {
 	
 	
 	// 위치/교통정보 필요함
-	
-	
-	
-	@JsonIgnore
-	private String holidayValue;
-	public String getHolidayValue() {			// DB에 JSON 문자열을 저장하기 위한 Wrapper. DB 컬럼 ==> HOLIDAY_VALUE
-		if ( this.holiday==null ) return null;
-		
-		return (new JSONArray(this.holiday)).toString();
-	}	
-	public void setHolidayValue(String jsonString) {		
-		if ( jsonString == null ) return;
-		
-		JSONArray holidayArray = new JSONArray(jsonString);
-		this.holiday = innerCasting(holidayArray.toList());
-	}
-	
-	
-	
-	
-//	// DB에 JSON 문자열을 저장하기 위한 Wrapper. DB 컬럼 ==> HOLIDAYS_VALUE
-//	@JsonIgnore
-//	private String holidayValue;
-//	public String getHolidayValue() {
-//		Map<String, Object> map = new java.util.HashMap<String, Object>();
-//		map.put("holiday", this.holiday);
-//		map.put("holidayText", this.holidayText);		
-//		JSONObject json = new JSONObject(map);
-//		
-//		return json.toString();
-//	}	
-//	public void setHolidayValue(String jsonString) {		
-//		if ( jsonString == null ) return;
-//		
-//		JSONObject json = new JSONObject(jsonString);		
-//		
-//		try {		// setup 'holiday'
-//			JSONArray holidayArray = (JSONArray) json.get("holiday");
-//			if ( holidayArray != null ) this.holiday = innerCasting(holidayArray.toList());
-//		} catch(Exception ignore) {}
-//		
-//		try {		// setup 'holidayText'
-//			this.holidayText = (String) json.get("holidayText");
-//		} catch(Exception ingore) {}
-//	}
-	
-	
-	
-	
-	private static List<String> innerCasting(List<Object> list) {
-		if ( list==null ) return null;
-		
-		List<String> retVal = new java.util.ArrayList<String>();
-		for ( Object item : list ) {
-			retVal.add(item.toString());
-		}
-		return retVal;
-	}
-	
-	
-	
-	
-//	
-//	public static void main(String[] args) throws Exception {
-//		List<String> original = new java.util.ArrayList<String>();
-//		original.add("a");
-//		original.add("c");
-//		original.add("가나다");
-//		
-//		System.out.println("수신받은 값 : *" + original.toString() + "*");
-//		
-//		String json = parseToJsonValue(original);
-//		System.out.println("DB에 저장할 값 : *" + json + "*");
-//		
-//		List<String> result = parseJsonValueToList(json);
-//		System.out.println("전송할 값 : *" + result.toString() + "*");
-//		
-//	}
-//	
-//	public static List<String> parseJsonValueToList(String str) throws Exception {
-//		if ( str == null ) return null;
-//		
-//		if ( !str.startsWith("[") || !str.endsWith("]") ) throw new LogicalException("");
-//		
-//		String temp = str.substring(1, str.length()-1);
-//		System.out.println("잘라진 문자열 [" + temp + "]");
-//		
-//		String[] arr = temp.split(",");
-//		for ( int i=0; arr!=null && i<arr.length; i++ ) {
-//			System.out.println("[" + arr[i].trim() + "]");
-//		}
-//		
-//		java.util.ArrayList<String> list = new java.util.ArrayList<String>();
-//		for ( int i=0; arr!=null && i<arr.length; i++ ) {
-//			list.add(arr[i].trim());
-//		}
-//		return list;
-//		
-//	}
-//	
-//	public static String parseToJsonValue(List<String> values) {
-//		if ( values==null ) return null;
-//		String retVal = "";
-//		int valSize = 0;		if ( values != null ) valSize = values.size();
-//		for ( int i=0; i<valSize; i++ ) {
-//			retVal += "\"" + values.get(i) + "\"";
-//			if ( i< (valSize-1) ) retVal += ", ";
-//		}
-//		return "[" + retVal + "]";
-//	}
 	
 	
 	

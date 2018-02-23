@@ -1,16 +1,16 @@
 package dentiq.api.service.impl;
 
 
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import dentiq.api.model.JobAd;
+import dentiq.api.model.JobAdAttr;
 import dentiq.api.model.JobAdAttrCounter;
 import dentiq.api.model.JobAdAttrGroup;
 import dentiq.api.model.JobAdDashboard;
@@ -18,16 +18,96 @@ import dentiq.api.model.JobAdDashboard;
 //import dentiq.api.model.JobAdDashboard;
 import dentiq.api.model.JobAdGroupByLocationCode;
 import dentiq.api.model.LocationCode;
-import dentiq.api.model.NameCountPair;
 import dentiq.api.repository.JobAdMapper;
 import dentiq.api.repository.criteria.JobAdSearchCriteria;
 import dentiq.api.service.JobAdService;
 
 @Service
+@Transactional(readOnly=true)
 public class JobAdServiceImpl implements JobAdService {
 	
 	@Autowired
 	private JobAdMapper mapper;
+	
+	@Override
+	@Transactional(readOnly=false)
+	public JobAd createJobAd(JobAd jobAd) throws Exception {
+		
+		
+		// 1. 먼저 생성
+		int updatedRows = mapper.createJobAd(jobAd);
+		if ( updatedRows != 1 ) throw new Exception("JobAd 생성 실패 : 변경행 [" + updatedRows + "]");
+		
+//		if ( true ) 
+//			throw new Exception("강제 예외");
+		
+		
+		updateJobAdAttr(jobAd.getId(), jobAd.getAttr());
+		
+		return mapper.getJobAd(jobAd.getId());
+	}
+	
+	
+	protected List<JobAdAttr> updateJobAdAttr(Long jobAdId, List<String> attrStrList) throws Exception {
+		if ( jobAdId==null ) throw new Exception();
+		
+		
+		// 기존 것을 삭제 (주의 : 값이 입력되지 않은 것(null or size=0)이면, 전체가 삭제된다.
+		mapper.deleteJobAdAttr(jobAdId);
+		
+		// 새로운 값들을 삽입
+		if ( attrStrList != null && attrStrList.size() > 0 ) {
+			List<JobAdAttr> attrCodeList = new ArrayList<JobAdAttr>();
+			for ( String attrStr : attrStrList ) {
+				if ( attrStr!=null && !attrStr.trim().equals("") ) {		// null이나 빈 값('')이 아닐 때만 insert한다.
+					attrCodeList.add( new JobAdAttr(attrStr.trim()) );
+				}
+			}
+			
+			System.out.println("JOB_AD_ATTR 생성 대상 : " + attrCodeList);
+			mapper.createJobAdAttr(jobAdId, attrCodeList);
+		}
+		
+		return mapper.getJobAdAttrList(jobAdId);
+	}
+	
+	@Override
+	public JobAd updateJobAdBasic(JobAd jobAd) throws Exception {
+		int updatedRows = mapper.updateJobAdBasic(jobAd);
+		if ( updatedRows != 1 ) throw new Exception("JobAd 수정 실패 : 변경행 [" + updatedRows + "]");
+		
+		updateJobAdAttr(jobAd.getId(), jobAd.getAttr());
+		
+		return mapper.getJobAd(jobAd.getId());
+	}
+	
+	@Override
+	public JobAd getWithHospital(Long id) throws Exception {
+		return mapper.getJobAdWithHospital(id);
+	}
+	
+
+	@Override
+	public JobAd get(Long id) throws Exception {
+		return mapper.getJobAd(id);
+	}
+	
+	@Override
+	public void deleteJobAd(Long jobAdId) throws Exception {
+		int updatedRows = mapper.deleteJobAdAttr(jobAdId);
+		if ( updatedRows != 1 ) throw new Exception("jobAd 삭제 실패 : 변경행 [" + updatedRows + "]");
+		
+	}
+
+
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -497,12 +577,6 @@ public class JobAdServiceImpl implements JobAdService {
 		attrCountOnEmp.add(0, total);
 		
 		return attrCountOnEmp;
-	}
-
-
-	@Override
-	public JobAd get(Long id) throws Exception {
-		return mapper.getJobAd(id);
 	}
 
 

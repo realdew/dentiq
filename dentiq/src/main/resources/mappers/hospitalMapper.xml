@@ -5,24 +5,24 @@
 
 	<insert id="createHospital" useGeneratedKeys="true" keyProperty="id" parameterType="dentiq.api.model.Hospital">
 		insert into HOSPITAL (
-			ID, BIZ_REG_NO, BIZ_REG_NAME, Y_KIHO, USER_ID, NAME, CL_CODE, CL_CODE_NAME, 
+			BIZ_REG_NO, BIZ_REG_NAME, Y_KIHO, USER_ID, NAME, CL_CODE, CL_CODE_NAME, 
 			LOCATION_CODE, SIDO_CODE, SIDO_NAME, SIGU_CODE, SIGU_NAME, 
 			ADDR_MAIN, ADDR_DETAIL, JIBUN_ADDR, ADM_CD, RN_MGT_SN, UDRT_YN, BULD_MNNM, BULD_SLNO, BD_NM, EMD_NM, ENT_X, ENT_Y, ZIP_NO,
 			TEL_NO, HOSP_URL, 
 			EMAIL, CEO_NAME, EST_DATE, TDR_CNT, GDR_CNT, IDR_CNT, RDR_CNT, SDR_CNT, X_POS, Y_POS, LOGO_URL, 
 			HOSPITAL_TYPE_CODE, HOSPITAL_TYPE_TEXT,			
-			HOLIDAY_VALUE, HOLIDAY_TEXT, WORKING_TIME_WEEKDAY_START, WORKING_TIME_WEEKDAY_END, WORKING_TIME_WEEKEND_START, WORKING_TIME_WEEKEND_END, WORKING_TIME_TEXT, LUNCH_TIME_START, LUNCH_TIME_END, 
+			HOLIDAY_JSON, HOLIDAY_TEXT, WORKING_TIME_WEEKDAY_START, WORKING_TIME_WEEKDAY_END, WORKING_TIME_WEEKEND_START, WORKING_TIME_WEEKEND_END, WORKING_TIME_TEXT, LUNCH_TIME_START, LUNCH_TIME_END, 
 			CLINIC_SUBJECT, TOTAL_MEMBER_CNT,
 			DEFAULT_HR_TEL_NO, DEFAULT_HR_OFFICER_NAME, DEFAULT_HR_EMAIL
 		)
 		values (
-			#{id}, #{bizRegNo}, #{bizRegName}, #{yKiho}, #{userId}, #{name}, #{clCode}, #{clCodeName}, 
+			#{bizRegNo}, #{bizRegName}, #{yKiho}, #{userId}, #{name}, #{clCode}, #{clCodeName}, 
 			#{locationCode}, #{sidoCode}, #{sidoName}, #{siguCode}, #{siguName},
 			#{addrMain}, #{addrDetail}, #{jibunAddr}, #{admCd}, #{rnMgtSn}, #{udrtYn}, #{buldMnnm}, #{buldSlno}, #{bdNm}, #{emdNm}, #{entX}, #{entY}, #{zipNo},
 			#{telNo}, #{hospUrl},
 			#{email}, #{ceoName}, #{estDate}, #{tdrCnt}, #{gdrCnt}, #{idrCnt}, #{rdrCnt}, #{sdrCnt}, #{xPos}, #{yPos}, #{logoUrl},
 			#{hospitalTypeCode}, #{hospitalTypeText},
-			#{holidayValue}, #{holidayText}, #{workingTimeWeekdayStart}, #{workingTimeWeekdayEnd}, #{workingTimeWeekendStart}, #{workingTimeWeekendEnd}, #{workingTimeText}, #{lunchTimeStart}, #{lunchTimeEnd},
+			#{holidayJson}, #{holidayText}, #{workingTimeWeekdayStart}, #{workingTimeWeekdayEnd}, #{workingTimeWeekendStart}, #{workingTimeWeekendEnd}, #{workingTimeText}, #{lunchTimeStart}, #{lunchTimeEnd},
 			#{clinicSubject}, #{totalMemberCnt},
 			#{defaultHrTelNo}, #{defaultHrOfficerName}, #{defaultHrEmail}
 		)
@@ -40,7 +40,7 @@
 			EMAIL=#{email}, CEO_NAME=#{ceoName}, EST_DATE=#{estDate}, TDR_CNT=#{tdrCnt}, GDR_CNT=#{gdrCnt}, IDR_CNT=#{idrCnt}, RDR_CNT=#{rdrCnt}, SDR_CNT=#{sdrCnt},
 			LOGO_URL=#{logoUrl},
 			HOSPITAL_TYPE_CODE=#{hospitalTypeCode}, HOSPITAL_TYPE_TEXT=#{hospitalTypeText},
-			HOLIDAY_VALUE=#{holidayValue}, HOLIDAY_TEXT=#{holidayText},
+			HOLIDAY_JSON=#{holidayJson}, HOLIDAY_TEXT=#{holidayText},
 			WORKING_TIME_WEEKDAY_START=#{workingTimeWeekdayStart}, WORKING_TIME_WEEKDAY_END=#{workingTimeWeekdayEnd}, 
 			WORKING_TIME_WEEKEND_START=#{workingTimeWeekendStart}, WORKING_TIME_WEEKEND_END=#{workingTimeWeekendEnd}, WORKING_TIME_TEXT=#{workingTimeText},
 			LUNCH_TIME_START=#{lunchTimeStart}, LUNCH_TIME_END=#{lunchTimeEnd},
@@ -48,6 +48,7 @@
 			DEFAULT_HR_TEL_NO=#{defaultHrTelNo}, DEFAULT_HR_OFFICER_NAME=#{defaultHrOfficerName}, DEFAULT_HR_EMAIL=#{defaultHrEmail}
 		where ID=#{id}
 	</update>
+	
 	
 	<!--  공고와 동일한 형태의 list가 하나 필요함 -->
 	

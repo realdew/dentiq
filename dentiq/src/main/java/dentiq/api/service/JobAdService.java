@@ -8,12 +8,21 @@ import dentiq.api.model.JobAd;
 import dentiq.api.model.JobAdAttrCounter;
 import dentiq.api.model.JobAdAttrGroup;
 import dentiq.api.model.JobAdDashboard;
-import dentiq.api.model.NameCountPair;
 
 
 public interface JobAdService {
 	
 	
+	public JobAd createJobAd(JobAd jobAd) throws Exception;
+	
+	public JobAd updateJobAdBasic(JobAd jobAd) throws Exception;
+	
+	public JobAd get(Long id) throws Exception;
+	public JobAd getWithHospital(Long id) throws Exception;
+	
+	public void deleteJobAd(Long jobAdId) throws Exception;
+	
+	//public void updateJobAdAttr(Long jobAdId, List<String> attrStrList) throws Exception;
 	
 	public List<JobAd> listJobAds(
 			List<String> locationCodeList, Integer adType, 
@@ -98,5 +107,5 @@ public interface JobAdService {
 	
 	public List<JobAdAttrCounter> countJobAdsByEmpType() throws Exception;
 
-	public JobAd get(Long id) throws Exception;
+	
 }

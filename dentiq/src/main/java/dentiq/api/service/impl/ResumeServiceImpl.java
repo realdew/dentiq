@@ -8,6 +8,7 @@ import dentiq.api.model.Resume;
 import dentiq.api.repository.ResumeMapper;
 import dentiq.api.service.ResumeService;
 
+@Deprecated
 public class ResumeServiceImpl implements ResumeService {
 	
 	@Autowired

@@ -3,7 +3,9 @@ package dentiq.api.controller;
 
 import java.util.List;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,12 +32,15 @@ import dentiq.api.model.Hospital;
 import dentiq.api.model.JobAd;
 import dentiq.api.model.JsonArrayValue;
 import dentiq.api.model.LocationCode;
+import dentiq.api.model.Resume;
 import dentiq.api.model.User;
 import dentiq.api.model.juso.AddrJuso;
 import dentiq.api.service.HospitalService;
 import dentiq.api.service.JobSeekerService;
 import dentiq.api.service.UserService;
 import dentiq.api.service.exception.LogicalException;
+import dentiq.api.util.UserSession;
+import dentiq.api.util.UserSessionManager;
 
 /**
  * 로그인하지 않고 사용할 수 있는 API 세트
@@ -53,51 +60,73 @@ public class NormalController {
 	@Autowired private UserService userService;
 	@Autowired private JobSeekerService jobSeekerService;
 	
+	/******************************************************************************************************************/
+	/*                                                                                                                */
+	/*                                         이력서                                                                 */
+	/*                                                                                                                */
+	/******************************************************************************************************************/
 	
-	
-	/**
-	 * 심평원 병원 정보 조회
-	 * @param name	병원이름. like 검색
-	 * @param pageNo 페이지 번호
-	 * @return
-	 */
-	@RequestMapping(value="/hira/", method=RequestMethod.GET)
-	public ResponseEntity<JsonResponse<PageableList<Hospital>>> searchHiraHosiptalList(
-					@RequestParam(value="name",	required=true) String name,
-					@RequestParam(value="pageNo", defaultValue="1") Integer pageNo
+	@RequestMapping(value="/user/{userId}/resume/", method=RequestMethod.PUT)
+	public ResponseEntity<JsonResponse<Resume>> registerResume(
+										@PathVariable("userId")		Integer userId,
+										@RequestBody Resume resume,
+										HttpServletRequest httpRequest,
+										HttpServletResponse httpResponse
 			) {
-		JsonResponse<PageableList<Hospital>> res = new JsonResponse<PageableList<Hospital>>();
+		
+		JsonResponse<Resume> res = new JsonResponse<Resume>();
 		try {
-			PageableList<Hospital> hiraHospitalList = hospitalService.searchHiraHosiptalList(name, pageNo);
-			res.setResponseData(hiraHospitalList);
+			
+			// 세션 정보 확인
+			UserSessionManager sesMan = UserSessionManager.get();
+			UserSession session = sesMan.verifyToken(httpRequest, httpResponse);
+			
+			Integer sessionUserId = session.getUserId();
+			Integer sessionUserType = session.getHospitalId();
+			
+			if ( sessionUserId==null || sessionUserId==0 ) {
+				throw new Exception("로그인되어 있지 않습니다.");
+			}
+			
+			if ( sessionUserId!=userId ) {
+				throw new Exception("타인의 정보는 수정할 수 없습니다. [" + sessionUserId + "]!=[" + userId + "]");
+			}
+			
+			
+			System.out.println(resume);
+			
+			Resume newResume = jobSeekerService.createOrUpdateResume(resume);
+			
+			res.setResponseData(newResume);
+			
+			System.out.println(newResume);
 		} catch(Exception ex) {
 			res.setException(ex);
 		}
 		
-		return new ResponseEntity<JsonResponse<PageableList<Hospital>>>(res, HttpStatus.OK);
+		return new ResponseEntity<JsonResponse<Resume>>(res, HttpStatus.OK);	
 	}
 	
-	
-	// 병원 정보 신규 등록
-	// consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE로 하고, @RequestBody 제거
-	//@RequestMapping(value="/test/", method=RequestMethod.POST)	
-	@RequestMapping(value="/hospital/", method=RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-	public ResponseEntity<JsonResponse<Hospital>> test(
-										//@RequestBody Hospital hospital
-										Hospital hospital
+	@RequestMapping(value="/user/{userId}/resume/", method=RequestMethod.GET)
+	public ResponseEntity<JsonResponse<Resume>> getResumeByUserId(
+										@PathVariable("userId")		Integer userId
 			) {
 		
-		JsonResponse<Hospital> res = new JsonResponse<Hospital>();
-		try {
-			System.out.println("신규병원 등록 : " + hospital);
-			Hospital newHospital = hospitalService.createHospital(hospital);
-			res.setResponseData(newHospital);
+		JsonResponse<Resume> res = new JsonResponse<Resume>();
+		try {			
+			Resume resume = jobSeekerService.getResumeByUserID(userId);			
+			res.setResponseData(resume);			
+			System.out.println(resume);
 		} catch(Exception ex) {
 			res.setException(ex);
 		}
 		
-		return new ResponseEntity<JsonResponse<Hospital>>(res, HttpStatus.OK);	
+		return new ResponseEntity<JsonResponse<Resume>>(res, HttpStatus.OK);	
 	}
+	
+	
+	
+	
 	
 //	// 테스트
 //	@RequestMapping(value="/test/", method=RequestMethod.GET)
@@ -202,6 +231,12 @@ public class NormalController {
 //	}
 	
 	
+	/******************************************************************************************************************/
+	/*                                                                                                                */
+	/*                                         회원 주소 변경                                                         */
+	/*                                                                                                                */
+	/******************************************************************************************************************/
+	
 	// 사용자의 주소를 변경한다. JSON으로 수신.
 	@RequestMapping(value="/user/{userId}/addr/", method=RequestMethod.PUT)
 	public ResponseEntity<JsonResponse<AddrJuso>> registerUserAddrPUT(
@@ -242,6 +277,12 @@ public class NormalController {
 		
 	}
 	
+	
+	/******************************************************************************************************************/
+	/*                                                                                                                */
+	/*                                         공고 스크랩                                                            */
+	/*                                                                                                                */
+	/******************************************************************************************************************/
 	
 	
 //	public List<Long> addScrappedJobAdId(Integer userId, Long jobAdId, String memo) throws Exception;
@@ -307,44 +348,13 @@ public class NormalController {
 		return new ResponseEntity<JsonResponse<List<Long>>>(res, HttpStatus.OK);			
 	}
 	
-		
 	
-	// 로그인
-	@RequestMapping(value="/login/", method=RequestMethod.POST)
-	public ResponseEntity<JsonResponse<User>> login(
-			@RequestParam(value="email",	required=true) String email,
-			@RequestParam(value="password",	required=true) String password
-			) {
-		
-		JsonResponse<User> res = new JsonResponse<User>();
-		try {
-			User user = userService.loginByEmailAndPassword(email, password);
-			user.filter();
-			res.setResponseData(user);
-		} catch(Exception ex) {
-			res.setException(ex);
-		}
-		
-		return new ResponseEntity<JsonResponse<User>>(res, HttpStatus.OK);	
-	}
+	/******************************************************************************************************************/
+	/*                                                                                                                */
+	/*                                         사용자                                                                 */
+	/*                                                                                                                */
+	/******************************************************************************************************************/
 	
-	// 로그아웃
-	@RequestMapping(value="/logout/", method=RequestMethod.POST)
-	public ResponseEntity<JsonResponse<User>> login(
-			@RequestParam(value="id",	required=true) Integer id
-			) {
-		
-		JsonResponse<User> res = new JsonResponse<User>();
-		try {
-			User user = new User();
-			user.setId(id);
-			res.setResponseData(user);
-		} catch(Exception ex) {
-			res.setException(ex);
-		}
-		
-		return new ResponseEntity<JsonResponse<User>>(res, HttpStatus.OK);	
-	}
 	
 	// 개인회원 정보 수정
 	@RequestMapping(value="/user/", method=RequestMethod.PUT)
@@ -363,15 +373,27 @@ public class NormalController {
 	@RequestMapping(value="/user/", method=RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public ResponseEntity<JsonResponse<User>> createUser(
 										//@RequestBody User newUser
-										User newUserRequested) {
+										User newUserRequested,
+										HttpServletResponse httpResponse) {
 		
 		JsonResponse<User> res = new JsonResponse<User>();
 		try {
-			User newUserCreated = null;
-			
+			User newUserCreated = null;			
 			newUserCreated = userService.createCommonUser(newUserRequested);
-			
 			res.setResponseData(newUserCreated);
+			
+						
+			// 세션 토큰 발급
+			UserSession userSession = new UserSession();			
+			userSession.setUserId(newUserCreated.getId());
+			userSession.setUserType(newUserCreated.getUserType());
+			userSession.setHospitalId(newUserCreated.getHospitalId());
+						
+			UserSessionManager sesMan = UserSessionManager.get();
+			//sesMan.issueToken(httpResponse, userSession);
+			
+			newUserCreated.setToken(sesMan.generateToken(userSession));
+			
 		} catch(Exception ex) {
 			res.setException(ex);
 		}
@@ -439,7 +461,11 @@ public class NormalController {
 	
 	
 	
-	
+	/******************************************************************************************************************/
+	/*                                                                                                                */
+	/*                                         관심지역                                                               */
+	/*                                                                                                                */
+	/******************************************************************************************************************/
 	
 	
 	
@@ -573,6 +599,142 @@ public class NormalController {
 	
 	
 	
+	/******************************************************************************************************************/
+	/*                                                                                                                */
+	/*                                         병원정보                                                               */
+	/*                                                                                                                */
+	/******************************************************************************************************************/
+	
+	
+	
+	/**
+	 * 심평원 병원 정보 조회
+	 * @param name	병원이름. like 검색
+	 * @param pageNo 페이지 번호
+	 * @return
+	 */
+	@RequestMapping(value="/hira/", method=RequestMethod.GET)
+	public ResponseEntity<JsonResponse<PageableList<Hospital>>> searchHiraHosiptalList(
+					@RequestParam(value="name",	required=true) String name,
+					@RequestParam(value="pageNo", defaultValue="1") Integer pageNo
+					// ,
+					//@RequestHeader(value="X-DP-TOKEN", required=true) String sessionToken
+					//@CookieValue(value=UserSession.TOKEN_NAME, required=true) String sessionToken
+			) {
+		
+		//System.out.println("HEADER " + UserSession.TOKEN_NAME + ":" + sessionToken);
+		
+		
+		
+		
+		JsonResponse<PageableList<Hospital>> res = new JsonResponse<PageableList<Hospital>>();		
+		try {
+			
+			
+			
+			PageableList<Hospital> hiraHospitalList = hospitalService.searchHiraHosiptalList(name, pageNo);
+			res.setResponseData(hiraHospitalList);
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		
+		return new ResponseEntity<JsonResponse<PageableList<Hospital>>>(res, HttpStatus.OK);
+	}
+	
+	
+	// 병원 정보 신규 등록
+	// consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE로 하고, @RequestBody 제거
+	//@RequestMapping(value="/test/", method=RequestMethod.POST)	
+	//@RequestMapping(value="/hospital/", method=RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	@RequestMapping(value="/hospital/", method=RequestMethod.POST)
+	public ResponseEntity<JsonResponse<Hospital>> registerHospital(	
+										@RequestBody Hospital hospital,
+										//@CookieValue(value=UserSession.TOKEN_NAME, required=true) String sessionToken	// 병원 등록은 필수적 권한확인
+										HttpServletRequest httpRequest,
+										HttpServletResponse httpResponse
+//										,
+//										@RequestHeader(value="DP_USER_ID") Long userId
+										//Hospital hospital
+			) {
+		
+		JsonResponse<Hospital> res = new JsonResponse<Hospital>();
+		try {
+			// 세션 정보 확인
+			UserSessionManager sesMan = UserSessionManager.get();
+			UserSession session = sesMan.verifyToken(httpRequest, httpResponse);
+			System.out.println("SESSION : " + session);
+			
+			Integer userId = session.getUserId();
+			Integer userType = session.getHospitalId();
+			Integer hospitalId = session.getHospitalId();
+			
+			// userType이 병원이 아니면 --> Exception			
+			//TODO 관리자 등록의 경우에는 userType==USER_TYPE_PERSON일 경우에 Exception 던지는 것으로 고쳐야 한다.
+			if ( userType==null || userType!=User.USER_TYPE_HOSPITAL ) {
+				throw new Exception("병원회원만 병원 등록이 가능합니다.");
+			}
+			
+			//TODO ** userType이 병원이고, hospitalId가 있다면 **  ==> 나중에 고칠 것
+			// userType이 병원이고, hospitalId가 있다면 --> Exception이 원칙(병원은 1개만 등록되어야 하므로)
+			// 그러나, Cookie가 이미 오래된 것이어서 그 사이에 병원이 삭제되거나 병원을 옮긴 경우(또는 의사가 폐업 후 신규 개업)는 문제된다.
+			// 이 문제는 화면하고도 관련(등록화면에 들어오지 못하게 막는 것)되어 있으므로, 나중에 하기로 한다.
+			if ( hospitalId==null || hospitalId==0 ) {
+				throw new Exception("기존 병원이 등록되어 있습니다. 병원은 1개만 등록 가능합니다.");
+			}
+						
+			
+			
+			System.out.println("신규병원 등록 : " + hospital); 
+			Hospital newHospital = hospitalService.createHospital(userId, hospital);
+			res.setResponseData(newHospital);
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		
+		return new ResponseEntity<JsonResponse<Hospital>>(res, HttpStatus.OK);	
+	}
+	
+	public ResponseEntity<JsonResponse<Hospital>> updateHospital(	
+												@RequestBody Hospital hospital,
+												HttpServletRequest httpRequest,
+												HttpServletResponse httpResponse
+		) {
+		
+		JsonResponse<Hospital> res = new JsonResponse<Hospital>();
+		try {
+			
+			// 세션 정보 확인
+			UserSessionManager sesMan = UserSessionManager.get();
+			UserSession session = sesMan.verifyToken(httpRequest, httpResponse);
+			
+			Integer userId = session.getUserId();
+			Integer userType = session.getHospitalId();
+			Integer hospitalId = session.getHospitalId();
+		
+			// userType이 병원이 아니면 --> Exception
+			//TODO 관리자 등록의 경우에는 userType==USER_TYPE_PERSON일 경우에 Exception 던지는 것으로 고쳐야 한다.
+			if ( userType!=User.USER_TYPE_HOSPITAL ) {
+				throw new Exception("병원회원만 병원 등록이 가능합니다.");
+			}
+			
+			if ( hospitalId==null || hospitalId!=hospital.getId() ) {
+				throw new Exception("등록된 병원에 대한 수정 권한이 없습니다 [" + hospitalId + "]-[" + hospital.getId() + "]");
+			}
+			
+			
+			System.out.println("신규병원 등록 : " + hospital); 
+			Hospital newHospital = hospitalService.updateHospital(userId, hospital);
+			res.setResponseData(newHospital);
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		
+		return new ResponseEntity<JsonResponse<Hospital>>(res, HttpStatus.OK);	
+	}
+	
+	
+	
+	//TODO 일반회원 또는 다른 병원의 정보는 보는 것 하고, 병원 회원이 보게 되는 것하고 나누어야 하지 않을까?
 	@RequestMapping(value="/hospital/{id}", method=RequestMethod.GET)
 	public ResponseEntity<JsonResponse<Hospital>> getHospital(@PathVariable("id") Integer id) {
 		JsonResponse<Hospital> res = new JsonResponse<Hospital>();

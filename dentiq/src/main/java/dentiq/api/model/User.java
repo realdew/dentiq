@@ -1,5 +1,7 @@
 package dentiq.api.model;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -14,9 +16,9 @@ public class User {
 	public static final int USER_TYPE_PERSON		= 1;	// 회원 유형 (1: 구직(개인)회원)
 	public static final int USER_TYPE_HOSPITAL		= 2;	// 회원 유형 (2: 구인(병원)회원)
 	
-	public static final int KEEPING_LOGIN_NONE		= 0;	// 로그인 유지 방식 (0:유지 안함. 일회성 로그인)
-	public static final int KEPPING_LOGIN_SESSION	= 1;	// 로그인 유지 방식 (1:영구 유지)
-	public static final int KEEPING_LOGIN_PERM		= 2;	// 로그인 유지 방식 (2:특정기간 로그인상태유지)
+	public static final int KEEPING_LOGIN_NONE		= 0;	// 로그인 유지 방식 (0:유지 안함. 디폴트값)
+	public static final int KEPPING_LOGIN_SESSION	= 1;	// 로그인 유지 방식 (1:timeout이 존재하는 일반 세션)
+	public static final int KEEPING_LOGIN_PERM		= 2;	// 로그인 유지 방식 (2:특정기간(예:30일 로그인상태유지)
 	
 	
 	
@@ -39,12 +41,20 @@ public class User {
 		} else return null;
 	}
 	
+	@Getter @Setter private Integer hospitalId;	// 병원 ID (회원유형(userType)이 병원회원(2)인 경우에만 의미 있음) (JSON일 때는 숫자 0으로 리턴되네)
+	
+	
 	@Setter private String bizRegNo;	// 사업자 번호 (병원회원 only)
 	public String getBizRegNo() {
 		if ( this.userType==USER_TYPE_HOSPITAL ) {
 			return this.bizRegNo;
 		} else return null;
 	}
+	
+	
+	@Getter @Setter private String locationCode;
+	@Getter @Setter private String sidoCode;
+	@Getter @Setter private String siguCode;
 	
 
 	
@@ -57,6 +67,9 @@ public class User {
 	
 	//@Getter @Setter private AddrJuso addrJuso;
 	
+	
+	@Getter @Setter private String token;						// 로그인 시에만 세팅 : 세션 토큰
+	@Getter @Setter private List<Long> scrappedJobAdIdList;		// 로그인 시에만 세팅 : 스크랩한 공고들의 ID 리스트
 	
 	
 	// For Testing Only

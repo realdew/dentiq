@@ -39,6 +39,36 @@ public class LocationCode {
 	
 	@Getter @Setter private Map<String, LocationCode> children;
 	
+	/*
+	public LocationCode() {}
+	
+	public LocationCode(String code) throws Exception {
+		
+		if ( code == null ) throw new Exception();
+		
+		code = code.trim();
+		
+		if ( code.length() == 2 ) {
+			this.locationCode = code;
+			this.sidoCode = code;
+			this.type = SIDO_CODE;
+			
+		} else if ( code.length() == 8 ) {
+			if ( code.indexOf(CODE_DELIMETER) != 2 ) throw new Exception();
+			
+			this.locationCode = code;
+			String[] tokens = code.split(CODE_DELIMETER);			
+			this.sidoCode = tokens[0];
+			this.siguCode = tokens[1];
+			this.type = SIGU_CODE;
+			
+		} else {
+			throw new Exception();
+		}		
+		
+	}
+	*/
+	
 //	public static boolean isValidFormat(String str) {
 //		if ( str == null ) return false;
 //		str = str.trim();

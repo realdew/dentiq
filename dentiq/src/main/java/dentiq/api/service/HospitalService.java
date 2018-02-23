@@ -9,7 +9,11 @@ public interface HospitalService {
 	
 	public PageableList<Hospital> searchHiraHosiptalList(String name, Integer pageNo) throws Exception;
 	
-	public Hospital createHospital(Hospital hospital) throws Exception;
+	
+	
+	public Hospital createHospital(Integer userId, Hospital hospital) throws Exception;
+	
+	public Hospital updateHospital(Integer userId, Hospital hospital) throws Exception;
 	
 	public List<Hospital> listHospitals(int page) throws Exception;
 	

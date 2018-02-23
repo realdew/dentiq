@@ -10,10 +10,16 @@ import org.springframework.stereotype.Repository;
 import dentiq.api.model.Hospital;
 import dentiq.api.model.JobAd;
 import dentiq.api.model.LocationCode;
+import dentiq.api.model.Resume;
 
 @Mapper
 @Repository
 public interface JobSeekerMapper {
+	
+	public Integer insertResume(Resume resume) throws Exception;
+	public int updateResume(Resume resume) throws Exception;
+	public Resume getResumeByUserId(Integer userId) throws Exception;
+	public Resume getResumeById(Integer resumeId) throws Exception;
 	
 	
 	//public int insertAllScrappedJobAds(@Param("userId") Integer userId, @Param("jobAdIdList") List<Long> jobAdIdList) throws Exception;

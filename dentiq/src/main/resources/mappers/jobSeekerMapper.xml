@@ -3,6 +3,48 @@
 
 <mapper namespace="dentiq.api.repository.JobSeekerMapper">
 
+	<select id="getResumeByUserId" resultType="dentiq.api.model.Resume">
+		select * from USER_RESUME where USER_ID=#{userId}
+	</select>
+	<select id="getResumeById" resultType="dentiq.api.model.Resume">
+		select * from USER_RESUME where ID=#{resumeId}
+	</select>
+	<insert id="insertResume" useGeneratedKeys="true" keyProperty="id" parameterType="dentiq.api.model.Resume">
+		insert into USER_RESUME (
+			USER_ID, TITLE,
+			ATTR_JSON,
+			SALARY_WANTED, SALARY_WANTED_TEXT,
+			ROLE_WANTED, ROLE_WANTED_TEXT,
+			APPLY_LOCATION_CODE_JSON,
+			EDU_LEVEL, EDU_STATUS, EDU_SCHOOL_NAME, EDU_MAJOR, EDU_START_YYYYMM, EDU_END_YYYYMM,
+			CAREER_JSON, LICENSE_JSON,
+			CONFIRM_RECOMMENDATION,
+			USE_YN
+		) values (
+			#{userId}, #{title}, 
+			#{salaryWanted}, #{salaryWantedText},
+			#{roleWanted}, #{roleWantedText},
+			#{applyLocationCodeJson},
+			#{eduLevel}, #{eduStatus}, #{eduSchoolName}, #{eduMajor}, #{eduStartYYYYMM}, #{eduEndYYYYMM},			
+			#{careerJson}, #{licenseJson},
+			#{confirmRecommendation},
+			'Y'
+		)
+	</insert>
+	<update id="updateResume" parameterType="dentiq.api.model.Resume">
+		update USER_RESUME set
+			TITLE=#{title},
+			ATTR_JSON=#{attrJson},
+			SALARY_WANTED=#{salaryWanted}, SALARY_WANTED_TEXT=#{salaryWantedText},
+			ROLE_WANTED=#{roleWanted}, ROLE_WANTED_TEXT=#{roleWantedText},
+			APPLY_LOCATION_CODE_JSON=#{applyLocationCodeJson},
+			EDU_LEVEL=#{eduLevel}, EDU_STATUS=#{eduStatus}, EDU_SCHOOL_NAME=#{eduSchoolName}, EDU_MAJOR=#{eduMajor}, EDU_START_YYYYMM=#{eduStartYYYYMM}, EDU_END_YYYYMM=#{eduEndYYYYMM},
+			CAREER_JSON=#{careerJson}, LICENSE_JSON=#{licenseJson},
+			CONFIRM_RECOMMENDATION=#{confirmRecommendation}
+		where USER_ID=#{userId}
+	</update>
+
+
 	<!--  관심지역 -->
 	<select id="listUserConcernedLocationCodes" resultType="dentiq.api.model.LocationCode">
 		select LOCATION_CODE

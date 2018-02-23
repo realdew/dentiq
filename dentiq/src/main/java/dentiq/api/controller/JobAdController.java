@@ -1,6 +1,7 @@
 package dentiq.api.controller;
 
 
+
 import java.util.List;
 import java.util.Map;
 
@@ -9,9 +10,11 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,6 +24,7 @@ import dentiq.api.model.JobAd;
 import dentiq.api.model.JobAdAttrGroup;
 import dentiq.api.model.JobAdDashboard;
 import dentiq.api.model.NameCountPair;
+import dentiq.api.model.juso.AddrJuso;
 import dentiq.api.service.JobAdService;
 
 /**
@@ -38,6 +42,124 @@ public class JobAdController {
 	@Autowired private JobAdService jobAdService;
 
 
+//	@RequestMapping(value="/jobAd/{id}/attr/", method=RequestMethod.GET)
+//	public ResponseEntity<JsonResponse<String>> updateJobAdAttr(
+//								@PathVariable("id") Long id
+//			) {
+//		JsonResponse<String> res = new JsonResponse<String>();
+//		try {
+//			
+//			List<String> test = new ArrayList<String>();
+//			test.add("EMP.2");
+//			test.add("EMP.3");
+//			test.add("TASK.1");
+//			
+//			jobAdService.updateJobAdAttr(id, test);
+//			// updateJobAdAttr(String jobAdId, List<String> attrStrList) 
+//			
+//			res.setResponseData("res");
+//		} catch(Exception ex) {
+//			res.setException(ex);
+//		}
+//		return new ResponseEntity<JsonResponse<String>>(res, HttpStatus.OK);
+//	}
+	
+	/**
+	 * 공고 생성
+	 * @param jobAd
+	 * @return
+	 */
+	
+	//@RequestMapping(value="/jobAd/", method=RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	@RequestMapping(value="/jobAd/", method=RequestMethod.POST)
+	public ResponseEntity<JsonResponse<JobAd>> createJobAds(
+								@RequestBody				JobAd jobAd
+								//JobAd jobAd
+			) {
+		
+		JsonResponse<JobAd> res = new JsonResponse<JobAd>();
+		try {
+			
+			// 회원 정보를 확인하여, a:병원회원의 권한이 있는지, b:병원ID를 조회하여야 한다.
+			// 병원회원 권한이 없다면, 에러 처리
+			// 병원 ID를 조회하여 처리
+			
+			
+			System.out.println("요청된 신규 JOB AD 정보 " + jobAd);
+			JobAd newJobAd = null;
+			newJobAd = jobAdService.createJobAd(jobAd);
+			System.out.println("등록 결과 JOB AD " + newJobAd);
+			
+			res.setResponseData(newJobAd);
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		return new ResponseEntity<JsonResponse<JobAd>>(res, HttpStatus.OK);
+	}
+	
+	//@RequestMapping(value="/jobAd/{id}/", method=RequestMethod.PUT, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	@RequestMapping(value="/jobAd/{id}/", method=RequestMethod.PUT)
+	public ResponseEntity<JsonResponse<JobAd>> updateJobAds(
+								@PathVariable("id")			Long id,
+								@RequestBody				JobAd jobAd
+								//JobAd jobAd
+			) {
+		
+		JsonResponse<JobAd> res = new JsonResponse<JobAd>();
+		try {
+			jobAd.setId(id);
+			
+			System.out.println("요청된 수정 JOB AD 정보 " + jobAd);
+			JobAd newJobAd = jobAdService.updateJobAdBasic(jobAd);
+			System.out.println("수정 결과 JOB AD " + newJobAd);
+			
+			res.setResponseData(newJobAd);
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		return new ResponseEntity<JsonResponse<JobAd>>(res, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/jobAd/{id}/", method=RequestMethod.DELETE)
+	public ResponseEntity<JsonResponse<String>> updateJobAds(
+								@PathVariable("id")			Long id
+			) {
+		
+		JsonResponse<String> res = new JsonResponse<String>();
+		try {
+			
+			jobAdService.deleteJobAd(id);
+			res.setResponseData("OK");
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		return new ResponseEntity<JsonResponse<String>>(res, HttpStatus.OK);
+	}
+	
+	/**
+	 * 특정 ID의 공고를 리턴한다.
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value="/jobAd/{id}/", method=RequestMethod.GET)
+	public ResponseEntity<JsonResponse<JobAd>> countJobAds(@PathVariable("id") Long id) {
+		
+		JsonResponse<JobAd> res = new JsonResponse<JobAd>();
+		try {
+			JobAd jobAd = jobAdService.get(id);
+			res.setResponseData(jobAd);
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		return new ResponseEntity<JsonResponse<JobAd>>(res, HttpStatus.OK);
+	}
+	
+	
+	
+	
+	
+	
+	
 	
 	/**
 	 * 관심지역 등 특정 지역(시도 또는 시구)들을 지정하여 해당 지역의 공고 개수를 리턴
@@ -209,23 +331,7 @@ public class JobAdController {
 		return new ResponseEntity<JsonResponse<Long>>(res, HttpStatus.OK);
 	}
 	
-	/**
-	 * 특정 ID의 공고를 리턴한다.
-	 * @param id
-	 * @return
-	 */
-	@RequestMapping(value="/jobAd/{id}/", method=RequestMethod.GET)
-	public ResponseEntity<JsonResponse<JobAd>> countJobAds(@PathVariable("id") long id) {
-		
-		JsonResponse<JobAd> res = new JsonResponse<JobAd>();
-		try {
-			JobAd jobAd = jobAdService.get(id);
-			res.setResponseData(jobAd);
-		} catch(Exception ex) {
-			res.setException(ex);
-		}
-		return new ResponseEntity<JsonResponse<JobAd>>(res, HttpStatus.OK);
-	}
+	
 	
 	
 	

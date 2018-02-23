@@ -25,10 +25,12 @@ public interface HospitalMapper {
 	/**
 	 * 병원 정보를 생성한다.
 	 * @param hospital
-	 * @return
+	 * @return 병원 ID
 	 * @throws Exception
 	 */
-	public int createHospital(Hospital hospital) throws Exception;
+	public Integer createHospital(Hospital hospital) throws Exception;
+	
+	public int updateHospital(Hospital hospital) throws Exception;
 	
 	@Select("select	* from HOSPITAL where ID=#{id}")
 	public Hospital readHospital(@Param("id") int id) throws Exception;
