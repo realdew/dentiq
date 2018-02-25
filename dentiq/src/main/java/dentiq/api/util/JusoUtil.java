@@ -174,7 +174,7 @@ public class JusoUtil {
 						
 			AddrJuso[] juso = addrResult.getResults().getJuso();				// 각 결과 행에 인덱스 추가
 			for ( int i=0; juso!=null && i<juso.length; i++ ) {
-				juso[i].setIdx(startIndex);
+				juso[i].setJusoIdx(startIndex);
 				startIndex++;	/// 인덱스 추가
 				
 				// 수신된 주소에서 '시도'와 '시군'의 정보를 확인한다.

@@ -40,7 +40,7 @@
 				LUNCH_TIME_START, LUNCH_TIME_END,
 				HR_OFFICER_NAME, HR_TEL_NO, HR_EMAIL,
 				RETIREMENT_PAY_TYPE, RETIREMENT_PAY,
-				ATTR_VAL, ATTR_JSON
+				ATTR_JSON
 			)
 		values
 			(
@@ -55,25 +55,25 @@
 				#{lunchTimeStart}, #{lunchTimeEnd},
 				#{hrOfficerName}, #{hrTelNo}, #{hrEmail},
 				#{retirementPayType}, #{retirementPay},
-				null, #{attrJson}
+				#{attrJson}
 			)
 	</insert>
 	
-	<!--  register_jobad.html에서 오는 수정 처리 -->
+	<!--  register_jobad.html에서 오는 수정 처리 : 병원 ID 등은 수정하지 않는다. -->
 	<update id="updateJobAdBasic" parameterType="dentiq.api.model.JobAd">
 		update JOB_AD set
 				TITLE=#{title},
 				HIRING_TERM_TYPE=#{hiringTermType}, 
 				HIRING_START_DATE=#{hiringStartDate}, HIRING_START_TIME=#{hiringStartTime}, HIRING_END_DATE=#{hiringEndDate}, HIRING_END_TIME=#{hiringEndTime},
-				APPLY_WAY_JSON=#{applyWayJson}, WORK_DESC=#{workDesc}, HIRING_CNT=#{hiringCnt}, SALARY_TYPE=#{salaryType}, SALARY_TEXT=#{sararyText},
-				HIRING_ROLE_TYPE=#{hiringRuleType}, HIRING_ROLE_TEXT=#{hiringRoleText}, EDU_LEVEL=#{eduLevel}, EXP_TYPE=#{expType}, LICENSE_TEXT=#{licenseText},
+				APPLY_WAY_JSON=#{applyWayJson}, WORK_DESC=#{workDesc}, HIRING_CNT=#{hiringCnt}, SALARY_TYPE=#{salaryType}, SALARY_TEXT=#{salaryText},
+				HIRING_ROLE_TYPE=#{hiringRoleType}, HIRING_ROLE_TEXT=#{hiringRoleText}, EDU_LEVEL=#{eduLevel}, EXP_TYPE=#{expType}, LICENSE_TEXT=#{licenseText},
 				WORKING_DAY=#{workingDay},
 				WORKING_TIME_WEEKDAY_START=#{workingTimeWeekdayStart}, WORKING_TIME_WEEKDAY_END=#{workingTimeWeekdayEnd}, 
 				WORKING_TIME_WEEKEND_START=#{workingTimeWeekendStart}, WORKING_TIME_WEEKEND_END=#{workingTimeWeekendEnd}, 
 				WORKING_TIME_TEXT=#{workingTimeText},
 				LUNCH_TIME_START=#{lunchTimeStart}, LUNCH_TIME_END=#{lunchTimeEnd},
-				HR_OFFICER_NAME=#{hrOfficeName}, HR_TEL_NO=#{hrTelNo}, HR_EMAIL=#{hrEmail},
-				ATTR_VAL=null, ATTR_JSON=#{attrJson}
+				HR_OFFICER_NAME=#{hrOfficerName}, HR_TEL_NO=#{hrTelNo}, HR_EMAIL=#{hrEmail},
+				ATTR_JSON=#{attrJson}
 		
 		where ID=#{id}
 	</update>
@@ -562,8 +562,8 @@
 	<!-- 조건에 맞는 공고의 리스트를 가져온다.	 -->
 	<select id="listJobAdsGeneric2" resultType="dentiq.api.model.JobAd">
 		select	J.ID as ID, J.TITLE as TITLE, 
-				J.HOSPITAL_ID as HOSPITAL_ID, J.HOSPITAL_NAME as HOSPITAL_NAME, J.ADDR as ADDR,
-				J.SIDO_CODE, J.SIGU_CODE, J.LOGO_URL, J.ATTR_VAL
+				J.HOSPITAL_ID as HOSPITAL_ID, J.HOSPITAL_NAME as HOSPITAL_NAME, J.ADDR_MAIN as ADDR_MAIN,
+				J.SIDO_CODE, J.SIGU_CODE, J.LOGO_URL, J.ATTR_JSON
 				<if test="searchCriteria !=null and searchCriteria.distanceCriteria != null">
 					, DISTANCE_VIEW.DISTANCE as DISTANCE
 				</if>
@@ -577,8 +577,11 @@
 				</foreach>
 			</trim>
 		</if>
-		<if test="searchCriteria !=null and searchCriteria.sortCriteria == null and searchCriteria.distanceCriteria != null">
+		<if test="searchCriteria !=null and searchCriteria.sortCriteria != null and searchCriteria.distanceCriteria != null">
 			order by DISTANCE
+		</if>
+		<if test="searchCriteria ==null or searchCriteria.sortCriteria == null or searchCriteria.distanceCriteria == null">
+			order by MEMBERSHIP_TYPE desc, HIRING_TERM_TYPE desc, HIRING_END_DATE desc
 		</if>
 		
 		

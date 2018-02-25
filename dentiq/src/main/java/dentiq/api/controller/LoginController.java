@@ -50,7 +50,7 @@ public class LoginController {
 			UserSession userSession = new UserSession();
 			userSession.setUserId(user.getId());
 			userSession.setUserType(user.getUserType());
-			userSession.setHospitalId(user.getHospitalId());
+			//userSession.setHospitalId(user.getHospitalId());
 			
 			UserSessionManager sesMan = UserSessionManager.get();
 			//sesMan.issueToken(httpResponse, userSession);

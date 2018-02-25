@@ -19,6 +19,7 @@ public interface HospitalService {
 	
 
 	public Hospital get(Integer id) throws Exception;
+	public Hospital getByUserId(Integer userId) throws Exception;
 
 	
 	public List<Hospital> searchHospitals() throws Exception;

@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 import dentiq.api.model.Hospital;
@@ -33,13 +34,20 @@ public interface HospitalMapper {
 	public int updateHospital(Hospital hospital) throws Exception;
 	
 	@Select("select	* from HOSPITAL where ID=#{id}")
-	public Hospital readHospital(@Param("id") int id) throws Exception;
+	public Hospital readHospital(@Param("id") Integer id) throws Exception;
+	
+	@Select("select	* from HOSPITAL where USER_ID=#{userId}")
+	public Hospital readHospitalByUserId(@Param("userId") Integer userId) throws Exception;
 	
 	@Select("select	* from HOSPITAL limit #{startIndexOnPage}, #{itemCountPerPage}")
 	public List<Hospital> listHospitals(PageCriteria pageCriteria) throws Exception;
 	
 	@Select("select count(*) from HOSPITAL")
 	public int countHospitals() throws Exception;
+	
+	@Update("update USER set HOSPITAL_ID=#{hospitalId} where ID=#{userId} and USER_TYPE=2")
+	public int updateHospitalIdOfUser(@Param("userId") Integer userId, @Param("hospitalId") Integer hospitalId) throws Exception;
+
 	
 	//public List<Hospital> searchHospitals(HospitalSearchCriteria searchCriteria) throws Exception;
 	

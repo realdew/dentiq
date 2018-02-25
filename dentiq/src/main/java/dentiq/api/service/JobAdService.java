@@ -13,9 +13,9 @@ import dentiq.api.model.JobAdDashboard;
 public interface JobAdService {
 	
 	
-	public JobAd createJobAd(JobAd jobAd) throws Exception;
+	public JobAd createJobAd(Integer userId, JobAd jobAd) throws Exception;
 	
-	public JobAd updateJobAdBasic(JobAd jobAd) throws Exception;
+	public JobAd updateJobAdBasic(Integer userId, JobAd jobAd) throws Exception;
 	
 	public JobAd get(Long id) throws Exception;
 	public JobAd getWithHospital(Long id) throws Exception;

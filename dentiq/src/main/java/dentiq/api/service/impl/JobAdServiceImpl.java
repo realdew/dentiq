@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import dentiq.api.model.Hospital;
 import dentiq.api.model.JobAd;
 import dentiq.api.model.JobAdAttr;
 import dentiq.api.model.JobAdAttrCounter;
@@ -18,7 +19,10 @@ import dentiq.api.model.JobAdDashboard;
 //import dentiq.api.model.JobAdDashboard;
 import dentiq.api.model.JobAdGroupByLocationCode;
 import dentiq.api.model.LocationCode;
+import dentiq.api.model.User;
+import dentiq.api.repository.HospitalMapper;
 import dentiq.api.repository.JobAdMapper;
+import dentiq.api.repository.UserMapper;
 import dentiq.api.repository.criteria.JobAdSearchCriteria;
 import dentiq.api.service.JobAdService;
 
@@ -26,21 +30,109 @@ import dentiq.api.service.JobAdService;
 @Transactional(readOnly=true)
 public class JobAdServiceImpl implements JobAdService {
 	
-	@Autowired
-	private JobAdMapper mapper;
+	@Autowired private JobAdMapper mapper;
+	
+	@Autowired private HospitalMapper hospitalMapper;
+	
+	@Autowired private UserMapper userMapper;
 	
 	@Override
 	@Transactional(readOnly=false)
-	public JobAd createJobAd(JobAd jobAd) throws Exception {
+	public JobAd createJobAd(Integer userId, JobAd jobAd) throws Exception {
 		
+		String hiringTermType = jobAd.getHiringTermType();
+		if ( hiringTermType==null ) throw new Exception("채용기간형태(상시/기간)가 입력되지 않았습니다.");
+		
+		if ( hiringTermType.equals("2") ) {	// 1: 상시채용 2: 기간채용
+			String hiringStartDate = jobAd.getHiringStartDate();
+			String hiringEndDate   = jobAd.getHiringEndDate();
+			if ( hiringStartDate==null || hiringStartDate.trim().equals("") || hiringEndDate==null || hiringEndDate.trim().equals("") ) {
+				throw new Exception("기간채용("+hiringTermType+")일 때는 채용 시작/종료기간이 반드시 입력되어야 합니다. (" + hiringStartDate + "/" + hiringEndDate + ")");
+			}
+		}
+		
+		
+		
+				
+		User user = userMapper.getUserById(userId);
+		if ( user==null ) {
+			throw new Exception("해당 사용자가 존재하지 않습니다. [" + userId + "]");
+		}
+		if ( user.getUserType() == null || !user.getUserType().equals(User.USER_TYPE_HOSPITAL) ) {
+			throw new Exception("해당 사용자는 병원회원이 아닙니다. [" + user.getUserType() + "]");
+		}
+		
+
+		Hospital hospital = hospitalMapper.readHospitalByUserId(userId);
+		if ( hospital == null ) {
+			throw new Exception("병원정보가 없습니다. [userId:" + userId + "]");
+		}		
+		if ( user.getHospitalId() == null || user.getHospitalId()==0 ) {
+			throw new Exception("회원의 병원정보 없음 [" + user.getHospitalId() + "]");
+		}		
+		if ( !user.getHospitalId().equals(hospital.getId()) ) {
+			throw new Exception("회원의 병원 정보 불일치 [userHospital:" + user.getHospitalId() + "] [hospital:" + hospital.getId() + "]");
+		}
+		
+		
+		
+		
+		jobAd.setHospitalId(hospital.getId());
 		
 		// 1. 먼저 생성
 		int updatedRows = mapper.createJobAd(jobAd);
 		if ( updatedRows != 1 ) throw new Exception("JobAd 생성 실패 : 변경행 [" + updatedRows + "]");
+				
 		
-//		if ( true ) 
-//			throw new Exception("강제 예외");
+		updateJobAdAttr(jobAd.getId(), jobAd.getAttr());
 		
+		return mapper.getJobAd(jobAd.getId());
+	}
+	
+	@Override
+	public JobAd updateJobAdBasic(Integer userId, JobAd jobAd) throws Exception {
+		
+		String hiringTermType = jobAd.getHiringTermType();
+		if ( hiringTermType==null ) throw new Exception("채용기간형태(상시/기간)가 입력되지 않았습니다.");
+		
+		if ( hiringTermType.equals("2") ) {	// 1: 상시채용 2: 기간채용
+			String hiringStartDate = jobAd.getHiringStartDate();
+			String hiringEndDate   = jobAd.getHiringEndDate();
+			if ( hiringStartDate==null || hiringStartDate.trim().equals("") || hiringEndDate==null || hiringEndDate.trim().equals("") ) {
+				throw new Exception("기간채용("+hiringTermType+")일 때는 채용 시작/종료기간이 반드시 입력되어야 합니다. (" + hiringStartDate + "/" + hiringEndDate + ")");
+			}
+		}
+		
+		
+		User user = userMapper.getUserById(userId);
+		if ( user==null ) {
+			throw new Exception("해당 사용자가 존재하지 않습니다. [" + userId + "]");
+		}
+		if ( user.getUserType() == null || !user.getUserType().equals(User.USER_TYPE_HOSPITAL) ) {
+			throw new Exception("해당 사용자는 병원회원이 아닙니다. [" + user.getUserType() + "]");
+		}
+		
+		Hospital hospital = hospitalMapper.readHospitalByUserId(userId);
+		if ( hospital == null ) {
+			throw new Exception("병원정보가 없습니다. [userId:" + userId + "]");
+		}		
+		if ( user.getHospitalId() == null || user.getHospitalId()==0 ) {
+			throw new Exception("회원의 병원정보 없음 [" + user.getHospitalId() + "]");
+		}		
+		if ( !user.getHospitalId().equals(hospital.getId()) ) {
+			throw new Exception("회원의 병원 정보 불일치 [userHospital:" + user.getHospitalId() + "] [hospital:" + hospital.getId() + "]");
+		}
+		
+		if ( !hospital.getId().equals(jobAd.getHospitalId()) ) {
+			throw new Exception("변경 요청된 공고는 해당 병원의 것이 아닙니다. [" + jobAd.getHospitalId() + "] [" + hospital.getId() + "]");
+		}
+		
+		
+		
+		
+		
+		int updatedRows = mapper.updateJobAdBasic(jobAd);
+		if ( updatedRows != 1 ) throw new Exception("JobAd 수정 실패 : 변경행 [" + updatedRows + "]");
 		
 		updateJobAdAttr(jobAd.getId(), jobAd.getAttr());
 		
@@ -71,15 +163,7 @@ public class JobAdServiceImpl implements JobAdService {
 		return mapper.getJobAdAttrList(jobAdId);
 	}
 	
-	@Override
-	public JobAd updateJobAdBasic(JobAd jobAd) throws Exception {
-		int updatedRows = mapper.updateJobAdBasic(jobAd);
-		if ( updatedRows != 1 ) throw new Exception("JobAd 수정 실패 : 변경행 [" + updatedRows + "]");
-		
-		updateJobAdAttr(jobAd.getId(), jobAd.getAttr());
-		
-		return mapper.getJobAd(jobAd.getId());
-	}
+	
 	
 	@Override
 	public JobAd getWithHospital(Long id) throws Exception {

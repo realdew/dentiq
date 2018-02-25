@@ -225,6 +225,7 @@ class UserSessionManagerImplHttpHeader extends UserSessionManager {
 	public UserSession verifyToken(HttpServletRequest req, HttpServletResponse res, boolean checkLoggedIn) throws Exception {
 		String token = getTokenFromHttpHeader(req);
 		if ( checkLoggedIn && token==null ) {
+			System.out.println("로그인되어 있지 않음 : " + checkLoggedIn + " ==> " + token);
 			throw new Exception("로그인되어 있지 않습니다. (H)");
 		}
 		

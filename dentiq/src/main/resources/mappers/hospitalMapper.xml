@@ -7,7 +7,8 @@
 		insert into HOSPITAL (
 			BIZ_REG_NO, BIZ_REG_NAME, Y_KIHO, USER_ID, NAME, CL_CODE, CL_CODE_NAME, 
 			LOCATION_CODE, SIDO_CODE, SIDO_NAME, SIGU_CODE, SIGU_NAME, 
-			ADDR_MAIN, ADDR_DETAIL, JIBUN_ADDR, ADM_CD, RN_MGT_SN, UDRT_YN, BULD_MNNM, BULD_SLNO, BD_NM, EMD_NM, ENT_X, ENT_Y, ZIP_NO,
+			ADDR_MAIN, ADDR_DETAIL, 
+			JIBUN_ADDR, ADM_CD, RN_MGT_SN, UDRT_YN, BULD_MNNM, BULD_SLNO, BD_NM, EMD_NM, ENT_X, ENT_Y, ZIP_NO,
 			TEL_NO, HOSP_URL, 
 			EMAIL, CEO_NAME, EST_DATE, TDR_CNT, GDR_CNT, IDR_CNT, RDR_CNT, SDR_CNT, X_POS, Y_POS, LOGO_URL, 
 			HOSPITAL_TYPE_CODE, HOSPITAL_TYPE_TEXT,			
@@ -18,7 +19,8 @@
 		values (
 			#{bizRegNo}, #{bizRegName}, #{yKiho}, #{userId}, #{name}, #{clCode}, #{clCodeName}, 
 			#{locationCode}, #{sidoCode}, #{sidoName}, #{siguCode}, #{siguName},
-			#{addrMain}, #{addrDetail}, #{jibunAddr}, #{admCd}, #{rnMgtSn}, #{udrtYn}, #{buldMnnm}, #{buldSlno}, #{bdNm}, #{emdNm}, #{entX}, #{entY}, #{zipNo},
+			#{addrMain}, #{addrDetail}, 
+			#{addrJuso.jibunAddr}, #{addrJuso.admCd}, #{addrJuso.rnMgtSn}, #{addrJuso.udrtYn}, #{addrJuso.buldMnnm}, #{addrJuso.buldSlno}, #{addrJuso.bdNm}, #{addrJuso.emdNm}, #{addrJuso.entX}, #{addrJuso.entY}, #{addrJuso.zipNo},
 			#{telNo}, #{hospUrl},
 			#{email}, #{ceoName}, #{estDate}, #{tdrCnt}, #{gdrCnt}, #{idrCnt}, #{rdrCnt}, #{sdrCnt}, #{xPos}, #{yPos}, #{logoUrl},
 			#{hospitalTypeCode}, #{hospitalTypeText},
@@ -33,10 +35,11 @@
 		update HOSPITAL
 		set
 			<!-- ID, BIZ_REG_NO, BIZ_REG_NAME, Y_KIHO, USER_ID, NAME, CL_CODE, CL_CODE_NAME, -->
+			BIZ_REG_NAME=#{bizRegName}, NAME=#{name},
 			LOCATION_CODE=#{locationCode}, SIDO_CODE=#{sidoCode}, SIDO_NAME=#{sidoName}, SIGU_CODE=#{siguCode}, SIGU_NAME=#{siguName}, 
-			ADDR_MAIN=#{addrMain}, ADDR_DETAIL=#{addrDetail}, JIBUN_ADDR=#{jibunAddr}, 
-			ADM_CD=#{admCd}, RN_MGT_SN=#{rnMgtSn}, UDRT_YN=#{udrtYn}, BULD_MNNM=#{buldMnnm}, BULD_SLNO=#{buldSlno}, BD_NM=#{bdNm}, EMD_NM=#{emdNm}, ENT_X=#{entX}, ENT_Y=#{entY}, ZIP_NO=#{zipNo},
-			TEL_NO=#{telNo}, HOSP_URL=#{hostUrl},
+			ADDR_MAIN=#{addrMain}, ADDR_DETAIL=#{addrDetail}, 
+			JIBUN_ADDR=#{addrJuso.jibunAddr}, ADM_CD=#{addrJuso.admCd}, RN_MGT_SN=#{addrJuso.rnMgtSn}, UDRT_YN=#{addrJuso.udrtYn}, BULD_MNNM=#{addrJuso.buldMnnm}, BULD_SLNO=#{addrJuso.buldSlno}, BD_NM=#{addrJuso.bdNm}, EMD_NM=#{addrJuso.emdNm}, ENT_X=#{addrJuso.entX}, ENT_Y=#{addrJuso.entY}, ZIP_NO=#{addrJuso.zipNo},
+			TEL_NO=#{telNo}, HOSP_URL=#{hospUrl},
 			EMAIL=#{email}, CEO_NAME=#{ceoName}, EST_DATE=#{estDate}, TDR_CNT=#{tdrCnt}, GDR_CNT=#{gdrCnt}, IDR_CNT=#{idrCnt}, RDR_CNT=#{rdrCnt}, SDR_CNT=#{sdrCnt},
 			LOGO_URL=#{logoUrl},
 			HOSPITAL_TYPE_CODE=#{hospitalTypeCode}, HOSPITAL_TYPE_TEXT=#{hospitalTypeText},

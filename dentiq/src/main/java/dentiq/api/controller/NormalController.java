@@ -67,7 +67,7 @@ public class NormalController {
 	/******************************************************************************************************************/
 	
 	@RequestMapping(value="/user/{userId}/resume/", method=RequestMethod.PUT)
-	public ResponseEntity<JsonResponse<Resume>> registerResume(
+	public ResponseEntity<JsonResponse<Resume>> registerOrUpdateResume(
 										@PathVariable("userId")		Integer userId,
 										@RequestBody Resume resume,
 										HttpServletRequest httpRequest,
@@ -82,7 +82,7 @@ public class NormalController {
 			UserSession session = sesMan.verifyToken(httpRequest, httpResponse);
 			
 			Integer sessionUserId = session.getUserId();
-			Integer sessionUserType = session.getHospitalId();
+			Integer sessionUserType = session.getUserType();
 			
 			if ( sessionUserId==null || sessionUserId==0 ) {
 				throw new Exception("로그인되어 있지 않습니다.");
@@ -387,7 +387,7 @@ public class NormalController {
 			UserSession userSession = new UserSession();			
 			userSession.setUserId(newUserCreated.getId());
 			userSession.setUserType(newUserCreated.getUserType());
-			userSession.setHospitalId(newUserCreated.getHospitalId());
+			//userSession.setHospitalId(newUserCreated.getHospitalId());
 						
 			UserSessionManager sesMan = UserSessionManager.get();
 			//sesMan.issueToken(httpResponse, userSession);
@@ -642,19 +642,68 @@ public class NormalController {
 	}
 	
 	
-	// 병원 정보 신규 등록
-	// consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE로 하고, @RequestBody 제거
-	//@RequestMapping(value="/test/", method=RequestMethod.POST)	
-	//@RequestMapping(value="/hospital/", method=RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-	@RequestMapping(value="/hospital/", method=RequestMethod.POST)
-	public ResponseEntity<JsonResponse<Hospital>> registerHospital(	
+	
+	
+//	// 병원 정보 신규 등록
+//	// consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE로 하고, @RequestBody 제거
+//	//@RequestMapping(value="/test/", method=RequestMethod.POST)	
+//	//@RequestMapping(value="/hospital/", method=RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+//	@RequestMapping(value="/hospital/", method=RequestMethod.POST)
+//	public ResponseEntity<JsonResponse<Hospital>> registerHospital(	
+//										@RequestBody Hospital hospital,
+//										//@CookieValue(value=UserSession.TOKEN_NAME, required=true) String sessionToken	// 병원 등록은 필수적 권한확인
+//										HttpServletRequest httpRequest,
+//										HttpServletResponse httpResponse
+////										,
+////										@RequestHeader(value="DP_USER_ID") Long userId
+//										//Hospital hospital
+//			) {
+//		
+//		JsonResponse<Hospital> res = new JsonResponse<Hospital>();
+//		try {
+//			// 세션 정보 확인
+//			UserSessionManager sesMan = UserSessionManager.get();
+//			UserSession session = sesMan.verifyToken(httpRequest, httpResponse);
+//			System.out.println("SESSION : " + session);
+//			
+//			Integer userId = session.getUserId();
+//			Integer userType = session.getHospitalId();
+//			Integer hospitalId = session.getHospitalId();
+//			
+//			// userType이 병원이 아니면 --> Exception			
+//			//TODO 관리자 등록의 경우에는 userType==USER_TYPE_PERSON일 경우에 Exception 던지는 것으로 고쳐야 한다.
+//			if ( userType==null || userType!=User.USER_TYPE_HOSPITAL ) {
+//				throw new Exception("병원회원만 병원 등록이 가능합니다.");
+//			}
+//			
+//			//TODO ** userType이 병원이고, hospitalId가 있다면 **  ==> 나중에 고칠 것
+//			// userType이 병원이고, hospitalId가 있다면 --> Exception이 원칙(병원은 1개만 등록되어야 하므로)
+//			// 그러나, Cookie가 이미 오래된 것이어서 그 사이에 병원이 삭제되거나 병원을 옮긴 경우(또는 의사가 폐업 후 신규 개업)는 문제된다.
+//			// 이 문제는 화면하고도 관련(등록화면에 들어오지 못하게 막는 것)되어 있으므로, 나중에 하기로 한다.
+//			if ( hospitalId==null || hospitalId==0 ) {
+//				throw new Exception("기존 병원이 등록되어 있습니다. 병원은 1개만 등록 가능합니다.");
+//			}
+//						
+//			
+//			
+//			System.out.println("신규병원 등록 : " + hospital); 
+//			Hospital newHospital = hospitalService.createHospital(userId, hospital);
+//			res.setResponseData(newHospital);
+//		} catch(Exception ex) {
+//			res.setException(ex);
+//		}
+//		
+//		return new ResponseEntity<JsonResponse<Hospital>>(res, HttpStatus.OK);	
+//	}
+	
+	
+
+	@RequestMapping(value="/user/{userId}/hospital/", method=RequestMethod.POST)
+	public ResponseEntity<JsonResponse<Hospital>> registerHospitalByUserId(	
 										@RequestBody Hospital hospital,
-										//@CookieValue(value=UserSession.TOKEN_NAME, required=true) String sessionToken	// 병원 등록은 필수적 권한확인
+										@PathVariable("userId") Integer userId,
 										HttpServletRequest httpRequest,
 										HttpServletResponse httpResponse
-//										,
-//										@RequestHeader(value="DP_USER_ID") Long userId
-										//Hospital hospital
 			) {
 		
 		JsonResponse<Hospital> res = new JsonResponse<Hospital>();
@@ -664,24 +713,14 @@ public class NormalController {
 			UserSession session = sesMan.verifyToken(httpRequest, httpResponse);
 			System.out.println("SESSION : " + session);
 			
-			Integer userId = session.getUserId();
-			Integer userType = session.getHospitalId();
-			Integer hospitalId = session.getHospitalId();
+			if ( userId != session.getUserId() ) {
+				throw new Exception("사용자 ID 불일치 [" + userId + "] [" + session.getUserId() + "]");
+			}
 			
-			// userType이 병원이 아니면 --> Exception			
-			//TODO 관리자 등록의 경우에는 userType==USER_TYPE_PERSON일 경우에 Exception 던지는 것으로 고쳐야 한다.
+			Integer userType = session.getUserType();
 			if ( userType==null || userType!=User.USER_TYPE_HOSPITAL ) {
-				throw new Exception("병원회원만 병원 등록이 가능합니다.");
+				throw new Exception("병원회원만 병원 등록이 가능합니다. [" + userType + "]");
 			}
-			
-			//TODO ** userType이 병원이고, hospitalId가 있다면 **  ==> 나중에 고칠 것
-			// userType이 병원이고, hospitalId가 있다면 --> Exception이 원칙(병원은 1개만 등록되어야 하므로)
-			// 그러나, Cookie가 이미 오래된 것이어서 그 사이에 병원이 삭제되거나 병원을 옮긴 경우(또는 의사가 폐업 후 신규 개업)는 문제된다.
-			// 이 문제는 화면하고도 관련(등록화면에 들어오지 못하게 막는 것)되어 있으므로, 나중에 하기로 한다.
-			if ( hospitalId==null || hospitalId==0 ) {
-				throw new Exception("기존 병원이 등록되어 있습니다. 병원은 1개만 등록 가능합니다.");
-			}
-						
 			
 			
 			System.out.println("신규병원 등록 : " + hospital); 
@@ -694,7 +733,10 @@ public class NormalController {
 		return new ResponseEntity<JsonResponse<Hospital>>(res, HttpStatus.OK);	
 	}
 	
-	public ResponseEntity<JsonResponse<Hospital>> updateHospital(	
+	
+	@RequestMapping(value="/user/{userId}/hospital/", method=RequestMethod.PUT)
+	public ResponseEntity<JsonResponse<Hospital>> updateHospital(
+												@PathVariable("userId") Integer userId,
 												@RequestBody Hospital hospital,
 												HttpServletRequest httpRequest,
 												HttpServletResponse httpResponse
@@ -706,19 +748,15 @@ public class NormalController {
 			// 세션 정보 확인
 			UserSessionManager sesMan = UserSessionManager.get();
 			UserSession session = sesMan.verifyToken(httpRequest, httpResponse);
+			System.out.println("SESSION : " + session);
 			
-			Integer userId = session.getUserId();
-			Integer userType = session.getHospitalId();
-			Integer hospitalId = session.getHospitalId();
-		
-			// userType이 병원이 아니면 --> Exception
-			//TODO 관리자 등록의 경우에는 userType==USER_TYPE_PERSON일 경우에 Exception 던지는 것으로 고쳐야 한다.
-			if ( userType!=User.USER_TYPE_HOSPITAL ) {
-				throw new Exception("병원회원만 병원 등록이 가능합니다.");
+			if ( userId != session.getUserId() ) {
+				throw new Exception("사용자 ID 불일치 [" + userId + "] [" + session.getUserId() + "]");
 			}
 			
-			if ( hospitalId==null || hospitalId!=hospital.getId() ) {
-				throw new Exception("등록된 병원에 대한 수정 권한이 없습니다 [" + hospitalId + "]-[" + hospital.getId() + "]");
+			Integer userType = session.getUserType();
+			if ( userType==null || userType!=User.USER_TYPE_HOSPITAL ) {
+				throw new Exception("병원회원만 병원 등록이 가능합니다. [" + userType + "]");
 			}
 			
 			
@@ -730,6 +768,30 @@ public class NormalController {
 		}
 		
 		return new ResponseEntity<JsonResponse<Hospital>>(res, HttpStatus.OK);	
+	}
+	
+	@RequestMapping(value="/user/{userId}/hospital/", method=RequestMethod.GET)
+	public ResponseEntity<JsonResponse<Hospital>> getHospitalByUserId(@PathVariable("userId") Integer userId) {
+		JsonResponse<Hospital> res = new JsonResponse<Hospital>();
+		try {
+			
+			//TODO 세션 정보 확인 필요
+			
+			User user = userService.getUserById(userId);
+			if ( user.getUserType() != User.USER_TYPE_HOSPITAL ) {
+				throw new Exception("병원회원만 병원정보에 접근 가능");
+			}
+			
+			Hospital hospital = hospitalService.getByUserId(userId);			
+			if ( hospital != null && !hospital.getUserId().equals(userId) ) {
+				throw new Exception("해당 병원(userId:" + hospital.getUserId() + ")에 대한 조회권한이 없습니다.[userId:" + userId + "]");
+			}			
+			
+			res.setResponseData(hospital);
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		return new ResponseEntity<JsonResponse<Hospital>>(res, HttpStatus.OK);
 	}
 	
 	

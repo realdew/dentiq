@@ -22,6 +22,7 @@
 			USE_YN
 		) values (
 			#{userId}, #{title}, 
+			#{attrJson},
 			#{salaryWanted}, #{salaryWantedText},
 			#{roleWanted}, #{roleWantedText},
 			#{applyLocationCodeJson},

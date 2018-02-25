@@ -41,7 +41,7 @@ public class JobAd {
 	@Getter @Setter private String adCloseDate;
 	@Getter @Setter private String adCloseTime;
 	
-	@Getter @Setter private String hiringTermType;
+	@Getter @Setter private String hiringTermType;				// 1:상시채용 2:기간채용
 	@Getter @Setter private String hiringStartDate;
 	@Getter @Setter private String hiringStartTime;
 	@Getter @Setter private String hiringEndDate;

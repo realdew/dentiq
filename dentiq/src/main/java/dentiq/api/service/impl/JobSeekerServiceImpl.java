@@ -40,7 +40,7 @@ public class JobSeekerServiceImpl implements JobSeekerService {
 			mapper.insertResume(resume);
 		}
 		
-		return mapper.getResumeById(userId);
+		return mapper.getResumeByUserId(userId);
 	}
 	
 

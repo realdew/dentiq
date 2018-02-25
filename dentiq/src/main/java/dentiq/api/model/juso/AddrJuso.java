@@ -10,7 +10,7 @@ import lombok.ToString;
 
 @ToString
 public class AddrJuso {
-	@Getter @Setter private Integer	idx;			//	검색 결과 INDEX (검색 결과 전체에서 순번. JusoUtil에서 생성)
+	@Getter @Setter private Integer	jusoIdx;			//	검색 결과 INDEX (검색 결과 전체에서 순번. JusoUtil에서 생성)
 	@Getter @Setter private	String	roadAddr;		//	전체 도로명주소	Y	String
 	@Getter @Setter private	String	roadAddrPart1;	//	도로명주소(참고항목 제외)	Y	String
 	@Getter @Setter private	String	roadAddrPart2;	//	도로명주소 참고항목	N	String
