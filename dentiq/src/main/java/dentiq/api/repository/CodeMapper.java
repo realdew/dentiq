@@ -25,4 +25,10 @@ public interface CodeMapper {
 	
 	
 	public List<JobAdAttr> getJobAdAttrList() throws Exception;
+	
+	@Select("select DATE_FORMAT(now(), '%Y%m%d')")
+	public String getYYYYMMDDFromDB() throws Exception;
+	
+	@Select("select DATE_FORMAT(now(6), '%Y%m%d%H%i%s%f')")
+	public String getYYYYMMDDhhmmssMicroFromDB() throws Exception;
 }

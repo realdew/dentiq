@@ -20,12 +20,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import dentiq.api.model.Hospital;
 import dentiq.api.model.JobAd;
 import dentiq.api.model.JobAdAttrGroup;
 import dentiq.api.model.JobAdDashboard;
+import dentiq.api.model.JobAdWithHospital;
 import dentiq.api.model.NameCountPair;
 import dentiq.api.model.User;
 import dentiq.api.model.juso.AddrJuso;
+import dentiq.api.service.HospitalService;
 import dentiq.api.service.JobAdService;
 import dentiq.api.service.UserService;
 
@@ -192,13 +195,45 @@ public class JobAdController {
 		return new ResponseEntity<JsonResponse<String>>(res, HttpStatus.OK);
 	}
 	
+	@Autowired private HospitalService hospitalService;
+	
+	@RequestMapping(value="/jobAd/{jobAdId}/detail/", method=RequestMethod.GET)
+	public ResponseEntity<JsonResponse<JobAdWithHospital>> getJobAdWithHospital(
+									@PathVariable("jobAdId") Long jobAdId) {
+		
+		JsonResponse<JobAdWithHospital> res = new JsonResponse<JobAdWithHospital>();
+		try {			
+			JobAd jobAd = jobAdService.get(jobAdId);
+			if ( jobAd == null ) {
+				throw new Exception("해당공고[" + jobAdId + "] 없음");
+			}
+			Hospital hospital = hospitalService.get(jobAd.getHospitalId());
+			if ( hospital == null ) {
+				throw new Exception("해당공고[" + jobAdId + "]의 병원 정보[" + jobAd.getHospitalId() + "] 없음");
+			}
+			
+			JobAdWithHospital jobAdWithHospital = new JobAdWithHospital();
+			jobAdWithHospital.setJobAd(jobAd);
+			jobAdWithHospital.setHospital(hospital);
+			
+			res.setResponseData(jobAdWithHospital);
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		return new ResponseEntity<JsonResponse<JobAdWithHospital>>(res, HttpStatus.OK);
+	}
+	
+	
+	
+	
+	
 	/**
 	 * 특정 ID의 공고를 리턴한다.
 	 * @param id
 	 * @return
 	 */
 	@RequestMapping(value="/jobAd/{id}/", method=RequestMethod.GET)
-	public ResponseEntity<JsonResponse<JobAd>> countJobAds(@PathVariable("id") Long id) {
+	public ResponseEntity<JsonResponse<JobAd>> getJobAd(@PathVariable("id") Long id) {
 		
 		JsonResponse<JobAd> res = new JsonResponse<JobAd>();
 		try {

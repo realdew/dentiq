@@ -84,7 +84,7 @@ public class HospitalServiceImpl implements HospitalService {
 		if ( !owner.getUserType().equals(User.USER_TYPE_HOSPITAL) ) {
 			throw new Exception("병원회원만이 병원정보를 등록할 수 있습니다. [" + owner.getUserType() + "]");
 		}
-		if ( owner.getHospitalId() == null || owner.getHospitalId()!=0 ) {
+		if ( owner.getHospitalId() != null || (owner.getHospitalId()!=null && owner.getHospitalId()!=0) ) {
 			throw new Exception ("이미 기존 병원이 등록되어 있습니다. [" + owner.getHospitalId() + "]");
 		}
 		

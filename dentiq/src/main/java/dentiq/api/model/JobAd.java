@@ -1,5 +1,8 @@
 package dentiq.api.model;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -105,6 +108,27 @@ public class JobAd {
 		@JsonIgnore public String getAttrJson() throws Exception			{	return JsonUtil.toJson(this.attr);	}
 		@JsonIgnore public void setAttrJson(String json) throws Exception	{	this.attr = JsonUtil.<List<String>>toGenericObject(json); }
 	
+	// 상세공고에서 사용하기 위한 D-Day
+	public Long getDDay() {
+		if ( this.hiringEndDate==null || this.hiringEndDate.length() != 8 ) {
+			return new Long(-1);
+		}
+		try {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+	        Date beginDate = new Date();	//TODO DB에서 가져와야 하지 않을까?
+			//Date beginDate = formatter.parse("20180311");
+	        Date endDate = formatter.parse(hiringEndDate);
+	        
+	        long diff = endDate.getTime() - beginDate.getTime();
+	        long diffDays = diff / (24*60*60*1000);
+	        
+	        return diffDays;
+	        
+		} catch(Exception ignore) {
+			return new Long(-9);
+		}
+        
+	}
 	
 //	@JsonIgnore
 //	private String attrVal;		// JOB_AD 테이블에 있는 컬럼 값	
