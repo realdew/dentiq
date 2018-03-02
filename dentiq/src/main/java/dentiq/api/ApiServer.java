@@ -17,6 +17,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+// 마스터 브랜치
 @SpringBootApplication
 @EnableTransactionManagement
 @MapperScan(value= {"dentiq.api.repository"})
