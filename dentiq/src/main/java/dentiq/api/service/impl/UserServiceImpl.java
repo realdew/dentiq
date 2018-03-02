@@ -246,14 +246,14 @@ public class UserServiceImpl implements UserService {
 	public User getUserByEmail(String email) throws Exception {
 		return mapper.getUserByEmail(email);
 	}
-	
-	
+
 	
 	@Override
 	public void updateUser(User user) throws Exception {
 		throw new Exception("NOT Implemented");
 	}
 
+	/*
 	@Override
 	public List<JobAd> getScrappedJobAds(Integer userId) throws Exception {
 		// TODO Auto-generated method stub
@@ -286,6 +286,6 @@ public class UserServiceImpl implements UserService {
 	public List<String> updateConcernedLocationCodes(Integer userId, List<String> locationCodeList) throws Exception {
 		throw new LogicalException("Implemented NOT YET");
 	}
-
+	*/
 
 }

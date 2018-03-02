@@ -10,11 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,15 +23,13 @@ import dentiq.api.model.JobAd;
 import dentiq.api.model.JobAdAttrGroup;
 import dentiq.api.model.JobAdDashboard;
 import dentiq.api.model.JobAdWithHospital;
-import dentiq.api.model.NameCountPair;
-import dentiq.api.model.User;
-import dentiq.api.model.juso.AddrJuso;
 import dentiq.api.service.HospitalService;
 import dentiq.api.service.JobAdService;
-import dentiq.api.service.UserService;
 
 /**
  * 공고(JobAd)에 대한 Controller
+ * 여기서는 세션 확인 및 권한 확인 하지 않음 (조회 전용)
+ * 
  * @author lee
  *
  */
@@ -45,158 +41,14 @@ public class JobAdController {
 	private static final Logger logger = LoggerFactory.getLogger(NormalController.class);
 	
 	@Autowired private JobAdService jobAdService;
-	@Autowired private UserService userService;
+	@Autowired private HospitalService hospitalService;
 
 
-//	@RequestMapping(value="/jobAd/{id}/attr/", method=RequestMethod.GET)
-//	public ResponseEntity<JsonResponse<String>> updateJobAdAttr(
-//								@PathVariable("id") Long id
-//			) {
-//		JsonResponse<String> res = new JsonResponse<String>();
-//		try {
-//			
-//			List<String> test = new ArrayList<String>();
-//			test.add("EMP.2");
-//			test.add("EMP.3");
-//			test.add("TASK.1");
-//			
-//			jobAdService.updateJobAdAttr(id, test);
-//			// updateJobAdAttr(String jobAdId, List<String> attrStrList) 
-//			
-//			res.setResponseData("res");
-//		} catch(Exception ex) {
-//			res.setException(ex);
-//		}
-//		return new ResponseEntity<JsonResponse<String>>(res, HttpStatus.OK);
-//	}
-	
 	/**
-	 * 공고 생성
-	 * @param jobAd
+	 * 일반에게 공개되는 공고 내용 (공고 정보 + 병원 정보). 조회 전용
+	 * @param jobAdId
 	 * @return
 	 */
-	
-	//@RequestMapping(value="/jobAd/", method=RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-//	@RequestMapping(value="/jobAd/", method=RequestMethod.POST)
-//	public ResponseEntity<JsonResponse<JobAd>> createJobAds(
-//								@RequestBody				JobAd jobAd
-//								//JobAd jobAd
-//			) {
-//		
-//		JsonResponse<JobAd> res = new JsonResponse<JobAd>();
-//		try {
-//			
-//			// 회원 정보를 확인하여, a:병원회원의 권한이 있는지, b:병원ID를 조회하여야 한다.
-//			// 병원회원 권한이 없다면, 에러 처리
-//			// 병원 ID를 조회하여 처리
-//			
-//			
-//			System.out.println("요청된 신규 JOB AD 정보 " + jobAd);
-//			JobAd newJobAd = null;
-//			newJobAd = jobAdService.createJobAd(jobAd);
-//			System.out.println("등록 결과 JOB AD " + newJobAd);
-//			
-//			res.setResponseData(newJobAd);
-//		} catch(Exception ex) {
-//			res.setException(ex);
-//		}
-//		return new ResponseEntity<JsonResponse<JobAd>>(res, HttpStatus.OK);
-//	}
-	
-	@RequestMapping(value="/user/{userId}/hospital/jobAd/", method=RequestMethod.POST)
-	public ResponseEntity<JsonResponse<JobAd>> createJobAd(
-								@PathVariable("userId")		Integer userId,
-								@RequestBody				JobAd jobAd
-								//JobAd jobAd
-			) {
-		
-		JsonResponse<JobAd> res = new JsonResponse<JobAd>();
-		try {
-			User user = userService.getUserById(userId);
-			if ( user.getUserType() != User.USER_TYPE_HOSPITAL ) {
-				throw new Exception("병원회원만 병원정보에 접근 가능");
-			}
-			
-						
-			System.out.println("요청된 신규 JOB AD 정보 " + jobAd);
-			JobAd newJobAd = jobAdService.createJobAd(userId, jobAd);
-			System.out.println("등록 결과 JOB AD " + newJobAd);
-			
-			res.setResponseData(newJobAd);
-		} catch(Exception ex) {
-			res.setException(ex);
-		}
-		return new ResponseEntity<JsonResponse<JobAd>>(res, HttpStatus.OK);
-	}
-	
-	@RequestMapping(value="/user/{userId}/hospital/jobAd/{id}/", method=RequestMethod.PUT)
-	public ResponseEntity<JsonResponse<JobAd>> updateJobAd(
-								@PathVariable("userId")		Integer userId,
-								@PathVariable("id")			Long id,
-								@RequestBody				JobAd jobAd
-			) {
-		
-		JsonResponse<JobAd> res = new JsonResponse<JobAd>();
-		try {
-			User user = userService.getUserById(userId);
-			if ( user.getUserType() != User.USER_TYPE_HOSPITAL ) {
-				throw new Exception("병원회원만 병원정보에 접근 가능");
-			}
-			
-			jobAd.setId(id);
-			
-			System.out.println("요청된 수정 JOB AD 정보 " + jobAd);
-			JobAd newJobAd = jobAdService.updateJobAdBasic(userId, jobAd);
-			System.out.println("수정 결과 JOB AD " + newJobAd);
-			
-			res.setResponseData(newJobAd);
-		} catch(Exception ex) {
-			res.setException(ex);
-		}
-		return new ResponseEntity<JsonResponse<JobAd>>(res, HttpStatus.OK);
-	}
-	
-//	//@RequestMapping(value="/jobAd/{id}/", method=RequestMethod.PUT, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-//	@RequestMapping(value="/jobAd/{id}/", method=RequestMethod.PUT)
-//	public ResponseEntity<JsonResponse<JobAd>> updateJobAds(
-//								@PathVariable("id")			Long id,
-//								@RequestBody				JobAd jobAd
-//								//JobAd jobAd
-//			) {
-//		
-//		JsonResponse<JobAd> res = new JsonResponse<JobAd>();
-//		try {
-//			jobAd.setId(id);
-//			
-//			System.out.println("요청된 수정 JOB AD 정보 " + jobAd);
-//			JobAd newJobAd = jobAdService.updateJobAdBasic(jobAd);
-//			System.out.println("수정 결과 JOB AD " + newJobAd);
-//			
-//			res.setResponseData(newJobAd);
-//		} catch(Exception ex) {
-//			res.setException(ex);
-//		}
-//		return new ResponseEntity<JsonResponse<JobAd>>(res, HttpStatus.OK);
-//	}
-	
-	@RequestMapping(value="/jobAd/{id}/", method=RequestMethod.DELETE)
-	public ResponseEntity<JsonResponse<String>> deleteJobAd(
-								@PathVariable("id")			Long id
-			) {
-		
-		JsonResponse<String> res = new JsonResponse<String>();
-		try {
-			
-			jobAdService.deleteJobAd(id);
-			res.setResponseData("OK");
-		} catch(Exception ex) {
-			res.setException(ex);
-		}
-		return new ResponseEntity<JsonResponse<String>>(res, HttpStatus.OK);
-	}
-	
-	@Autowired private HospitalService hospitalService;
-	
 	@RequestMapping(value="/jobAd/{jobAdId}/detail/", method=RequestMethod.GET)
 	public ResponseEntity<JsonResponse<JobAdWithHospital>> getJobAdWithHospital(
 									@PathVariable("jobAdId") Long jobAdId) {
@@ -212,6 +64,7 @@ public class JobAdController {
 				throw new Exception("해당공고[" + jobAdId + "]의 병원 정보[" + jobAd.getHospitalId() + "] 없음");
 			}
 			
+			// 내부적으로 JobAdWithHospital에서 개인정보 Filtering할 것
 			JobAdWithHospital jobAdWithHospital = new JobAdWithHospital();
 			jobAdWithHospital.setJobAd(jobAd);
 			jobAdWithHospital.setHospital(hospital);

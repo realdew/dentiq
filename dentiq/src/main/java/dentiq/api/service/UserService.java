@@ -69,26 +69,24 @@ public interface UserService {
 //	public List<Long> updateScrappedJobAdIds(Integer userId, List<Long> jobAdIdList) throws Exception;
 	
 	
-	/* 스크랩 공고 조회 */
-	public List<JobAd> getScrappedJobAds(Integer userId) throws Exception;
-	
-	/* 스크랩 공고 업데이트 : delete 후 insert함. 성공 후에는 업데이트된 공고 목록을 리턴 */
-	public List<JobAd> updateScrappedJobAds(List<Long> jobAdIdList) throws Exception;
-	
-	/* 관심 병원 조회 */
-	public List<Hospital> getConcernedHospitals(Integer userId) throws Exception;
-	
-	/* 관심 병원 업데이트 */
-	public List<Hospital> updateConcernedHospitals(List<Integer> hospitalCodeList) throws Exception;
+//	/* 스크랩 공고 조회 */
+//	public List<JobAd> getScrappedJobAds(Integer userId) throws Exception;
+//	
+//	/* 스크랩 공고 업데이트 : delete 후 insert함. 성공 후에는 업데이트된 공고 목록을 리턴 */
+//	public List<JobAd> updateScrappedJobAds(List<Long> jobAdIdList) throws Exception;
+//	
+//	/* 관심 병원 조회 */
+//	public List<Hospital> getConcernedHospitals(Integer userId) throws Exception;
+//	
+//	/* 관심 병원 업데이트 */
+//	public List<Hospital> updateConcernedHospitals(List<Integer> hospitalCodeList) throws Exception;
+//
+//	
+//	/* 관심 지역 조회 */
+//	public List<String> getConcernedLocationCodes(Integer userId) throws Exception;
+//	/* 관심 병원 조회 */
+//	public List<String> updateConcernedLocationCodes(Integer userId, List<String> locationCodeList) throws Exception;
+//
+	public void updateUserAddr(Integer userId, AddrJuso juso) throws Exception;
 
-	
-	/* 관심 지역 조회 */
-	public List<String> getConcernedLocationCodes(Integer userId) throws Exception;
-	/* 관심 병원 조회 */
-	public List<String> updateConcernedLocationCodes(Integer userId, List<String> locationCodeList) throws Exception;
-
-	void updateUserAddr(Integer userId, AddrJuso juso) throws Exception;
-	
-	
-	/* 이력서 정보 */
 }

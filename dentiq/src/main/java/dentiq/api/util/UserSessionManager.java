@@ -36,9 +36,9 @@ public abstract class UserSessionManager {
 	
 	
 	
-	private final static String DP_HMAC_KEY = "1234";
+	//private final static String DP_HMAC_KEY = "1234";
 	
-	private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
+	//private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
 	
 	
 	public String generateToken(UserSession userSession) throws Exception {

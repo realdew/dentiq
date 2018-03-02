@@ -46,6 +46,7 @@
 	</update>
 
 
+
 	<!--  관심지역 -->
 	<select id="listUserConcernedLocationCodes" resultType="dentiq.api.model.LocationCode">
 		select LOCATION_CODE
@@ -67,22 +68,7 @@
 	
 	
 	<!--  스크랩 공고 -->
-	
-	
-	<delete id="deleteAllScrappedJobAds">
-		delete * from USER_SCRAPPED_JOB_AD where USER_ID=#{userId}
-	</delete>
-	
-	<insert id="insertAllScrappedJobAds">
-		insert into USER_SCRAPPED_JOB_AD (USER_ID, JOB_AD_ID)
-		values 
-		<foreach item="jobAdId" collection="jobAdIdList" separator=",">
-			( #{userId}, #{jobAdId} )
-		</foreach>
-	</insert>
-	
-	
-	
+		
 	<insert id="insertScrappedJobAd">
 		insert into USER_SCRAPPED_JOB_AD (USER_ID, JOB_AD_ID, MEMO)
 		values ( #{userId}, #{jobAdId}, #{memo})
@@ -108,48 +94,66 @@
 		order by LAST_MOD_DT;
 	</select>
 	
-	<select id="getScrappedJobAd" resultType="dentiq.api.model.JobAd">
-		select J.*, S.LAST_MOD_DT
-		from USER_SCRAPPED_JOB_AD S, JOB_AD J
-		where	S.JOB_AD_ID=J.ID 
-			and S.USER_ID=#{userId}
-			and S.JOB_AD_ID=#{jobAdId} and J.USE_YN='Y'
+
+
+	<!--  관심 병원의 공고들을 리스팅한다.  -->	
+	<select id="listInterestingHospitalJobAd" resultType="dentiq.api.model.JobAd">
+		select J.*
+		from JOB_AD J, USER_INTEREST_HOSPITAL H
+		where
+			H.USER_ID=#{userId}
+			and J.HOSPITAL_ID=H.HOSPITAL_ID
+			<!--  and J.HIRING_END_DATE >= DATE_FORMAT(now(), '%Y%m%d') -->
+			and J.USE_YN='Y'
 	</select>
 	
+	<select id="listInterestingHospitalIds" resultType="Integer">
+		select HOSPITAL_ID
+		from USER_INTEREST_HOSPITAL
+		where USER_ID=#{userId}
+	</select>
 	
-	
-	
-	<!-- 
-	<insert id="insertConcernedHospital">
-		insert into USER_CONCERNED_HOSPITAL (USER_ID, HOSPITAL_ID, MEMO)
-		values ( #{userId}, #{hospitalId}, #{memo})
+	<insert id="insertInterestingHospital">
+		insert into USER_INTEREST_HOSPITAL(USER_ID, HOSPITAL_ID) values (#{userId}, #{hospitalId})
 	</insert>
-	<update id="updateConcernedHospital">
-		update USER_CONCERNED_HOSPITAL set MEMO=#{memo}, LAST_MOD_DT=current_timestamp
-		where USER_ID=#{userId} and HOSPITAL_ID=#{hospitalId}
-	</update>
-	<delete id="deleteConcernedHospital">
-		delete * from USER_CONCERNED_HOSPITAL where USER_ID=#{userId} and HOSPITAL_ID=#{hospitalId}
+	<delete id="deleteInterestingHospital">
+		delete from USER_INTEREST_HOSPITAL where USER_ID=#{userId} and HOSPITAL_ID=#{jobAdId}
+	</delete>
+
+	
+	<!--  지원 공고 -->
+	<select id="listAppliedJobAdIdAll" resultType="dentiq.api.model.AppliedJobAdInfo">
+		select JOB_AD_ID, APPLY_WAY from USER_APPLY
+		where USER_ID=#{userId}
+	</select>
+	<insert id="insertApplyJobAdId">
+		insert into USER_APPLY(USER_ID, JOB_AD_ID, APPLY_WAY) values (#{userId}, #{jobAdIdWithType.jobAdId}, #{jobAdIdWithType.applyWay})
+	</insert>
+	<delete id="deleteApplyJobAdId">
+		delete from USER_APPLY where USER_ID=#{userId} and JOB_AD_ID=#{jobAdIdWithType.jobAdId}
 	</delete>
 	
-	<select id="getConcernedHospitalList" resultType="dentiq.api.model.Hospital">
-		select H.*, C.LAST_MOD_DT
-		from USER_CONCERNED_HOSPITAL C, HOSPITAL H
-		where C.JOB_AD_ID=H.ID and C.USER_ID=#{userId} and H.USE_YN='Y'
-		order by LAST_MOD_DT;
+	<select id="listApplyJobAd" resultType="dentiq.api.model.JobAd">
+		select J.*
+		from JOB_AD J, USER_APPLY A
+		where
+			A.USER_ID=#{userId}
+			and J.ID=A.JOB_AD_ID
+			<!--  and J.HIRING_END_DATE >= DATE_FORMAT(now(), '%Y%m%d') -->
+			and J.USE_YN='Y'
 	</select>
-	
-	<select id="getConcernedHospital" resultType="dentiq.api.model.Hospital">
-		select H.*, C.LAST_MOD_DT
-		from USER_CONCERNED_HOSPITAL C, HOSPITAL H
-		where	C.JOB_AD_ID=H.ID 
-			and C.USER_ID=#{userId}
-			and C.JOB_AD_ID=#{hospitalId} and H.USE_YN='Y'
+
+
+	<!--  면접 제안 -->
+	<select id="listOfferedJobAd" resultType="dentiq.api.model.JobAd">
+		select J.*
+		from JOB_AD J, HOSPITAL_OFFER O
+		where
+			O.USER_ID=#{userId}
+			and J.ID=O.JOB_AD_ID
+			<!--  and J.HIRING_END_DATE >= DATE_FORMAT(now(), '%Y%m%d') -->
+			and J.USE_YN='Y'
 	</select>
-	-->
-	
-	
-	
 
 </mapper>
 
