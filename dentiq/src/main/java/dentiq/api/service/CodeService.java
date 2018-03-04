@@ -1,11 +1,11 @@
 package dentiq.api.service;
 
 import java.util.List;
+import java.util.Map;
 
 import dentiq.api.model.JobAdAttr;
 import dentiq.api.model.JobAdAttrGroup;
 import dentiq.api.model.LocationCode;
-import dentiq.api.model.LocationCodeGroup;
 
 /**
  * 기초 코드성 데이터들에 대한 조회 서비스
@@ -13,6 +13,8 @@ import dentiq.api.model.LocationCodeGroup;
  *
  */
 public interface CodeService {
+	
+	public Map<String, LocationCode> getLocationCodeTree() throws Exception;
 	
 	public List<LocationCode> listLocationCode() throws Exception;
 	public List<LocationCode> listSidoCode() throws Exception;

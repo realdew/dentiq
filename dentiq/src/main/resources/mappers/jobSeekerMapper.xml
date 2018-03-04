@@ -48,7 +48,7 @@
 
 
 	<!--  관심지역 -->
-	<select id="listUserConcernedLocationCodes" resultType="dentiq.api.model.LocationCode">
+	<select id="listConcernedLocationCodes" resultType="dentiq.api.model.LocationCode">
 		select LOCATION_CODE
 		from USER_CONCERNED_LOCATION
 		where USER_ID=#{userId}
@@ -89,7 +89,7 @@
 		
 	<select id="listScrappedJobAds" resultType="dentiq.api.model.JobAd">
 		select J.*, S.LAST_MOD_DT as LAST_MOD_DT
-		from USER_SCRAPPED_JOB_AD S, JOB_AD J
+		from USER_SCRAPPED_JOB_AD S, JOB_AD_VIEW J
 		where S.JOB_AD_ID=J.ID and S.USER_ID=#{userId} and J.USE_YN='Y'
 		order by LAST_MOD_DT;
 	</select>
@@ -99,7 +99,7 @@
 	<!--  관심 병원의 공고들을 리스팅한다.  -->	
 	<select id="listInterestingHospitalJobAd" resultType="dentiq.api.model.JobAd">
 		select J.*
-		from JOB_AD J, USER_INTEREST_HOSPITAL H
+		from JOB_AD_VIEW J, USER_INTEREST_HOSPITAL H
 		where
 			H.USER_ID=#{userId}
 			and J.HOSPITAL_ID=H.HOSPITAL_ID
@@ -135,19 +135,24 @@
 	
 	<select id="listApplyJobAd" resultType="dentiq.api.model.JobAd">
 		select J.*
-		from JOB_AD J, USER_APPLY A
+		from JOB_AD_VIEW J, USER_APPLY A
 		where
 			A.USER_ID=#{userId}
 			and J.ID=A.JOB_AD_ID
 			<!--  and J.HIRING_END_DATE >= DATE_FORMAT(now(), '%Y%m%d') -->
 			and J.USE_YN='Y'
 	</select>
+	
+	<select id="getAppliedJobAdId" resultType="dentiq.api.model.AppliedJobAdInfo">
+		select JOB_AD_ID, APPLY_WAY from USER_APPLY
+		where USER_ID=#{userId} and JOB_AD_ID=#{jobAdId} and APPLY_WAY=#{applyWay} and CANCEL_YN='N'
+	</select>
 
 
 	<!--  면접 제안 -->
 	<select id="listOfferedJobAd" resultType="dentiq.api.model.JobAd">
 		select J.*
-		from JOB_AD J, HOSPITAL_OFFER O
+		from JOB_AD_VIEW J, HOSPITAL_OFFER O
 		where
 			O.USER_ID=#{userId}
 			and J.ID=O.JOB_AD_ID

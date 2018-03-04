@@ -125,6 +125,11 @@ public class PersonalMemberServiceImpl implements PersonalMemberService {
 	/************************************ 지원 공고 ******************************************/
 	
 	@Override
+	public AppliedJobAdInfo getAppliedJobAdId(Integer userId, Long jobAdId, String applyWay) throws Exception {
+		return mapper.getAppliedJobAdId(userId, jobAdId, applyWay);
+	}
+	
+	@Override
 	public List<AppliedJobAdInfo> listApplyJobAdIdAll(Integer userId) throws Exception {	// 공고 ID, 지원 유형
 		return mapper.listAppliedJobAdIdAll(userId);
 	}
@@ -132,8 +137,14 @@ public class PersonalMemberServiceImpl implements PersonalMemberService {
 	@Override
 	public List<AppliedJobAdInfo> addApplyJobAdId(Integer userId, AppliedJobAdInfo jobAdIdWithType) throws Exception {
 		Resume resume = mapper.getResumeByUserId(userId);
-		if ( resume == null || resume.getId() == null || !resume.getId().equals(0) ) {
+		if ( resume == null || resume.getId() == null || resume.getId().equals(0) ) {
+			System.out.println(resume);
 			throw new Exception("지원을 하기 위해서는 이력서를 먼저 등록하여야 합니다.");
+		}
+		
+		AppliedJobAdInfo old = mapper.getAppliedJobAdId(userId, jobAdIdWithType.getJobAdId(), jobAdIdWithType.getApplyWay());
+		if ( old != null ) {
+			throw new Exception("이미 지원하셨습니다.");
 		}
 		
 		try {

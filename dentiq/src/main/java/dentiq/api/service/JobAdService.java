@@ -8,19 +8,20 @@ import dentiq.api.model.JobAd;
 import dentiq.api.model.JobAdAttrCounter;
 import dentiq.api.model.JobAdAttrGroup;
 import dentiq.api.model.JobAdDashboard;
+import dentiq.api.model.LiveBoardResult;
 
 
 public interface JobAdService {
 	
 	
-	public JobAd createJobAd(Integer userId, JobAd jobAd) throws Exception;
-	
-	public JobAd updateJobAdBasic(Integer userId, JobAd jobAd) throws Exception;
+//	public JobAd createJobAd(Integer userId, JobAd jobAd) throws Exception;
+//	
+//	public JobAd updateJobAdBasic(Integer userId, JobAd jobAd) throws Exception;
 	
 	public JobAd get(Long id) throws Exception;
 	public JobAd getWithHospital(Long id) throws Exception;
 	
-	public void deleteJobAd(Long jobAdId) throws Exception;
+//	public void deleteJobAd(Long jobAdId) throws Exception;
 	
 	//public void updateJobAdAttr(Long jobAdId, List<String> attrStrList) throws Exception;
 	
@@ -35,6 +36,15 @@ public interface JobAdService {
 //			String xPos, String yPos, Integer distance,
 //			String hospitalName, String hospitalAddr, List<JobAdAttrGroup> atrrGroupList,
 //			List<String> sorting, int pageNo, int pageSize) throws Exception;
+	
+	@Deprecated
+	public LiveBoardResult createLiveBoardResult(
+			List<String> locationCodeList, Integer adType,
+			String xPos, String yPos, Integer distance,
+			String hospitalName, String hospitalAddr, List<JobAdAttrGroup> atrrGroupList
+
+			) throws Exception;
+	
 	
 	
 	

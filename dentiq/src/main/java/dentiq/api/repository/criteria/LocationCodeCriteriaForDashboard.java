@@ -18,27 +18,32 @@ public class LocationCodeCriteriaForDashboard extends LocationCodeCriteria {
 	public LocationCodeCriteriaForDashboard(List<String> locationCodeList) {
 		if ( locationCodeList==null ) return;
 		
-		this.locationCodeList = locationCodeList;
+		//this.locationCodeList = locationCodeList;
+		this.locationCodeList = new ArrayList<String>();
 		
 		for ( String locationCode : locationCodeList ) {
-			//if ( locationCode.trim().equals("") ) continue;
+			if ( locationCode.trim().equals("") ) continue;
 			
 			if ( locationCode.contains(LocationCode.CODE_DELIMETER) ) {		// '시도코드.시구코드' 형태
 				// if ( this.siguCodeList==null ) this.siguCodeList = new ArrayList<String>();
 				// this.siguCodeList.add(locationCode.substring(locationCode.indexOf(LocationCode.CODE_DELIMETER)+1));	 // 신규 시구코드를 세팅한다 ('.'없는 형태)
 				
 				if ( this.sidoCodeList==null ) this.sidoCodeList = new ArrayList<String>();							 // 시도코드를 추가한다. (Group by 연산을 위해서는 상위의 코드도 필요)
-				this.sidoCodeList.add(locationCode.substring(0, locationCode.indexOf(LocationCode.CODE_DELIMETER)));
+				String sidoCode = locationCode.substring(0, locationCode.indexOf(LocationCode.CODE_DELIMETER));
+				if ( this.sidoCodeList.indexOf(sidoCode) == -1 ) this.sidoCodeList.add(sidoCode);
 				
 				
 			} else {								// '시도코드' 형태
 				System.out.println("========================>  시도코드 세팅됨 : " + locationCode);
 				if ( this.sidoCodeList==null ) this.sidoCodeList = new ArrayList<String>();
-				this.sidoCodeList.add(locationCode);
+				if ( this.sidoCodeList.indexOf(locationCode) == -1 ) this.sidoCodeList.add(locationCode);
 			}
+			
+			if ( this.locationCodeList.indexOf(locationCode) == -1 ) this.locationCodeList.add(locationCode);
 		}
 		
 		this.isForDashboard = true;
 		
+		System.out.println("LocationCodeCriteriaForDashboard CREATED " + this);
 	}
 }

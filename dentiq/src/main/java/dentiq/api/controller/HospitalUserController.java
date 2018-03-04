@@ -1,5 +1,7 @@
 package dentiq.api.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -18,8 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 import dentiq.api.model.Hospital;
 import dentiq.api.model.JobAd;
 import dentiq.api.model.User;
+import dentiq.api.service.HospitalMemberService;
 import dentiq.api.service.HospitalService;
-import dentiq.api.service.JobAdService;
 import dentiq.api.service.UserService;
 import dentiq.api.service.exception.LogicalException;
 import dentiq.api.util.FileUtil;
@@ -43,9 +45,7 @@ public class HospitalUserController {
 	
 	@Autowired private HospitalService hospitalService;
 	@Autowired private UserService userService;
-	@Autowired private JobAdService jobAdService;
-	
-	
+	@Autowired private HospitalMemberService hospitalMemberService;
 	
 	
 	
@@ -145,6 +145,25 @@ public class HospitalUserController {
 //		return new ResponseEntity<JsonResponse<JobAd>>(res, HttpStatus.OK);
 //	}
 	
+	@RequestMapping(value="/user/{userId}/hospital/jobAd/", method=RequestMethod.GET)
+	public ResponseEntity<JsonResponse<List<JobAd>>> listJobAd(
+									@PathVariable("userId")		Integer userId,
+									HttpServletRequest httpRequest,
+									HttpServletResponse httpResponse			
+			) {
+		JsonResponse<List<JobAd>> res = new JsonResponse<List<JobAd>>();
+		try {
+			//checkHospitalUserSession(httpRequest, httpResponse, userId);
+			
+			List<JobAd> jobAdList = hospitalMemberService.listJobAdOfUser(userId);
+			
+			
+			res.setResponseData(jobAdList);
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		return new ResponseEntity<JsonResponse<List<JobAd>>>(res, HttpStatus.OK);
+	}
 	
 	/**
 	 * 공고 등록
@@ -169,7 +188,7 @@ public class HospitalUserController {
 			
 						
 			System.out.println("요청된 신규 JOB AD 정보 " + jobAd);
-			JobAd newJobAd = jobAdService.createJobAd(userId, jobAd);
+			JobAd newJobAd = hospitalMemberService.createJobAd(userId, jobAd);
 			System.out.println("등록 결과 JOB AD " + newJobAd);
 			
 			res.setResponseData(newJobAd);
@@ -195,7 +214,7 @@ public class HospitalUserController {
 			jobAd.setId(jobAdId);
 			
 			System.out.println("요청된 수정 JOB AD 정보 " + jobAd);
-			JobAd newJobAd = jobAdService.updateJobAdBasic(userId, jobAd);
+			JobAd newJobAd = hospitalMemberService.updateJobAdBasic(userId, jobAd);
 			System.out.println("수정 결과 JOB AD " + newJobAd);
 			
 			res.setResponseData(newJobAd);
@@ -242,7 +261,7 @@ public class HospitalUserController {
 			
 			checkHospitalUserSession(httpRequest, httpResponse, userId);
 			
-			jobAdService.deleteJobAd(jobAdId);
+			hospitalMemberService.deleteJobAd(jobAdId);
 			res.setResponseData("OK");
 		} catch(Exception ex) {
 			res.setException(ex);
@@ -330,7 +349,7 @@ public class HospitalUserController {
 			checkHospitalUserSession(httpRequest, httpResponse, userId);
 			
 			System.out.println("신규병원 등록 : " + hospital); 
-			Hospital newHospital = hospitalService.createHospital(userId, hospital);
+			Hospital newHospital = hospitalMemberService.createHospital(userId, hospital);
 			res.setResponseData(newHospital);
 		} catch(Exception ex) {
 			res.setException(ex);
@@ -363,7 +382,7 @@ public class HospitalUserController {
 			
 			
 			System.out.println("신규병원 등록 : " + hospital); 
-			Hospital newHospital = hospitalService.updateHospital(userId, hospital);
+			Hospital newHospital = hospitalMemberService.updateHospital(userId, hospital);
 			res.setResponseData(newHospital);
 		} catch(Exception ex) {
 			res.setException(ex);
@@ -389,7 +408,7 @@ public class HospitalUserController {
 			checkHospitalUserSession(httpRequest, httpResponse, userId);
 			
 			
-			Hospital hospital = hospitalService.getByUserId(userId);			
+			Hospital hospital = hospitalMemberService.getHospitalByUserId(userId);			
 			if ( hospital != null && !hospital.getUserId().equals(userId) ) {
 				throw new Exception("해당 병원(userId:" + hospital.getUserId() + ")에 대한 조회권한이 없습니다.[userId:" + userId + "]");
 			}			

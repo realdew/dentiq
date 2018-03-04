@@ -34,20 +34,28 @@ public class LocationCodeCriteria {
 	public LocationCodeCriteria(List<String> locationCodeList) throws Exception {
 		if ( locationCodeList==null ) return;
 		
-		this.locationCodeList = locationCodeList;
+		//this.locationCodeList = locationCodeList;
+		this.locationCodeList = new ArrayList<String>();
 		
 		for ( String locationCode : locationCodeList ) {	// 지역코드는 시도일 때는 XX(2자리) 형태이고, 시구일 때는 XX.ABCDEF('.'포함한 8자리) 형태이다.
+			if ( locationCode.trim().equals("") ) continue;
+			
 			if ( locationCode.contains(LocationCode.CODE_DELIMETER ) ) {		// '시도코드.시구코드' 형태
 				if ( this.siguCodeList==null ) this.siguCodeList = new ArrayList<String>();
-				//this.siguCodeList.add(locationCode);
-				//this.siguCodeList.add(split(locationCode, LocationCode.CODE_DELIMETER)[1]);
-				this.siguCodeList.add(locationCode.substring(locationCode.indexOf(LocationCode.CODE_DELIMETER)+1));		// 기존시구코드:aa.bbb 형태 ==> 신규시구코드 bbb ('.'없음)
+				String siguCode = locationCode.substring(locationCode.indexOf(LocationCode.CODE_DELIMETER)+1);		// 기존시구코드:aa.bbb 형태 ==> 신규시구코드 bbb ('.'없음)
+				if ( this.siguCodeList.indexOf(siguCode) == -1 ) this.siguCodeList.add(siguCode);
+				
 				
 			} else {								// '시도코드' 형태
 				if ( this.sidoCodeList==null ) this.sidoCodeList = new ArrayList<String>();
-				this.sidoCodeList.add(locationCode);
+				if ( this.sidoCodeList.indexOf(locationCode) == -1 ) this.sidoCodeList.add(locationCode);
+				
 			}
+			
+			if ( this.locationCodeList.indexOf(locationCode) == -1 ) this.locationCodeList.add(locationCode);
 		}
+		
+		System.out.println("LocationCodeCriteria CREATED " + this);
 	}
 	
 	

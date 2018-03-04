@@ -25,6 +25,29 @@
 	</select>
 	<!-- ======================================================================================================================= -->
 
+	<select id="listJobAdOfHospital" resultType="dentiq.api.model.JobAd">
+		select *
+		from JOB_AD_VIEW
+		where HOSPITAL_ID=#{hospitalId}
+	</select>
+	<select id="listJobAdIdOfHospital" resultType="Long">
+		select ID
+		from JOB_AD_VIEW
+		where HOSPITAL_ID=#{hospitalId}
+	</select>
+	
+	<select id="listJobAdOfUser" resultType="dentiq.api.model.JobAd">
+		select *
+		from JOB_AD_VIEW
+		where HOSPITAL_ID=(select hospital_id from user where id=#{userId})
+	</select>
+	<select id="listJobAdOIdfUser" resultType="Long">
+		select ID
+		from JOB_AD_VIEW
+		where HOSPITAL_ID=(select hospital_id from user where id=#{userId})
+	</select>
+	
+	
 
 	<insert id="createJobAd" useGeneratedKeys="true" keyProperty="id" parameterType="dentiq.api.model.JobAd">
 		insert into JOB_AD
@@ -99,7 +122,7 @@
 		where ATTR_GROUP_ID=#{jobAdAttrGroupId}
 		group by ATTR_CODE_ID;
 	</select>
-	-->
+	
 	<select id="countJobAdOnAttrGroup" resultType="dentiq.api.model.JobAdAttrCounter">
 		select	C.GROUP_ID as GROUP_ID, C.GROUP_NAME as GROUP_NAME, C.GROUP_DISPLAY_ORDER as GROUP_DISPLAY_ORDER,
 					C.CODE_ID as CODE_ID, C.CODE_NAME as CODE_NAME, C.CODE_DISPLAY_ORDER as CODE_DISPLAY_ORDER, 
@@ -120,7 +143,7 @@
 			on C.CODE_ID=A.ATTR_CODE_ID
 		order by CODE_DISPLAY_ORDER
 	</select>
-
+	-->
 
 
 	<!--  (시도)시군별 공고 건수 출력 -->
@@ -184,6 +207,53 @@
 	
 	
 	
+	<!-- ================================================================================================== -->
+	<select id="createLiveBoardBySido" resultType="dentiq.api.model.JobAdGroupByLocationCode">
+		/* SQL ID : createLiveBoardBySido */
+		select L.LOCATION_CODE as LOCATION_CODE, L.LOCATION_TYPE as LOCATION_TYPE,
+			   L.SIDO_CODE as SIDO_CODE,	L.SIDO_NAME as SIDO_NAME,
+			   L.SIGU_NAME as SIGU_CODE,	L.SIGU_NAME as SIGU_NAME,
+			   IFNULL(A.CNT,0) as CNT
+		from
+			(
+				select LOCATION_CODE, LOCATION_TYPE, SIDO_CODE, SIGU_CODE, SIDO_NAME, SIGU_NAME from LOCATION_CODE where LOCATION_TYPE='1'
+			) L
+		left join
+			(
+				select distinct(J.SIDO_CODE) as SIDO_CODE, count(1) as CNT 
+				<include refid="listJobAdGenericPartSql"></include>
+				group by SIDO_CODE
+			) A
+		on L.SIDO_CODE=A.SIDO_CODE;
+	</select>
+	
+	<select id="createLiveBoardBySiguWithSidoCode" resultType="dentiq.api.model.JobAdGroupByLocationCode">
+		/* SQL ID : createLiveBoardBySiguWithSidoCode */
+		select L.LOCATION_CODE as LOCATION_CODE, L.LOCATION_TYPE as LOCATION_TYPE,
+			   L.SIDO_CODE as SIDO_CODE,	L.SIDO_NAME as SIDO_NAME,
+			   L.SIGU_NAME as SIGU_CODE,	L.SIGU_NAME as SIGU_NAME,
+			   IFNULL(A.CNT,0) as CNT
+		from
+			(
+				select LOCATION_CODE, LOCATION_TYPE, SIDO_CODE, SIGU_CODE, SIDO_NAME, SIGU_NAME from LOCATION_CODE
+				where LOCATION_TYPE='2' 
+				<if test="searchCriteria != null and searchCriteria.locationCodeCriteria != null and searchCriteria.locationCodeCriteria.sidoCodeList != null">
+					and SIDO_CODE in
+					<foreach item="sidoCode" index="index" collection="searchCriteria.locationCodeCriteria.sidoCodeList" open="(" separator="," close=")">
+		        		#{sidoCode}
+					</foreach>
+				</if>
+			) L
+		left join
+			(
+				select distinct(J.LOCATION_CODE) as LOCATION_CODE, count(1) as CNT
+				<include refid="listJobAdGenericPartSql"></include>
+				group by SIGU_CODE
+			) A
+		on L.LOCATION_CODE=A.LOCATION_CODE;
+	</select>
+	
+	<!-- ================================================================================================== -->
 	
 	
 	
@@ -563,7 +633,9 @@
 	<select id="listJobAdsGeneric2" resultType="dentiq.api.model.JobAd">
 		select	J.ID as ID, J.TITLE as TITLE, 
 				J.HOSPITAL_ID as HOSPITAL_ID, J.HOSPITAL_NAME as HOSPITAL_NAME, J.ADDR_MAIN as ADDR_MAIN,
-				J.SIDO_CODE, J.SIGU_CODE, J.LOGO_URL, J.ATTR_JSON
+				J.LOCATION_CODE as LOCATION_CODE, J.SIDO_CODE as SIDO_CODE, J.SIGU_CODE as SIGU_CODE,
+				J.LOGO_URL, J.ATTR_JSON, J.HASH_TAG_JSON,
+				J.HIRING_TERM_TYPE, J.HIRING_END_DATE
 				<if test="searchCriteria !=null and searchCriteria.distanceCriteria != null">
 					, DISTANCE_VIEW.DISTANCE as DISTANCE
 				</if>

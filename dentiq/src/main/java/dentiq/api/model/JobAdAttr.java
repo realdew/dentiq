@@ -44,6 +44,7 @@ public class JobAdAttr implements Comparable<JobAdAttr> {
 	}
 	*/
 	
+	
 	/**
 	 * API 클라이언트에서 요청할 때 사용하는 생성자
 	 * @param attrCode	예: EMP_1  ==> GROUP_ID:EMP, CODE_ID:EMP_1

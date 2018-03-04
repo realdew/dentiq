@@ -7,19 +7,17 @@ import dentiq.api.model.Hospital;
 
 public interface HospitalService {
 	
+	/************************************ 병원 정보 ******************************************/
+	
 	public PageableList<Hospital> searchHiraHosiptalList(String name, Integer pageNo) throws Exception;
 	
 	
-	
-	public Hospital createHospital(Integer userId, Hospital hospital) throws Exception;
-	
-	public Hospital updateHospital(Integer userId, Hospital hospital) throws Exception;
 	
 	public List<Hospital> listHospitals(int page) throws Exception;
 	
 
 	public Hospital get(Integer id) throws Exception;
-	public Hospital getByUserId(Integer userId) throws Exception;
+	
 
 	
 	public List<Hospital> searchHospitals() throws Exception;
@@ -31,5 +29,9 @@ public interface HospitalService {
 	
 	public void remove(Integer id) throws Exception;
 	*/
+	
+	
+	
+	
 
 }

@@ -1,7 +1,5 @@
 package dentiq.api.model;
 
-import static org.hamcrest.CoreMatchers.is;
-
 import java.util.List;
 
 import lombok.Getter;

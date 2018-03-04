@@ -1,7 +1,6 @@
 package dentiq.api.model;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -9,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import dentiq.api.util.DateUtil;
 import dentiq.api.util.JsonUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -49,6 +49,24 @@ public class JobAd {
 	@Getter @Setter private String hiringStartTime;
 	@Getter @Setter private String hiringEndDate;
 	@Getter @Setter private String hiringEndTime;
+	
+	public String getHiringStartDateDay() {
+		if ( hiringTermType == null || !hiringTermType.trim().equals("2") ) return "";
+		
+		String dayStr = "";
+		try {	dayStr = DateUtil.getDayOfDate(hiringStartDate);		} catch(Exception ignore) {}		
+		return dayStr;
+	}
+	public String getHiringEndDateDay() {
+		if ( hiringTermType == null || !hiringTermType.trim().equals("2") ) return "";
+		
+		String dayStr = "";
+		try {	dayStr = DateUtil.getDayOfDate(hiringEndDate);		} catch(Exception ignore) {}		
+		return dayStr;
+	}
+	
+	
+	
 	////@Getter @Setter private SingleColumnList applyWay;
 	@Getter @Setter private List<String> applyWay;				// 지원방법
 		@JsonIgnore public String getApplyWayJson() throws Exception			{	return JsonUtil.toJson(this.applyWay);	}
@@ -86,6 +104,10 @@ public class JobAd {
 	@Getter @Setter private String retirementPay;
 	
 	
+	@Getter @Setter private List<String> hashTag;
+		@JsonIgnore public String getHashTagJson() throws Exception				{	return JsonUtil.toJson(this.hashTag);	}
+		@JsonIgnore public void setHashTagJson(String json) throws Exception	{	this.hashTag = JsonUtil.<List<String>>toGenericObject(json); }
+	
 	@Getter @Setter private String useYn;
 	
 	
@@ -100,13 +122,20 @@ public class JobAd {
 	
 	@Getter @Setter private String logoUrl;
 	
+	@Getter @Setter private String locationCode;
+	@Getter @Setter private String sidoCode;
+	@Getter @Setter private String siguCode;
 	
 	
 	//@Getter @Setter private String attr;		// WEB에서 입출력 되는 값
 	@Getter @Setter List<String> attr;
-	//@Getter @Setter SingleColumnList attr;
 		@JsonIgnore public String getAttrJson() throws Exception			{	return JsonUtil.toJson(this.attr);	}
-		@JsonIgnore public void setAttrJson(String json) throws Exception	{	this.attr = JsonUtil.<List<String>>toGenericObject(json); }
+		@JsonIgnore public void setAttrJson(String json) throws Exception	{
+			this.attr = JsonUtil.<List<String>>toGenericObject(json); 
+			//this.attrGroup = JobAdAttrGroup.createJobAdAttrGroupListForOutput(this.attr);	// 서버에서 생성을 원하면 사용한다.
+		}
+	
+	//@Getter List<JobAdAttrGroup> attrGroup;
 	
 	// 상세공고에서 사용하기 위한 D-Day
 	public Long getDDay() {

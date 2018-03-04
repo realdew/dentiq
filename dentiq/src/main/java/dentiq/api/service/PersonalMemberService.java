@@ -39,7 +39,7 @@ public interface PersonalMemberService {
 	
 	/************************************ 지원 공고 ******************************************/
 	//public List<AppliedJobAdInfo> listApplyJobAdId(Integer userId, String type) throws Exception;
-	
+	public AppliedJobAdInfo getAppliedJobAdId(Integer userId, Long jobAdId, String applyWay) throws Exception;
 	public List<AppliedJobAdInfo> listApplyJobAdIdAll(Integer userId) throws Exception;	// 공고 ID, 지원 유형
 	
 	public List<AppliedJobAdInfo> addApplyJobAdId(Integer userId, AppliedJobAdInfo jobAdIdWithType) throws Exception;	

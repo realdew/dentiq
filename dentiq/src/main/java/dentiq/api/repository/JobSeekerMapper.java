@@ -54,7 +54,6 @@ public interface JobSeekerMapper {
 	
 	
 	/************************************ 지원 공고 ******************************************/
-	//listAppliedJobAdIdAll
 	
 	public List<JobAd> listApplyJobAd(@Param("userId") Integer userId) throws Exception;
 	
@@ -62,8 +61,11 @@ public interface JobSeekerMapper {
 	
 	public int insertApplyJobAdId(@Param("userId") Integer userId, @Param("jobAdIdWithType") AppliedJobAdInfo jobAdIdWithType) throws Exception;
 	public int deleteApplyJobAdId(@Param("userId") Integer userId, @Param("jobAdId") Long jobAdId) throws Exception;
+	public AppliedJobAdInfo getAppliedJobAdId(@Param("userId") Integer userId, @Param("jobAdId") Long jobAdId, @Param("applyWay") String applyWay) throws Exception;
 	
 	
 	/************************************ 제안 보기 ******************************************/
 	public List<JobAd> listOfferedJobAd(@Param("userId") Integer userId) throws Exception;
+	
+	
 }

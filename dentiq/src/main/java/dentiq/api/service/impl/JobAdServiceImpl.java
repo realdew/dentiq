@@ -1,7 +1,6 @@
 package dentiq.api.service.impl;
 
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,20 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dentiq.api.model.Hospital;
 import dentiq.api.model.JobAd;
-import dentiq.api.model.JobAdAttr;
 import dentiq.api.model.JobAdAttrCounter;
 import dentiq.api.model.JobAdAttrGroup;
 import dentiq.api.model.JobAdDashboard;
 //import dentiq.api.model.JobAdCounter;
 //import dentiq.api.model.JobAdDashboard;
 import dentiq.api.model.JobAdGroupByLocationCode;
+import dentiq.api.model.LiveBoardResult;
 import dentiq.api.model.LocationCode;
-import dentiq.api.model.User;
-import dentiq.api.repository.HospitalMapper;
 import dentiq.api.repository.JobAdMapper;
-import dentiq.api.repository.UserMapper;
 import dentiq.api.repository.criteria.JobAdSearchCriteria;
 import dentiq.api.service.JobAdService;
 
@@ -32,136 +27,6 @@ public class JobAdServiceImpl implements JobAdService {
 	
 	@Autowired private JobAdMapper mapper;
 	
-	@Autowired private HospitalMapper hospitalMapper;
-	
-	@Autowired private UserMapper userMapper;
-	
-	@Override
-	@Transactional(readOnly=false)
-	public JobAd createJobAd(Integer userId, JobAd jobAd) throws Exception {
-		
-		String hiringTermType = jobAd.getHiringTermType();
-		if ( hiringTermType==null ) throw new Exception("채용기간형태(상시/기간)가 입력되지 않았습니다.");
-		
-		if ( hiringTermType.equals("2") ) {	// 1: 상시채용 2: 기간채용
-			String hiringStartDate = jobAd.getHiringStartDate();
-			String hiringEndDate   = jobAd.getHiringEndDate();
-			if ( hiringStartDate==null || hiringStartDate.trim().equals("") || hiringEndDate==null || hiringEndDate.trim().equals("") ) {
-				throw new Exception("기간채용("+hiringTermType+")일 때는 채용 시작/종료기간이 반드시 입력되어야 합니다. (" + hiringStartDate + "/" + hiringEndDate + ")");
-			}
-		}
-		
-		
-		
-				
-		User user = userMapper.getUserById(userId);
-		if ( user==null ) {
-			throw new Exception("해당 사용자가 존재하지 않습니다. [" + userId + "]");
-		}
-		if ( user.getUserType() == null || !user.getUserType().equals(User.USER_TYPE_HOSPITAL) ) {
-			throw new Exception("해당 사용자는 병원회원이 아닙니다. [" + user.getUserType() + "]");
-		}
-		
-
-		Hospital hospital = hospitalMapper.readHospitalByUserId(userId);
-		if ( hospital == null ) {
-			throw new Exception("병원정보가 없습니다. [userId:" + userId + "]");
-		}		
-		if ( user.getHospitalId() == null || user.getHospitalId()==0 ) {
-			throw new Exception("회원의 병원정보 없음 [" + user.getHospitalId() + "]");
-		}		
-		if ( !user.getHospitalId().equals(hospital.getId()) ) {
-			throw new Exception("회원의 병원 정보 불일치 [userHospital:" + user.getHospitalId() + "] [hospital:" + hospital.getId() + "]");
-		}
-		
-		
-		
-		
-		jobAd.setHospitalId(hospital.getId());
-		
-		// 1. 먼저 생성
-		int updatedRows = mapper.createJobAd(jobAd);
-		if ( updatedRows != 1 ) throw new Exception("JobAd 생성 실패 : 변경행 [" + updatedRows + "]");
-				
-		
-		updateJobAdAttr(jobAd.getId(), jobAd.getAttr());
-		
-		return mapper.getJobAd(jobAd.getId());
-	}
-	
-	@Override
-	public JobAd updateJobAdBasic(Integer userId, JobAd jobAd) throws Exception {
-		
-		String hiringTermType = jobAd.getHiringTermType();
-		if ( hiringTermType==null ) throw new Exception("채용기간형태(상시/기간)가 입력되지 않았습니다.");
-		
-		if ( hiringTermType.equals("2") ) {	// 1: 상시채용 2: 기간채용
-			String hiringStartDate = jobAd.getHiringStartDate();
-			String hiringEndDate   = jobAd.getHiringEndDate();
-			if ( hiringStartDate==null || hiringStartDate.trim().equals("") || hiringEndDate==null || hiringEndDate.trim().equals("") ) {
-				throw new Exception("기간채용("+hiringTermType+")일 때는 채용 시작/종료기간이 반드시 입력되어야 합니다. (" + hiringStartDate + "/" + hiringEndDate + ")");
-			}
-		}
-		
-		
-		User user = userMapper.getUserById(userId);
-		if ( user==null ) {
-			throw new Exception("해당 사용자가 존재하지 않습니다. [" + userId + "]");
-		}
-		if ( user.getUserType() == null || !user.getUserType().equals(User.USER_TYPE_HOSPITAL) ) {
-			throw new Exception("해당 사용자는 병원회원이 아닙니다. [" + user.getUserType() + "]");
-		}
-		
-		Hospital hospital = hospitalMapper.readHospitalByUserId(userId);
-		if ( hospital == null ) {
-			throw new Exception("병원정보가 없습니다. [userId:" + userId + "]");
-		}		
-		if ( user.getHospitalId() == null || user.getHospitalId()==0 ) {
-			throw new Exception("회원의 병원정보 없음 [" + user.getHospitalId() + "]");
-		}		
-		if ( !user.getHospitalId().equals(hospital.getId()) ) {
-			throw new Exception("회원의 병원 정보 불일치 [userHospital:" + user.getHospitalId() + "] [hospital:" + hospital.getId() + "]");
-		}
-		
-		if ( !hospital.getId().equals(jobAd.getHospitalId()) ) {
-			throw new Exception("변경 요청된 공고는 해당 병원의 것이 아닙니다. [" + jobAd.getHospitalId() + "] [" + hospital.getId() + "]");
-		}
-		
-		
-		
-		
-		
-		int updatedRows = mapper.updateJobAdBasic(jobAd);
-		if ( updatedRows != 1 ) throw new Exception("JobAd 수정 실패 : 변경행 [" + updatedRows + "]");
-		
-		updateJobAdAttr(jobAd.getId(), jobAd.getAttr());
-		
-		return mapper.getJobAd(jobAd.getId());
-	}
-	
-	
-	protected List<JobAdAttr> updateJobAdAttr(Long jobAdId, List<String> attrStrList) throws Exception {
-		if ( jobAdId==null ) throw new Exception();
-		
-		
-		// 기존 것을 삭제 (주의 : 값이 입력되지 않은 것(null or size=0)이면, 전체가 삭제된다.
-		mapper.deleteJobAdAttr(jobAdId);
-		
-		// 새로운 값들을 삽입
-		if ( attrStrList != null && attrStrList.size() > 0 ) {
-			List<JobAdAttr> attrCodeList = new ArrayList<JobAdAttr>();
-			for ( String attrStr : attrStrList ) {
-				if ( attrStr!=null && !attrStr.trim().equals("") ) {		// null이나 빈 값('')이 아닐 때만 insert한다.
-					attrCodeList.add( new JobAdAttr(attrStr.trim()) );
-				}
-			}
-			
-			System.out.println("JOB_AD_ATTR 생성 대상 : " + attrCodeList);
-			mapper.createJobAdAttr(jobAdId, attrCodeList);
-		}
-		
-		return mapper.getJobAdAttrList(jobAdId);
-	}
 	
 	
 	
@@ -176,14 +41,44 @@ public class JobAdServiceImpl implements JobAdService {
 		return mapper.getJobAd(id);
 	}
 	
+	
+
+
+	// 라이브보드 생성한다. (liveboard.html용)
 	@Override
-	public void deleteJobAd(Long jobAdId) throws Exception {
-		int updatedRows = mapper.deleteJobAdAttr(jobAdId);
-		if ( updatedRows != 1 ) throw new Exception("jobAd 삭제 실패 : 변경행 [" + updatedRows + "]");
+	public LiveBoardResult createLiveBoardResult(
+							List<String> locationCodeList, Integer adType,
+							String xPos, String yPos, Integer distance,
+							String hospitalName, String hospitalAddr, List<JobAdAttrGroup> atrrGroupList
+			
+			) throws Exception {
 		
+		
+		
+		JobAdSearchCriteria searchCriteria = new JobAdSearchCriteria(		// 주의!!! Dashboard용 생성자를 사용하여야 한다.
+													locationCodeList, 
+													// adType,
+													xPos, yPos, distance, 
+													hospitalName, hospitalAddr, atrrGroupList);
+		System.out.println("************************************ createLiveBoardResult 1");
+		System.out.println("LOC CODES : " + searchCriteria.getLocationCodeCriteria().getLocationCodeList());
+		
+		List<String> parsedLocationCodeList = searchCriteria.getLocationCodeCriteria().getLocationCodeList();
+		
+		List<JobAdGroupByLocationCode> list = null;
+				
+//		if ( parsedLocationCodeList == null || parsedLocationCodeList.size()==0 ) {
+//			list = mapper.createLiveBoardBySido(searchCriteria);
+//		} else {
+//			list = mapper.createLiveBoardBySiguWithSidoCode(searchCriteria);
+//		}
+		
+		LiveBoardResult result = new LiveBoardResult(list);
+		result.setRequestedLocationCodeList(locationCodeList);
+		return result;
 	}
-
-
+	
+	// 라이브보드 생성한다. (liveboard_home.html용)
 	
 	
 	

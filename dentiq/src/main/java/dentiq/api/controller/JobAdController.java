@@ -23,6 +23,7 @@ import dentiq.api.model.JobAd;
 import dentiq.api.model.JobAdAttrGroup;
 import dentiq.api.model.JobAdDashboard;
 import dentiq.api.model.JobAdWithHospital;
+import dentiq.api.model.LiveBoardResult;
 import dentiq.api.service.HospitalService;
 import dentiq.api.service.JobAdService;
 
@@ -99,6 +100,38 @@ public class JobAdController {
 	}
 	
 	
+//	// 2018.03.02 신규
+//	@RequestMapping(value="/liveboard/", method=RequestMethod.GET)
+//	public ResponseEntity<JsonResponse<LiveBoardResult>> createliveBoard(
+//					@RequestParam(value="location",		required=false)		List<String> locationCodeList,
+//					@RequestParam(value="adType",		required=false)		Integer adType,
+//					@RequestParam(value="xPos",			required=false)		String xPos,
+//					@RequestParam(value="yPos",			required=false)		String yPos,
+//					@RequestParam(value="distance",		required=false)		Integer distance,
+//					@RequestParam(value="hospitalName", required=false)		String hospitalName,
+//					@RequestParam(value="hospitalAddr",	required=false)		String hospitalAddr,
+//					@RequestParam(value="attr",			required=false)		List<String> attrStrList
+//					) {
+//		
+//		JsonResponse<LiveBoardResult> res = new JsonResponse<LiveBoardResult>();
+//		try {
+//			List<JobAdAttrGroup> atrrGroupList = JobAdAttrGroup.createJobAdAttrGroupList(attrStrList);
+//			logger.error("atrrGroupList ==>" + atrrGroupList );
+//			
+//			LiveBoardResult dash = jobAdService.createLiveBoardResult(locationCodeList, adType,
+//														xPos, yPos, distance, 
+//														hospitalName, hospitalAddr, atrrGroupList);
+//			res.setResponseData(dash);
+//		} catch(Exception ex) {
+//			res.setException(ex);
+//		}
+//		return new ResponseEntity<JsonResponse<LiveBoardResult>>(res, HttpStatus.OK);
+//	}
+			
+	
+	
+	
+	
 	
 	
 	
@@ -124,7 +157,7 @@ public class JobAdController {
 		
 		JsonResponse<JobAdDashboard> res = new JsonResponse<JobAdDashboard>();
 		try {
-			List<JobAdAttrGroup> atrrGroupList = JobAdAttrGroup.createJobAdAttrGroupList(attrStrList);
+			List<JobAdAttrGroup> atrrGroupList = JobAdAttrGroup.createJobAdAttrGroupListForInput(attrStrList);
 			logger.error("atrrGroupList ==>" + atrrGroupList );
 			
 			JobAdDashboard dash = jobAdService.aggregateJobAds(locationCodeList, adType,
@@ -162,7 +195,7 @@ public class JobAdController {
 		
 		JsonResponse<JobAdDashboard> res = new JsonResponse<JobAdDashboard>();
 		try {
-			List<JobAdAttrGroup> atrrGroupList = JobAdAttrGroup.createJobAdAttrGroupList(attrStrList);
+			List<JobAdAttrGroup> atrrGroupList = JobAdAttrGroup.createJobAdAttrGroupListForInput(attrStrList);
 			logger.error("atrrGroupList ==>" + atrrGroupList );
 			
 			JobAdDashboard dash = jobAdService.aggregateJobAdsForDashboard(locationCodeList, adType,
@@ -235,7 +268,7 @@ public class JobAdController {
 		try {
 			
 			//List<JobAdAttrGroup> atrrGroupList = generateJobAdAttrGroup(attrStrList);
-			List<JobAdAttrGroup> atrrGroupList = JobAdAttrGroup.createJobAdAttrGroupList(attrCodeList);
+			List<JobAdAttrGroup> atrrGroupList = JobAdAttrGroup.createJobAdAttrGroupListForInput(attrCodeList);
 			
 			List<Map> count = jobAdService.countJobAdsGroupByAdType(locationCodeList, adType, xPos, yPos, distance, hospitalName, hospitalAddr, atrrGroupList);
 			res.setResponseData(count);
@@ -265,7 +298,7 @@ public class JobAdController {
 		try {
 			
 			//List<JobAdAttrGroup> atrrGroupList = generateJobAdAttrGroup(attrStrList);
-			List<JobAdAttrGroup> atrrGroupList = JobAdAttrGroup.createJobAdAttrGroupList(attrCodeList);
+			List<JobAdAttrGroup> atrrGroupList = JobAdAttrGroup.createJobAdAttrGroupListForInput(attrCodeList);
 			
 			Long count = jobAdService.countJobAds(locationCodeList, adType, xPos, yPos, distance, hospitalName, hospitalAddr, atrrGroupList);
 			res.setResponseData(count);
@@ -317,7 +350,7 @@ public class JobAdController {
 		try {
 			
 			//List<JobAdAttrGroup> atrrGroupList = generateJobAdAttrGroup(attrStrList);
-			List<JobAdAttrGroup> atrrGroupList = JobAdAttrGroup.createJobAdAttrGroupList(attrStrList);
+			List<JobAdAttrGroup> atrrGroupList = JobAdAttrGroup.createJobAdAttrGroupListForInput(attrStrList);
 			logger.debug("atrrGroupList ==>" + atrrGroupList );
 			
 			List<JobAd> list = jobAdService.listJobAds(locationCodeList, adType,

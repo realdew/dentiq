@@ -1,7 +1,6 @@
 package dentiq.api.service.impl;
 
-import java.util.ArrayList;
-import java.util.Comparator;
+
 import java.util.List;
 import java.util.Map;
 
@@ -11,9 +10,9 @@ import org.springframework.stereotype.Service;
 import dentiq.api.model.JobAdAttr;
 import dentiq.api.model.JobAdAttrGroup;
 import dentiq.api.model.LocationCode;
-import dentiq.api.model.LocationCodeGroup;
 import dentiq.api.repository.CodeMapper;
 import dentiq.api.service.CodeService;
+import dentiq.api.util.CodeCache;
 
 /**
  * TODO 향후에는 Cache하는 것으로 변경할 것
@@ -26,6 +25,79 @@ public class CodeServiceImpl implements CodeService {
 	@Autowired
 	private CodeMapper mapper;
 	
+	@Override
+	public Map<String, LocationCode> getLocationCodeTree() throws Exception {
+		
+		CodeCache codeCache = CodeCache.getInstance();
+		Map<String, LocationCode> locationCodeTree = codeCache.getLocationCodeTree();
+		if ( locationCodeTree == null ) {	setupCodeCacheLocationCode(); }
+		
+		return codeCache.getLocationCodeTree();
+	}
+	
+	
+	@Override
+	public List<LocationCode> listLocationCode() throws Exception {
+		CodeCache codeCache = CodeCache.getInstance();
+		List<LocationCode> locationCodeList = codeCache.listLocationCode();
+		if ( locationCodeList == null ) {	setupCodeCacheLocationCode();	}
+		
+		return codeCache.listLocationCode();
+	}
+	@Override
+	public List<LocationCode> listSidoCode() throws Exception {
+		CodeCache codeCache = CodeCache.getInstance();
+		List<LocationCode> sidoCodeList = codeCache.listSidoCode();
+		if ( sidoCodeList == null ) {		setupCodeCacheLocationCode();	}		
+		
+		return codeCache.listSidoCode();
+	}
+	@Override
+	public List<LocationCode> listSiguCode() throws Exception {
+		CodeCache codeCache = CodeCache.getInstance();
+		List<LocationCode> siguCodeList = codeCache.listSiguCode();
+		if ( siguCodeList == null ) {		setupCodeCacheLocationCode();	}
+		
+		return codeCache.listSiguCode();
+	}
+	
+	@Override
+	public LocationCode getLocationCode(String locationCodeStr) throws Exception {
+		throw new Exception("DEPRECATED");
+	}
+	
+	private void setupCodeCacheLocationCode() throws Exception {
+		CodeCache codeCache = CodeCache.getInstance();
+		codeCache.setLocationCodeList(mapper.listLocationCode());
+	}
+	
+
+	
+
+	@Override
+	public List<JobAdAttr> getJobAdAttrList() throws Exception {
+		CodeCache codeCache = CodeCache.getInstance();
+		List<JobAdAttr> jobAdAttrCodeList = codeCache.getJobAdAttrList();
+		if ( jobAdAttrCodeList == null ) {		setupCodeCacheJobAdAttr();	}
+		
+		return codeCache.getJobAdAttrList();
+	}
+	
+	@Override
+	public List<JobAdAttrGroup> getJobAdAttrContainer() throws Exception {
+		CodeCache codeCache = CodeCache.getInstance();
+		List<JobAdAttrGroup> jobAdAttrGroupList = codeCache.getJobAdAttrContainer();
+		if ( jobAdAttrGroupList == null ) {		setupCodeCacheJobAdAttr();	}
+		
+		return codeCache.getJobAdAttrContainer();
+	}
+	
+	private void setupCodeCacheJobAdAttr() throws Exception {
+		CodeCache codeCache = CodeCache.getInstance();
+		codeCache.setJobAdAttrList(mapper.getJobAdAttrList());
+	}
+	
+	/*
 	@Override
 	public List<LocationCode> listLocationCode() throws Exception {
 		return mapper.listLocationCode();
@@ -127,6 +199,8 @@ public class CodeServiceImpl implements CodeService {
 		return groupList;
 		
 	}
+	
+	*/
 
 
 }

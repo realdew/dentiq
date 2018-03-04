@@ -21,11 +21,13 @@
 	</select>
 	
 
-	<!--  주의 : 정렬 순서가 DISPLAY_ORDER가 아니다. jobAdAttrGroup를 생성할 때, GROUP_ID 순서로 query되었을 것을 필요로 하기 때문이다. -->
+	<!--  주의 : 정렬 순서가 DISPLAY_ORDER가 아니다. jobAdAttrGroup를 생성할 때, GROUP_ID 순서로 query되었을 것을 필요로 하기 때문이다.
+			괜찮을 듯... GROUP_DISPLAY_ORDER가 하나의 GROUP에서는 동일하기 때문
+	 -->
 	<select id="getJobAdAttrList" resultType="dentiq.api.model.JobAdAttr">
 		select GROUP_ID, GROUP_DISPLAY_ORDER, GROUP_NAME, CODE_ID, CODE_DISPLAY_ORDER, CODE_NAME, DEPRECATED_YN
 		from JOB_AD_ATTR_CODE
-		order by GROUP_ID, CODE_ID
+		order by GROUP_DISPLAY_ORDER, CODE_DISPLAY_ORDER
 	</select>
 
 </mapper>

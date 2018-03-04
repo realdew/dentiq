@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import dentiq.api.service.exception.LogicalException;
+import dentiq.api.util.CodeCache;
 import lombok.Getter;
 
 @JsonInclude(Include.NON_NULL)
@@ -38,7 +39,8 @@ public class JobAdAttrGroup {
 		this.groupId = groupId;
 	}
 	
-	public static List<JobAdAttrGroup> createJobAdAttrGroupList(List<String> attrCodeList) throws LogicalException {
+	// 클라이언트로부터 입력될 때 생성하는 것
+	public static List<JobAdAttrGroup> createJobAdAttrGroupListForInput(List<String> attrCodeList) throws LogicalException {
 		// attrCodeList 입력 형태 : EMP=EMP_1&EMP=EMP_2&EMP_EMP_3
 		if ( attrCodeList==null ) return null;
 		int attrCount = attrCodeList.size();
@@ -63,9 +65,56 @@ public class JobAdAttrGroup {
 		return new ArrayList<JobAdAttrGroup>(map.values());
 	}
 	
+	public static List<JobAdAttrGroup> createJobAdAttrGroupListForOutput(List<String> attrCodeList) throws Exception {
+		
+		// 만일 attrCodeList가 없는 경우는 전체인 경우인데... 전체라면... 값을 다 보여주어야 하지 않는가?
+		
+		
+		if ( attrCodeList==null ) return null;
+		int attrCount = attrCodeList.size();
+		if ( attrCount<=0 ) return null;
+		
+		CodeCache codeCache = CodeCache.getInstance();
+		
+		Map<String, JobAdAttrGroup> map = new HashMap<String, JobAdAttrGroup>();
+		for ( String attrCodeStr : attrCodeList ) {
+			if ( attrCodeStr == null || attrCodeStr.trim().equals("") ) continue;
+			
+			JobAdAttr attr = codeCache.getJobAdAttr(attrCodeStr);
+			
+			JobAdAttrGroup attrGroup = map.get(attr.getGroupId());
+			if ( attrGroup == null ) {
+				attrGroup = new JobAdAttrGroup(attr.getGroupId(), attr.getGroupName(), attr.getGroupDisplayOrder());
+				map.put(attr.getGroupId(), attrGroup);
+			}
+			attrGroup.addAttr(attr);
+		}
+		
+		
+		// 개별 그룹 내의 ATTR들을 정렬한다.
+		for (Map.Entry<String, JobAdAttrGroup> entry : map.entrySet() ) {
+			entry.getValue().reorderInnerAttrList();
+		}
+		
+		
+		// 각 그룹을 정렬한다.
+		ArrayList<JobAdAttrGroup> attrGroupList = new ArrayList<JobAdAttrGroup>(map.values());
+		attrGroupList.sort(new Comparator<JobAdAttrGroup>() {
+			@Override
+			public int compare(JobAdAttrGroup a, JobAdAttrGroup b) {
+				return a.getDisplayOrder() - b.getDisplayOrder();
+			}
+		});
+				
+		//Collection<JobAdAttrGroup> collection = map.values();	
+		return attrGroupList;
+	}
+	
+	
+	
 	
 	// 속성 리스트 내의 속성들을 재정렬한다 (CODE_DISPLAY_ORDER 순서대로)
-	public synchronized void reorderAttrList() {
+	public synchronized void reorderInnerAttrList() {
 		if ( this.attrList==null || this.attrList.size()<2 ) return;
 		
 		this.attrList.sort(new Comparator<JobAdAttr>() {
@@ -102,17 +151,20 @@ public class JobAdAttrGroup {
 			return true;
 		}
 		
-		int attrCount = this.attrList.size();
+		//int attrCount = this.attrList.size();
 		
 		if ( this.groupId != null && !this.groupId.equals(newAttr.getGroupId()) ) {
 			System.out.println(this.groupId + " <-> " + newAttr.getGroupId() );
 			throw new LogicalException();
 		}
-			
 		
-		for ( int i=0; i<attrCount; i++ ) {
-			JobAdAttr oldAttr = this.attrList.get(i);
+		
+		for ( JobAdAttr oldAttr : this.attrList ) {
+//		for ( int i=0; i<attrCount; i++ ) {
+//			JobAdAttr oldAttr = this.attrList.get(i);
 			//System.out.println("OLD : " + oldAttr + "\t NEW : " + newAttr);
+			
+			
 			if ( oldAttr.equals(newAttr) ) {
 				//System.out.println("FALSE : OLD : " + oldAttr + "\t NEW : " + newAttr);
 				return false;

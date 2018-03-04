@@ -1,6 +1,6 @@
 package dentiq.api.controller;
 
-import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import dentiq.api.model.JobAdAttr;
 import dentiq.api.model.JobAdAttrGroup;
 import dentiq.api.model.LocationCode;
-import dentiq.api.model.LocationCodeGroup;
 import dentiq.api.service.CodeService;
 
 
@@ -95,23 +94,23 @@ public class CodeController {
 	public ResponseEntity<JsonResponse<Map<String, LocationCode>>> listLocationCodeTree() {
 		JsonResponse<Map<String, LocationCode>> res = new JsonResponse<Map<String, LocationCode>>();
 		try {
-			List<LocationCode> sidoCodeList = codeService.listSidoCode();
-			List<LocationCode> siguCodeList = codeService.listSiguCode();
+//			List<LocationCode> sidoCodeList = codeService.listSidoCode();
+//			List<LocationCode> siguCodeList = codeService.listSiguCode();
+//			
+//			// 시도를 먼저 만든다.
+//			Map<String, LocationCode> sidoMap = new HashMap<String, LocationCode>();
+//			for ( LocationCode sido: sidoCodeList) {
+//				sidoMap.put(sido.getLocationCode(), sido);
+//				System.out.println("시도 추가됨 [" + sido.getLocationCode() + "]  " + sido);
+//			}
+//			
+//			// 시구를 각각의 시도에 넣는다.
+//			for ( LocationCode sigu: siguCodeList ) {				
+//				LocationCode sido = sidoMap.get(sigu.getSidoCode());
+//				sido.addChild(sigu);
+//			}
 			
-			// 시도를 먼저 만든다.
-			Map<String, LocationCode> sidoMap = new HashMap<String, LocationCode>();
-			for ( LocationCode sido: sidoCodeList) {
-				sidoMap.put(sido.getLocationCode(), sido);
-				System.out.println("시도 추가됨 [" + sido.getLocationCode() + "]  " + sido);
-			}
-			
-			// 시구를 각각의 시도에 넣는다.
-			for ( LocationCode sigu: siguCodeList ) {				
-				LocationCode sido = sidoMap.get(sigu.getSidoCode());
-				sido.addChild(sigu);
-			}
-			
-			
+			Map<String, LocationCode> sidoMap = codeService.getLocationCodeTree();
 			
 			res.setResponseData( sidoMap );	
 		} catch(Exception ex) {
@@ -132,6 +131,8 @@ public class CodeController {
 //		return new ResponseEntity<JsonResponse<List<LocationCodeGroup>>>(res, HttpStatus.OK);
 //		
 //	}
+	
+	
 	
 	
 	

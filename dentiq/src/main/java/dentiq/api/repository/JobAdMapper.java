@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
@@ -20,12 +19,23 @@ import dentiq.api.repository.criteria.JobAdSearchCriteria;
 public interface JobAdMapper {
 	
 	
+	public List<JobAd> listJobAdOfHospital(Integer hospitalId) throws Exception;
+	public List<Long> listJobAdIdOfHospital(Integer hospitalId) throws Exception;
+	
+	public List<JobAd> listJobAdOfUser(Integer userId) throws Exception;
+	public List<Long> listJobAdIdOfUser(Integer userId) throws Exception;
+	
+	
+	
+	
 	public int createJobAd(JobAd jobAd) throws Exception;
 	
 	public int updateJobAdBasic(JobAd jobAd) throws Exception;
 	
 	@Update("update JOB_AD set USE_YN='N' where ID=#{jobAdId}")
 	public int deleteJobAd(Long jobAdId) throws Exception;
+	
+	
 	
 	public int deleteJobAdAttr(Long jobAdId) throws Exception;
 	public int createJobAdAttr(@Param("jobAdId") Long jobAdId, @Param("attrCodeList") List<JobAdAttr> locationCodeList) throws Exception;
@@ -40,6 +50,12 @@ public interface JobAdMapper {
 	public JobAd getJobAd(@Param("id") long id) throws Exception;
 	
 	public JobAd getJobAdWithHospital(@Param("id") long id) throws Exception;
+	
+	
+//	public List<JobAdGroupByLocationCode> createLiveBoardBySido(@Param("searchCriteria") JobAdSearchCriteria searchCriteria) throws Exception;
+//	public List<JobAdGroupByLocationCode> createLiveBoardBySiguWithSidoCode(@Param("searchCriteria") JobAdSearchCriteria searchCriteria) throws Exception;
+	
+	
 	
 	
 	
