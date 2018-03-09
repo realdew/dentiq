@@ -27,7 +27,7 @@ public class PersonalMemberServiceImpl implements PersonalMemberService {
 	}	
 	
 	@Override
-	public Resume getResumeByUserID(Integer userId) throws Exception {
+	public Resume getResumeByUserId(Integer userId) throws Exception {
 		return mapper.getResumeByUserId(userId);
 	}
 	
@@ -46,6 +46,18 @@ public class PersonalMemberServiceImpl implements PersonalMemberService {
 		return mapper.getResumeByUserId(userId);
 	}
 	
+	@Override
+	public boolean checkUserAppliedToHospitalByJobSeekerIdAndHosptailUserId(Integer jobSeekerId, Integer hosiptalUserId) throws Exception {
+		
+		int cnt = 0;
+		try {
+			cnt = mapper.checkUserAppliedToHospitalByJobSeekerIdAndHosptailUserId(jobSeekerId, hosiptalUserId);
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		if ( cnt == 1 ) return true;
+		else return false;
+	}
 	
 	
 	
@@ -105,6 +117,11 @@ public class PersonalMemberServiceImpl implements PersonalMemberService {
 	
 	
 	/************************************ 관심지역 ******************************************/
+	
+	
+//	public List<JobAd> listConcernedLocationJobAd(Integer userId) throws Exception {
+//		//return mapper.listConcernedLocationJobAd(userId);
+//	}
 	
 	@Override
 	public List<LocationCode> getConcernedLocationCodeList(Integer userId) throws Exception {

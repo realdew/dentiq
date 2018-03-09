@@ -9,6 +9,7 @@ import dentiq.api.model.JobAdAttrCounter;
 import dentiq.api.model.JobAdAttrGroup;
 import dentiq.api.model.JobAdDashboard;
 import dentiq.api.model.LiveBoardResult;
+import dentiq.api.model.NameCountPair;
 
 
 public interface JobAdService {
@@ -48,7 +49,7 @@ public interface JobAdService {
 	
 	
 	
-	public List<Map> countJobAdsGroupByAdType(
+	public List<NameCountPair> countJobAdsGroupByAdType(
 			List<String> locationCodeList, Integer adType,
 			String xPos, String yPos, Integer distance,
 			String hospitalName, String hospitalAddr, List<JobAdAttrGroup> atrrGroupList) throws Exception;

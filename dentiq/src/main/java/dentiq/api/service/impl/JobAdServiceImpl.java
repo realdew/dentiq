@@ -17,6 +17,7 @@ import dentiq.api.model.JobAdDashboard;
 import dentiq.api.model.JobAdGroupByLocationCode;
 import dentiq.api.model.LiveBoardResult;
 import dentiq.api.model.LocationCode;
+import dentiq.api.model.NameCountPair;
 import dentiq.api.repository.JobAdMapper;
 import dentiq.api.repository.criteria.JobAdSearchCriteria;
 import dentiq.api.service.JobAdService;
@@ -105,7 +106,28 @@ public class JobAdServiceImpl implements JobAdService {
 		
 		List<JobAdGroupByLocationCode> list = mapper.aggregateJobAdsForDashboard(searchCriteria);
 		
-		return new JobAdDashboard(locationCodeList, list);
+		
+		JobAdSearchCriteria searchCriteriaForCountNormal = new JobAdSearchCriteria(		/// 주의!!! 일반 생성자
+				locationCodeList,
+				1,	// 일반
+				xPos, yPos, distance, 
+				hospitalName, hospitalAddr, atrrGroupList);
+		Long countNormal = mapper.countJobAds(searchCriteriaForCountNormal);
+		
+		
+		JobAdSearchCriteria searchCriteriaForCountPremier = new JobAdSearchCriteria(		// / 주의!!! 일반 생성자
+				locationCodeList,
+				2,	// 프리미어
+				xPos, yPos, distance, 
+				hospitalName, hospitalAddr, atrrGroupList);
+		Long countPremire = mapper.countJobAds(searchCriteriaForCountPremier);
+		
+		JobAdDashboard result = new JobAdDashboard(locationCodeList, list);
+		result.setTotalCountNormal(countNormal);
+		result.setTotalCountPremier(countPremire);
+		
+		return result;
+		//return new JobAdDashboard(locationCodeList, list);
 	}
 	
 	@Override
@@ -123,7 +145,30 @@ public class JobAdServiceImpl implements JobAdService {
 		
 		List<JobAdGroupByLocationCode> list = mapper.aggregateJobAds(searchCriteria);
 		
-		return new JobAdDashboard(locationCodeList, list);
+		
+//		JobAdSearchCriteria searchCriteriaForCountNormal = new JobAdSearchCriteria(		// 주의!!! 일반 생성자
+//				locationCodeList,
+//				1,	// 일반
+//				xPos, yPos, distance, 
+//				hospitalName, hospitalAddr, atrrGroupList);
+//		Long countNormal = mapper.countJobAds(searchCriteriaForCountNormal);
+//		
+//		
+//		JobAdSearchCriteria searchCriteriaForCountPremier = new JobAdSearchCriteria(		// 주의!!! 일반 생성자
+//				locationCodeList,
+//				2,	// 프리미어
+//				xPos, yPos, distance, 
+//				hospitalName, hospitalAddr, atrrGroupList);
+//		Long countPremire = mapper.countJobAds(searchCriteriaForCountPremier);
+		
+		JobAdDashboard result = new JobAdDashboard(locationCodeList, list);
+//		result.setTotalCountNormal(countNormal);
+//		result.setTotalCountPremier(countPremire);
+		
+		
+		
+		return result;
+		//return new JobAdDashboard(locationCodeList, list);
 	}
 	
 //	
@@ -471,7 +516,7 @@ public class JobAdServiceImpl implements JobAdService {
 	 * @return	전체 공고 개수
 	 */
 	@Override
-	public List<Map> countJobAdsGroupByAdType(List<String> locationCodeList, Integer adType,
+	public List<NameCountPair> countJobAdsGroupByAdType(List<String> locationCodeList, Integer adType,
 				String xPos, String yPos, Integer distance, 
 				String hospitalName, String hospitalAddr, List<JobAdAttrGroup> atrrGroupList)
 			throws Exception {

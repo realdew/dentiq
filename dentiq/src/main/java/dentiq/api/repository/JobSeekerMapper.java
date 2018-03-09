@@ -23,6 +23,8 @@ public interface JobSeekerMapper {
 	public Resume getResumeByUserId(Integer userId) throws Exception;
 	public Resume getResumeById(Integer resumeId) throws Exception;
 	
+	public int checkUserAppliedToHospitalByJobSeekerIdAndHosptailUserId(@Param("jobSeekerId") Integer jobSeekerId, @Param("hospitalUserId") Integer hosiptalUserId) throws Exception;
+	
 	
 	//public int insertAllScrappedJobAds(@Param("userId") Integer userId, @Param("jobAdIdList") List<Long> jobAdIdList) throws Exception;
 

@@ -22,6 +22,10 @@ public class JobAdDashboard {
 	@Getter @Setter
 	private int requestedCnt;
 	
+	@Getter @Setter private long totalCountNormal;
+	@Getter @Setter private long totalCountPremier;
+	
+	
 //	public JobAdDashboard(List<JobAdGroupByLocationCode> jobAdGroupList, int cnt) {
 //		this.jobAdGroupList = jobAdGroupList;
 //		this.cnt = cnt;
@@ -67,6 +71,46 @@ public class JobAdDashboard {
 		
 		System.out.println(this);
 		
+	}
+	
+	public void updateRequestedLocation(List<String> newRequestedLocationCodeList) {
+		
+		this.requestedCnt = 0;
+		for ( JobAdGroupByLocationCode resultItem : this.jobAdGroupList ) {
+			
+			if ( newRequestedLocationCodeList==null || newRequestedLocationCodeList.size()==0 ) {	// 요청된 지역코드가 없는 경우. 즉, 전국인 경우.
+				this.requestedCnt += resultItem.getCnt();
+				continue;
+			}
+			
+			resultItem.setRequested(false);
+			
+			String resultLocationCode = resultItem.getLocationCode();
+			for ( String requestedLocationCode : newRequestedLocationCodeList ) {				// 요청된 지역코드가 있는 경우		
+				
+				
+				if ( LocationCode.isFormatForSido(requestedLocationCode) && resultLocationCode.startsWith(requestedLocationCode+LocationCode.CODE_DELIMETER) ) {	// 시도코드가 요청된 경우.
+					System.out.println("** 1");
+					this.requestedCnt += resultItem.getCnt();
+					
+				} else if ( LocationCode.isFormatForSigu(requestedLocationCode) && requestedLocationCode.equals(resultLocationCode) ) {	// 시구코드가 요청된 경우.
+					
+					
+					this.requestedCnt += resultItem.getCnt();
+					resultItem.setRequested(true);
+					System.out.println("** 2 ==> " + resultItem);
+					
+				}
+//				} else if ( requestedLocationCode.equals(resultLocationCode) ) {	// 추가
+//					System.out.println("** 3");
+//					resultItem.setRequested(true);
+//				}
+				
+				
+			}
+		}
+		
+		System.out.println(" ==================> JobAdDashboard UPDATED : " + this);
 	}
 	
 	/*

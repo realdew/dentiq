@@ -3,6 +3,7 @@ package dentiq.api.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -22,9 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 import dentiq.api.model.Hospital;
+import dentiq.api.model.Resume;
 import dentiq.api.model.User;
 import dentiq.api.model.juso.AddrJuso;
 import dentiq.api.service.HospitalService;
+import dentiq.api.service.PersonalMemberService;
 import dentiq.api.service.UserService;
 import dentiq.api.util.UserSession;
 import dentiq.api.util.UserSessionManager;
@@ -46,6 +49,87 @@ public class NormalController {
 	@Autowired private HospitalService hospitalService;
 	@Autowired private UserService userService;
 	
+	
+	@Autowired private PersonalMemberService personalMemberService;		//TODO 나중에 변경할 것
+	
+	@RequestMapping(value="/resume/{resumeId}/", method=RequestMethod.GET)
+	public ResponseEntity<JsonResponse<Resume>> viewResume(
+								@PathVariable("resumeId")		Integer resumeId,
+								HttpServletRequest httpRequest,
+								HttpServletResponse httpResponse
+			) {
+		
+		// httpRequest에서 현재 사용자의 권한을 조회한다.
+		
+		// 이력서가 비공개이다 ==> 소유자와 지원된 병원만 본다.
+		// 이력서가 공개이다   ==> 소유자와 병원회원들만 볼 수 있다.
+		
+		JsonResponse<Resume> res = new JsonResponse<Resume>();
+		try {
+			// 이력서를 먼저 가져온 후에 권한 확인 한다.
+			
+			
+			Resume resume = personalMemberService.getResumeById(resumeId);
+			if ( resume==null )
+				throw new Exception("해당 공고가 존재하지 않습니다. [" + resumeId + "]");
+			
+			
+			UserSessionManager sesMan = UserSessionManager.get();
+			UserSession session = sesMan.verifyToken(httpRequest, httpResponse);
+			
+			Integer currentUserId = resume.getUserId();
+			
+			if ( !currentUserId.equals(session.getUserId()) ) {
+				
+				if ( resume.isOpened() ) {
+					if ( session.getUserType() != User.USER_TYPE_HOSPITAL )
+						throw new Exception("접근권한 없음 : 공개 이력서는 작성자 또는 병원회원만 조회할 수 있습니다.");
+				} else {
+					Integer resumeOnwerId = resume.getUserId();
+					Integer hospitalUserId = currentUserId;
+					boolean passed = personalMemberService.checkUserAppliedToHospitalByJobSeekerIdAndHosptailUserId(resumeOnwerId, hospitalUserId);
+					
+					if ( !passed ) {
+						throw new Exception("접근권한 없음 : 비공개 이력서는 작성자 또는 지원받은 병원회원만 조회할 수 있습니다.");
+					}			
+				}
+			}
+			
+			
+			res.setResponseData(resume);
+						
+					
+			// checkUserAppliedToHospitalByResumeOwnerIdAndHosptailUserId(resumeOwnerId, hospitalUserId);
+					
+					
+					/*
+select count(1)
+from
+	(
+		select HOSPITAL_ID from USER
+		where ID=#{hospitalUserId} and USER_TYPE='2'
+	) U, 
+	(
+		select distinct(J.HOSPITAL_ID) as HOSPITAL_ID
+		from JOB_AD J, USER_APPLY UA 
+		where							
+			J.ID=UA.JOB_AD_ID and
+			UA.CANCEL_YN='N' and
+			J.USE_YN='Y' and
+			UA.USER_ID=#{resumeOwnerId}
+	) R1
+where
+	R1.HOSPITAL_ID = U.HOSPITAL_ID
+					
+					 */
+					
+
+			
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		return new ResponseEntity<JsonResponse<Resume>>(res, HttpStatus.OK);
+	}
 	
 	
 	

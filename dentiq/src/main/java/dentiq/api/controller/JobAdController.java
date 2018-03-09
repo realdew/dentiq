@@ -2,6 +2,7 @@ package dentiq.api.controller;
 
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,8 +25,11 @@ import dentiq.api.model.JobAdAttrGroup;
 import dentiq.api.model.JobAdDashboard;
 import dentiq.api.model.JobAdWithHospital;
 import dentiq.api.model.LiveBoardResult;
+import dentiq.api.model.LocationCode;
+import dentiq.api.model.NameCountPair;
 import dentiq.api.service.HospitalService;
 import dentiq.api.service.JobAdService;
+import dentiq.api.service.PersonalMemberService;
 
 /**
  * 공고(JobAd)에 대한 Controller
@@ -170,6 +174,7 @@ public class JobAdController {
 		return new ResponseEntity<JsonResponse<JobAdDashboard>>(res, HttpStatus.OK);
 	}
 	
+	
 	/**
 	 * 대쉬 보드를 생성
 	 * 
@@ -252,8 +257,8 @@ public class JobAdController {
 	 * 조건에 따른 공고의 개수를 리턴한다.
 	 * @return
 	 */
-	@RequestMapping(value="/jobAd/countMain/", method=RequestMethod.GET)
-	public ResponseEntity<JsonResponse<List<Map>>> countJobAdsGroupByAdType(
+	@RequestMapping(value="/jobAd/countByAdType/", method=RequestMethod.GET)
+	public ResponseEntity<JsonResponse<List<NameCountPair>>> countJobAdsGroupByAdType(
 			@RequestParam(value="location",		required=false)		List<String> locationCodeList,
 			@RequestParam(value="adType",		required=false)		Integer adType,
 			@RequestParam(value="xPos",			required=false)		String xPos,
@@ -264,18 +269,18 @@ public class JobAdController {
 			@RequestParam(value="attr",			required=false)		List<String> attrCodeList
 			) {
 		
-		JsonResponse<List<Map>> res = new JsonResponse<List<Map>>();
+		JsonResponse<List<NameCountPair>> res = new JsonResponse<List<NameCountPair>>();
 		try {
 			
 			//List<JobAdAttrGroup> atrrGroupList = generateJobAdAttrGroup(attrStrList);
 			List<JobAdAttrGroup> atrrGroupList = JobAdAttrGroup.createJobAdAttrGroupListForInput(attrCodeList);
 			
-			List<Map> count = jobAdService.countJobAdsGroupByAdType(locationCodeList, adType, xPos, yPos, distance, hospitalName, hospitalAddr, atrrGroupList);
+			List<NameCountPair> count = jobAdService.countJobAdsGroupByAdType(locationCodeList, adType, xPos, yPos, distance, hospitalName, hospitalAddr, atrrGroupList);
 			res.setResponseData(count);
 		} catch(Exception ex) {
 			res.setException(ex);
 		}
-		return new ResponseEntity<JsonResponse<List<Map>>>(res, HttpStatus.OK);
+		return new ResponseEntity<JsonResponse<List<NameCountPair>>>(res, HttpStatus.OK);
 	}
 	
 	/**

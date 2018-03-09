@@ -13,7 +13,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 
-@ToString
+
 @JsonInclude(Include.NON_NULL)
 public class JobAdGroupByLocationCode extends LocationCode {
 	@Getter @Setter
@@ -35,5 +35,9 @@ public class JobAdGroupByLocationCode extends LocationCode {
 		childrenList.add(child);
 		
 		this.cnt += child.getCnt();
+	}
+	
+	public String toString() {
+		return super.toString() + " : ==>  CNT:" + this.cnt + ", REQ:" + this.requested + ", \n\tCHILD:" + this.childrenList;
 	}
 }

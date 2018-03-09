@@ -12,6 +12,7 @@ import dentiq.api.model.JobAd;
 import dentiq.api.model.JobAdAttr;
 import dentiq.api.model.JobAdAttrCounter;
 import dentiq.api.model.JobAdGroupByLocationCode;
+import dentiq.api.model.NameCountPair;
 import dentiq.api.repository.criteria.JobAdSearchCriteria;
 
 @Mapper
@@ -89,7 +90,7 @@ public interface JobAdMapper {
 	 * 처음 로드될 때만 카운팅하기 위하여 사용한다.
 	 * 매 chunk단위(ex. 페이지)마다 카운팅을 하면, 검색조건이 복잡할 경우 부하가 심해질 것으로 판단되므로, 이것으로 처리하고, 처음 화면이 로드될 때 1번만 사용하기로 한다.
 	 */
-	public List<Map> countJobAdsGroupByAdType(@Param("searchCriteria") JobAdSearchCriteria searchCriteria) throws Exception;
+	public List<NameCountPair> countJobAdsGroupByAdType(@Param("searchCriteria") JobAdSearchCriteria searchCriteria) throws Exception;
 	
 	/**
 	 * 조건에 맞는 공고 개수를 리턴한다.

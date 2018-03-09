@@ -1,6 +1,8 @@
 package dentiq.api.controller;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,10 +20,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import dentiq.api.model.AppliedJobAdInfo;
 import dentiq.api.model.JobAd;
+import dentiq.api.model.JobAdAttrGroup;
+import dentiq.api.model.JobAdDashboard;
 import dentiq.api.model.LocationCode;
 import dentiq.api.model.LoginInfo;
+import dentiq.api.model.NameCountPair;
 import dentiq.api.model.Resume;
 import dentiq.api.model.User;
+import dentiq.api.service.JobAdService;
 import dentiq.api.service.PersonalMemberService;
 import dentiq.api.service.UserService;
 import dentiq.api.util.UserSession;
@@ -44,55 +50,55 @@ public class PersonalUserController {
 	
 	@Autowired private PersonalMemberService personalMemberService;
 	@Autowired private UserService userService;
-	
-	
-	// client에 있는 loginInfo의 내용으로 서버측을 동기화한다.
-	@RequestMapping(value="/user/{userId}/loginInfo/", method=RequestMethod.PUT)
-	public ResponseEntity<JsonResponse<LoginInfo>> syncLoginInfo(
-								@PathVariable("userId")		Integer userId,
-								HttpServletRequest httpRequest,
-								HttpServletResponse httpResponse ) {
-		
-		// 스크랩, 관심병원, 지원, 제안(면접요청) 정보를 변경한다.
-		return null;
-	}
-	
-	@RequestMapping(value="/user/{userId}/loginInfo/", method=RequestMethod.GET)
-	public ResponseEntity<JsonResponse<LoginInfo>> getLoginInfo(
-								@PathVariable("userId")		Integer userId,
-								HttpServletRequest httpRequest,
-								HttpServletResponse httpResponse ) {
-
-		// 스크랩, 관심병원, 지원, 제안(면접요청) 정보를 조회한다.
-		
-		
-		JsonResponse<LoginInfo> res = new JsonResponse<LoginInfo>();
-		try {
-			checkPersonalUserSession(httpRequest, httpResponse, userId);
-			
-			// 스크랩 공고 ID 리스트
-			List<Long> scrappedJobAdIdList = personalMemberService.listScrappedJobAdId(userId);
-			
-			// 관심병원 ID 리스트
-			List<Integer> interestHospitalIdList = personalMemberService.listInterestingHospitalId(userId);
-			
-			// 지원 공고 ID 리스트
-			
-			// 면접요청 ID 리스트
-			
-			
-			LoginInfo loginInfo = new LoginInfo();
-			loginInfo.setScrappedJobAdIdList(scrappedJobAdIdList);
-			loginInfo.setInterstHospitalIdList(interestHospitalIdList);
-			
-			res.setResponseData(loginInfo);
-			
-		} catch(Exception ex) {
-			res.setException(ex);
-		}
-		
-		return new ResponseEntity<JsonResponse<LoginInfo>>(res, HttpStatus.OK);
-	}
+//	
+//	
+//	// client에 있는 loginInfo의 내용으로 서버측을 동기화한다.
+//	@RequestMapping(value="/user/{userId}/loginInfo/", method=RequestMethod.PUT)
+//	public ResponseEntity<JsonResponse<LoginInfo>> syncLoginInfo(
+//								@PathVariable("userId")		Integer userId,
+//								HttpServletRequest httpRequest,
+//								HttpServletResponse httpResponse ) {
+//		
+//		// 스크랩, 관심병원, 지원, 제안(면접요청) 정보를 변경한다.
+//		return null;
+//	}
+//	
+//	@RequestMapping(value="/user/{userId}/loginInfo/", method=RequestMethod.GET)
+//	public ResponseEntity<JsonResponse<LoginInfo>> getLoginInfo(
+//								@PathVariable("userId")		Integer userId,
+//								HttpServletRequest httpRequest,
+//								HttpServletResponse httpResponse ) {
+//
+//		// 스크랩, 관심병원, 지원, 제안(면접요청) 정보를 조회한다.
+//		
+//		
+//		JsonResponse<LoginInfo> res = new JsonResponse<LoginInfo>();
+//		try {
+//			checkPersonalUserSession(httpRequest, httpResponse, userId);
+//			
+//			// 스크랩 공고 ID 리스트
+//			List<Long> scrappedJobAdIdList = personalMemberService.listScrappedJobAdId(userId);
+//			
+//			// 관심병원 ID 리스트
+//			List<Integer> interestHospitalIdList = personalMemberService.listInterestingHospitalId(userId);
+//			
+//			// 지원 공고 ID 리스트
+//			
+//			// 면접요청 ID 리스트
+//			
+//			
+//			LoginInfo loginInfo = new LoginInfo();
+//			loginInfo.setScrappedJobAdIdList(scrappedJobAdIdList);
+//			loginInfo.setInterstHospitalIdList(interestHospitalIdList);
+//			
+//			res.setResponseData(loginInfo);
+//			
+//		} catch(Exception ex) {
+//			res.setException(ex);
+//		}
+//		
+//		return new ResponseEntity<JsonResponse<LoginInfo>>(res, HttpStatus.OK);
+//	}
 	
 	
 	
@@ -194,7 +200,7 @@ public class PersonalUserController {
 			checkPersonalUserSession(httpRequest, httpResponse, userId);
 			
 			
-			Resume resume = personalMemberService.getResumeByUserID(userId);			
+			Resume resume = personalMemberService.getResumeByUserId(userId);			
 			res.setResponseData(resume);			
 			System.out.println(resume);
 		} catch(Exception ex) {
@@ -216,6 +222,75 @@ public class PersonalUserController {
 	/*                                                                                                                */
 	/******************************************************************************************************************/
 	
+	@Autowired JobAdService jobAdService;
+	
+	/**
+	 * 관심지역 공고 대쉬 보드
+	 * @param userId
+	 * @param interestingLocationCodeList
+	 * @return
+	 */
+	@RequestMapping(value="/user/{userId}/concernedLocationJobAdDash", method=RequestMethod.GET)
+	public ResponseEntity<JsonResponse<JobAdDashboard>> concernedLocationJobAdDash(
+						@PathVariable("userId")		Integer userId,
+						@RequestParam(value="location",		required=false)		List<String> locationCodeListRequested,
+						@RequestParam(value="adType",		required=false)		Integer adType,
+						@RequestParam(value="xPos",			required=false)		String xPos,
+						@RequestParam(value="yPos",			required=false)		String yPos,
+						@RequestParam(value="distance",		required=false)		Integer distance,
+						@RequestParam(value="hospitalName", required=false)		String hospitalName,
+						@RequestParam(value="hospitalAddr",	required=false)		String hospitalAddr,
+						@RequestParam(value="attr",			required=false)		List<String> attrStrList		
+			) {
+		
+		JsonResponse<JobAdDashboard> res = new JsonResponse<JobAdDashboard>();
+		try {
+			List<JobAdAttrGroup> atrrGroupList = JobAdAttrGroup.createJobAdAttrGroupListForInput(attrStrList);
+			
+			// ------------ 임시 : 지역코드를 관심지역의 코드로 대체한다. ---------------
+			List<String> locationCodeList = new ArrayList<String>();
+			List<LocationCode> locationCodes = personalMemberService.getConcernedLocationCodeList(userId);
+			for ( LocationCode loc : locationCodes ) {
+				locationCodeList.add(loc.getLocationCode());
+			}
+			// --------------------------------------------------------------------------
+			
+			JobAdDashboard dash = jobAdService.aggregateJobAds(locationCodeList, adType,
+														xPos, yPos, distance, 
+														hospitalName, hospitalAddr, atrrGroupList);
+			
+			
+			long totalNormalCount = 0;
+			long totalPremierCount = 0;
+			
+			
+			List<NameCountPair> test = null;
+			if ( locationCodeListRequested != null && locationCodeListRequested.size() > 0 ) {			
+				test = jobAdService.countJobAdsGroupByAdType(locationCodeListRequested, adType, xPos, yPos, distance, hospitalName, hospitalAddr, atrrGroupList);
+			} else {
+				test = jobAdService.countJobAdsGroupByAdType(locationCodeList, adType, xPos, yPos, distance, hospitalName, hospitalAddr, atrrGroupList);
+			}
+			System.out.println(" ==========> 개수 MAP : " + test);
+			
+			
+			
+			for ( NameCountPair nameCountPair : test ) {
+				String AD_TYPE = nameCountPair.getName();
+				if ( JobAd.AD_TYPE_NORMAL.equals(AD_TYPE) ) totalNormalCount = nameCountPair.getCnt();
+				else if ( JobAd.AD_TYPE_PREMIERE.equals(AD_TYPE) ) totalPremierCount = nameCountPair.getCnt();
+			} 
+			
+			dash.setTotalCountNormal(totalNormalCount);
+			dash.setTotalCountPremier(totalPremierCount);
+			
+			dash.updateRequestedLocation(locationCodeListRequested);
+			
+			res.setResponseData(dash);
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		return new ResponseEntity<JsonResponse<JobAdDashboard>>(res, HttpStatus.OK);
+	}
 	
 	/**
 	 * 관심 지역 조회
@@ -232,10 +307,9 @@ public class PersonalUserController {
 		
 		JsonResponse<List<LocationCode>> res = new JsonResponse<List<LocationCode>>();
 		try {
-			checkPersonalUserSession(httpRequest, httpResponse, userId);
+			//checkPersonalUserSession(httpRequest, httpResponse, userId);
 			
 			List<LocationCode> locationCodeList = null;
-			//locationCodeList = jobSeekerService.updateConcernedLocationCodeList(userId, locationCodeList);
 			locationCodeList = personalMemberService.getConcernedLocationCodeList(userId);
 			res.setResponseData(locationCodeList);
 		} catch(Exception ex) {
@@ -312,7 +386,7 @@ public class PersonalUserController {
 				@RequestParam(value="memo",		required=false)	String memo,
 				HttpServletRequest httpRequest,
 				HttpServletResponse httpResponse
-					) {		
+					) {
 		JsonResponse<List<Long>> res = new JsonResponse<List<Long>>();
 		try {
 			checkPersonalUserSession(httpRequest, httpResponse, userId);
@@ -330,7 +404,8 @@ public class PersonalUserController {
 				@PathVariable("jobAdId")						Long jobAdId,
 				HttpServletRequest httpRequest,
 				HttpServletResponse httpResponse
-					) {		
+					) {
+		
 		JsonResponse<List<Long>> res = new JsonResponse<List<Long>>();
 		try {
 			checkPersonalUserSession(httpRequest, httpResponse, userId);

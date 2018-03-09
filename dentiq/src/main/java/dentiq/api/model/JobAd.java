@@ -22,14 +22,23 @@ public class JobAd {
 	public static final String AD_STATUS_ACTIVE	= "A";
 	public static final String AD_STATUS_END	= "E";
 	
-	public static final String AD_TYPE_NORMAL	= "0";
-	public static final String AD_TYPE_PRIMIER 	= "1";
+	public static final String AD_TYPE_NORMAL	= "1";
+	public static final String AD_TYPE_PREMIERE = "2";
 	
 	@Getter @Setter private Long id;							// ID				ID
 	
 	@Getter @Setter private String adStatus;					// 공고상태 (공고상태(A:활성, E:마감) 마감은 접수종료일 전 수동 마감인 경우)
 	
-	@Getter @Setter private String adType;						// 공고 유형(0:일반, 1:프리미어)
+	@Getter @Setter private String adType;						// 공고 유형(1:일반, 2:프리미어)
+	public boolean isAdTypeNormal( ) {					// WEB의 편의성 지원 메소드 (ex. Handlebars.js 등에서는 값을 사용한 if문이 지원되지 않음(true/false만 가능))
+		if ( this.adType != null && this.adType.equals(AD_TYPE_NORMAL) ) return true;
+		else return false;
+	}
+	public boolean isAdTypePremiere( ) {
+		if ( this.adType != null && this.adType.equals(AD_TYPE_PREMIERE) ) return true;
+		else return false;
+	}
+	
 	
 	@Getter @Setter private Integer hospitalId;					// 병원 ID
 	

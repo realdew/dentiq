@@ -199,7 +199,7 @@
 	</select>
 	
 	<!--  조건에 맞는 공고의 숫자를 리턴한다. 첫 화면과 liveboard등에서는 요청건수가 많으므로 이것을 사용한다. 일반공고와 프리미어공고를 동시에 counting한다. -->
-	<select id="countJobAdsGroupByAdType" resultType="hashmap">
+	<select id="countJobAdsGroupByAdType" resultType="dentiq.api.model.NameCountPair">
 		select J.AD_TYPE as AD_TYPE, count(1) as CNT
 		<include refid="listJobAdGenericPartSql"></include>
 		group by J.AD_TYPE
@@ -354,7 +354,6 @@
 		on L.LOCATION_CODE=A.LOCATION_CODE;
 	</select>
 	-->
-	
 	
 	
 	

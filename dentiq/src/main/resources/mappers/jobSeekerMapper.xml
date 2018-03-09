@@ -19,6 +19,7 @@
 			EDU_LEVEL, EDU_STATUS, EDU_SCHOOL_NAME, EDU_MAJOR, EDU_START_YYYYMM, EDU_END_YYYYMM,
 			CAREER_JSON, LICENSE_JSON,
 			CONFIRM_RECOMMENDATION,
+			CONTENT,
 			USE_YN
 		) values (
 			#{userId}, #{title}, 
@@ -29,6 +30,7 @@
 			#{eduLevel}, #{eduStatus}, #{eduSchoolName}, #{eduMajor}, #{eduStartYYYYMM}, #{eduEndYYYYMM},			
 			#{careerJson}, #{licenseJson},
 			#{confirmRecommendation},
+			#{content},
 			'Y'
 		)
 	</insert>
@@ -41,9 +43,30 @@
 			APPLY_LOCATION_CODE_JSON=#{applyLocationCodeJson},
 			EDU_LEVEL=#{eduLevel}, EDU_STATUS=#{eduStatus}, EDU_SCHOOL_NAME=#{eduSchoolName}, EDU_MAJOR=#{eduMajor}, EDU_START_YYYYMM=#{eduStartYYYYMM}, EDU_END_YYYYMM=#{eduEndYYYYMM},
 			CAREER_JSON=#{careerJson}, LICENSE_JSON=#{licenseJson},
-			CONFIRM_RECOMMENDATION=#{confirmRecommendation}
+			CONFIRM_RECOMMENDATION=#{confirmRecommendation},
+			CONTENT=#{content}
 		where USER_ID=#{userId}
 	</update>
+	
+	<select id="checkUserAppliedToHospitalByJobSeekerIdAndHosptailUserId" parameterType="int">
+		select count(1)
+		from
+			(
+				select HOSPITAL_ID from USER
+				where ID=#{hospitalUserId} and USER_TYPE='2'
+			) U, 
+			(
+				select distinct(J.HOSPITAL_ID) as HOSPITAL_ID
+				from JOB_AD J, USER_APPLY UA 
+				where							
+					J.ID=UA.JOB_AD_ID and
+					UA.CANCEL_YN='N' and
+					J.USE_YN='Y' and
+					UA.USER_ID=#{jobSeekerId}
+			) R1
+		where
+			R1.HOSPITAL_ID = U.HOSPITAL_ID
+	</select>
 
 
 
@@ -63,6 +86,20 @@
 	<delete id="deleteConcernedLocationCodeList">
 		delete from USER_CONCERNED_LOCATION where USER_ID=#{userId}
 	</delete>
+	
+	<!--  잠깐 중지 : 관심지역 일반 공고 -->
+	<select id="listConcernedLocationJobAd" resultType="dentiq.api.model.JobAd">
+		select J.*, S.LAST_MOD_DT as LAST_MOD_DT
+		from JOB_AD_VIEW J, USER_CONCERNED_LOCATION U
+		where
+			J.LOCATION_CODE = U.LOCATION_CODE
+			and U.USER_ID=#{userId}
+			and J.AD_TYPE='1';
+			and J.USE_YN='Y'
+		order by J.HIRING_END_DATE;
+	</select>
+	
+	
 	
 	
 	

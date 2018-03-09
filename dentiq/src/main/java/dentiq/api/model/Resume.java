@@ -25,16 +25,18 @@ public class Resume {
 	
 	@Getter @Setter private String title;	// 이력서 제목
 	
-//	@Getter @Setter private String userName;
-//	@Getter @Setter private String telNo;
-	// private String email;
 	
-	//private String addrMain;
-	//private String addrDetail;
+	// ======== from User 기본 정보 ===================
+	@Getter @Setter private String userName;
+	@Getter @Setter private String telNo;
+	@Getter @Setter private String email;
 	
-//	@Getter @Setter private String birthday;		// YYYYMMDD
-//	@Getter @Setter private String gender;			// M or F
+	@Getter @Setter private String addrMain;
+	@Getter @Setter private String addrDetail;
 	
+	@Getter @Setter private String birthday;		// YYYYMMDD
+	@Getter @Setter private String gender;			// M or F
+	// ========================
 	
 	// 고용형태, 채용부문, 담당업무
 	@Getter @Setter private List<String> attr;
@@ -97,73 +99,14 @@ public class Resume {
 	@Getter private String regDt;
 	
 	
-	
-	
-	/*
-	public static void main(String[] args) throws Exception {
-		
-		String json = "[{\"firmName\":\"a\",\"task\":\"1\",\"joinYYYYMM\":\"\",\"retireYYYYMM\":\"\"},{\"firmName\":\"b\",\"task\":\"2\",\"joinYYYYMM\":\"\",\"retireYYYYMM\":\"\"}]";
-		
-		Object e = Resume.<Object>toGenericObject(json);
-		System.out.println(e);
-		
-		String j2 = Resume.toJson(e);
-		System.out.println( j2 );
-		
-		Object e2 = Resume.<Object>toGenericObject(j2);
-		System.out.println(e2);
-		
-		
-		
-		
-//		Object e2 = Resume.toListMap(json);
-//		System.out.println(e2);
+	@Getter @Setter private String openYN;		// 이력서 공개 여부
+	public boolean isOpened() {
+		if ( this.openYN != null && this.openYN.equals("Y") )	return true;
+		else return false;
 	}
 	
 	
-	public static <E> E toGenericObject(String json) throws Exception {
-		ObjectMapper mapper = new ObjectMapper();
-		return mapper.readValue(json, new TypeReference<E>() {});
-	}
 	
-//	public static List<Map<String, String>> toListMap(String json) throws Exception {
-//		ObjectMapper mapper = new ObjectMapper();
-//		return mapper.readValue(json, new TypeReference<List<Map<String, String>>>() {});
-//	}
-//	
-//	public static Map<String, String> toMap(String json) throws Exception {
-//			ObjectMapper mapper = new ObjectMapper();
-//			return mapper.readValue(json, new TypeReference<Map<String, String>>() {});
-//	}
-	
-	public static String toJson(Object obj) throws Exception {
-		String retVal = null;
-		
-		ByteArrayOutputStream output = null;
-		Writer writer = null;
-		
-		
-		try {
-			output = new ByteArrayOutputStream();
-			writer = new OutputStreamWriter(output, "utf-8");
-			
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.writeValue(writer, obj);
-			
-			retVal = output.toString("utf-8");
-			
-			writer.close();
-			output.close();
-		} catch(Exception ex) {
-			if ( writer != null ) try { writer.close(); } catch(Exception ignore) {}
-			if ( output != null ) try { output.close(); } catch(Exception ignore) {}
-			throw ex;
-		}
-		
-		return retVal;
-	}
-	
-	*/
 }
 
 

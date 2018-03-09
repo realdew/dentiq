@@ -2,6 +2,8 @@ package dentiq.api.service;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 import dentiq.api.model.AppliedJobAdInfo;
 import dentiq.api.model.JobAd;
 import dentiq.api.model.LocationCode;
@@ -11,10 +13,19 @@ public interface PersonalMemberService {
 	
 	/************************************ 이력서 ******************************************/
 	
-	public Resume getResumeByUserID(Integer userId) throws Exception;
+	public Resume getResumeByUserId(Integer userId) throws Exception;
 	public Resume getResumeById(Integer resumeId) throws Exception;
 	
 	public Resume createOrUpdateResume(Resume resume) throws Exception;
+	
+	/**
+	 * 특정 구직자가 특정 병원에 지원했는지를 확인한다. 주의 : 병원 ID가 아니고, 병원회원의 ID이다.
+	 * @param jobSeekerId	구직자의 ID
+	 * @param hosiptalUserId	병원 회원의 ID
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean checkUserAppliedToHospitalByJobSeekerIdAndHosptailUserId(Integer jobSeekerId, Integer hosiptalUserId) throws Exception;
 	
 	
 	
