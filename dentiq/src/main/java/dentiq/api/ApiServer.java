@@ -1,5 +1,6 @@
 package dentiq.api;
 
+
 import javax.sql.DataSource;
 
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -21,6 +22,17 @@ public class ApiServer {
 
 	
 	public static void main(String[] args) throws Exception {
+		
+		String dentiqConfigFileName = System.getProperty("dentiq.configFileName");
+		System.out.println("설정 파일 : " + dentiqConfigFileName);
+		if ( dentiqConfigFileName == null || dentiqConfigFileName.trim().equals("") ) {
+			throw new Exception("설정 파일이 지정되지 않았습니다. -Ddentiq.configFileName 이 존재하는지 확인하십시오.");
+		}
+		
+		ServerConfig serverConfig = ServerConfig.getInstance();
+		serverConfig.init(dentiqConfigFileName);
+		
+		
 		SpringApplication.run(ApiServer.class, args);
 		
 		//Object cl = Class.forName("com.mysql.jdbc.Driver");

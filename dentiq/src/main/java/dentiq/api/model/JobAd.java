@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import dentiq.api.ServerConfig;
 import dentiq.api.util.DateUtil;
 import dentiq.api.util.JsonUtil;
 import lombok.Getter;
@@ -129,7 +130,16 @@ public class JobAd {
 	
 	@Getter @Setter private String yPos;
 	
-	@Getter @Setter private String logoUrl;
+	@Getter @Setter private String logoImageName;
+	public String getFullLogoUrl() throws Exception {
+		if ( this.logoImageName == null || this.logoImageName.trim().equals("") ) return null;
+		
+		ServerConfig serverConfig = ServerConfig.getInstance();
+		String HOSPITAL_RESOURCE_URL_BASE	= serverConfig.get("HOSPITAL_RESOURCE_URL_BASE");
+		String HOSPITAL_RESOURCE_SERVER_URL	= serverConfig.get("HOSPITAL_RESOURCE_SERVER_URL");
+		
+		return HOSPITAL_RESOURCE_SERVER_URL + "/" + HOSPITAL_RESOURCE_URL_BASE + "/" + this.hospitalId + "/" + this.logoImageName;
+	}
 	
 	@Getter @Setter private String locationCode;
 	@Getter @Setter private String sidoCode;

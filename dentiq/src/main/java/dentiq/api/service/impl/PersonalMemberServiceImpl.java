@@ -18,6 +18,20 @@ public class PersonalMemberServiceImpl implements PersonalMemberService {
 	@Autowired
 	private JobSeekerMapper mapper;
 	
+	@Override
+	public String getUserProfileImangeName(Integer userId) throws Exception {
+		return mapper.getUserProfileImangeName(userId);
+	}
+	
+	@Override
+	public String updateUserProfileImageName(Integer userId, String profileImageName) throws Exception {
+		int updatedRows = mapper.updateUserProfileImageName(userId, profileImageName);
+		if ( updatedRows != 1 ) {
+			throw new Exception("개인회원 프로필 사진 변경 실패 [" + updatedRows + "]");
+		}
+		
+		return mapper.getUserProfileImangeName(userId);
+	}
 	
 	/************************************ 이력서 ******************************************/
 	

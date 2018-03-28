@@ -7,9 +7,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import dentiq.api.ServerConfig;
 import dentiq.api.model.juso.AddrJuso;
 import dentiq.api.util.JsonUtil;
-import dentiq.api.util.SingleColumnList;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -116,7 +116,17 @@ public class Hospital {
 	
 	@Getter @Setter private String useYn;						// 사용여부			USE_YN
 	
-	@Getter @Setter private String logoUrl;						// 병원 로고 URL		LOGO_URL	
+	@Getter @Setter private String logoImageName;						// 병원 로고 URL		LOGO_URL
+	//@Getter @Setter private String fullLogoUrl;
+	public String getFullLogoUrl() throws Exception {
+		if ( this.logoImageName == null || this.logoImageName.trim().equals("") ) return null;
+		
+		ServerConfig serverConfig = ServerConfig.getInstance();
+		String HOSPITAL_RESOURCE_URL_BASE	= serverConfig.get("HOSPITAL_RESOURCE_URL_BASE");
+		String HOSPITAL_RESOURCE_SERVER_URL	= serverConfig.get("HOSPITAL_RESOURCE_SERVER_URL");
+		
+		return HOSPITAL_RESOURCE_SERVER_URL + "/" + HOSPITAL_RESOURCE_URL_BASE + "/" + this.id + "/" + this.logoImageName;
+	}
 	
 	@Getter @Setter private String ceoName;						// 대표자명
 	
@@ -155,6 +165,11 @@ public class Hospital {
 	
 	
 	
+	/** 민감 정보 필터링 */
+	public void filter() {
+		this.bizRegNo	= "**FILTERED**";
+		this.bizRegName	= "**FILTERED**";
+	}
 	
 	/*
 	ID				

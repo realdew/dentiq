@@ -13,6 +13,9 @@ import dentiq.api.model.juso.AddrJuso;
 @Mapper
 @Repository
 public interface UserMapper {
+
+	public User getBasicInfoByUserId(@Param("userId") Integer userId) throws Exception;
+	public int updateBasicInfo(User user) throws Exception;
 	
 	public User loginByEmailAndPassword(@Param("email") String email, @Param("password") String password) throws Exception;
 	

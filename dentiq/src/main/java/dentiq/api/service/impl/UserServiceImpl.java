@@ -234,7 +234,21 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 	
+	@Override
+	public User updateBasicInfo(User user) throws Exception {
+		
+		int updatedRows = mapper.updateBasicInfo(user);
+		if ( updatedRows == 1 ) {
+			return mapper.getUserById(user.getId());
+		} else {
+			throw new Exception("회원기본정보 변경 실패 [" + updatedRows + "]");
+		}
+	}
 	
+	@Override
+	public User getBasicInfoByUserId(Integer userId) throws Exception {
+		return mapper.getBasicInfoByUserId(userId);
+	}
 	
 	
 	@Override

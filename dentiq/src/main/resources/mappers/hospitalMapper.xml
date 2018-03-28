@@ -3,6 +3,18 @@
 
 <mapper namespace="dentiq.api.repository.HospitalMapper">
 
+	<update id="updateHospitalLogoImageName">
+		update HOSPITAL
+		set
+			LOGO_IMAGE_NAME=#{logoImageName}
+		where id=#{hospitalId}
+	</update>
+	<select id="getHospitalLogoImageName" resultType="string">
+		select LOGO_IMAGE_NAME from HOSPITAL where ID=#{hospitalId}
+	</select>
+	
+	
+
 	<insert id="createHospital" useGeneratedKeys="true" keyProperty="id" parameterType="dentiq.api.model.Hospital">
 		insert into HOSPITAL (
 			BIZ_REG_NO, BIZ_REG_NAME, Y_KIHO, USER_ID, NAME, CL_CODE, CL_CODE_NAME, 
@@ -10,7 +22,7 @@
 			ADDR_MAIN, ADDR_DETAIL, 
 			JIBUN_ADDR, ADM_CD, RN_MGT_SN, UDRT_YN, BULD_MNNM, BULD_SLNO, BD_NM, EMD_NM, ENT_X, ENT_Y, ZIP_NO,
 			TEL_NO, HOSP_URL, 
-			EMAIL, CEO_NAME, EST_DATE, TDR_CNT, GDR_CNT, IDR_CNT, RDR_CNT, SDR_CNT, X_POS, Y_POS, LOGO_URL, 
+			EMAIL, CEO_NAME, EST_DATE, TDR_CNT, GDR_CNT, IDR_CNT, RDR_CNT, SDR_CNT, X_POS, Y_POS, LOGO_IMAGE_NAME, 
 			HOSPITAL_TYPE_CODE, HOSPITAL_TYPE_TEXT,			
 			HOLIDAY_JSON, HOLIDAY_TEXT, WORKING_TIME_WEEKDAY_START, WORKING_TIME_WEEKDAY_END, WORKING_TIME_WEEKEND_START, WORKING_TIME_WEEKEND_END, WORKING_TIME_TEXT, LUNCH_TIME_START, LUNCH_TIME_END, 
 			CLINIC_SUBJECT, TOTAL_MEMBER_CNT,
@@ -22,7 +34,7 @@
 			#{addrMain}, #{addrDetail}, 
 			#{addrJuso.jibunAddr}, #{addrJuso.admCd}, #{addrJuso.rnMgtSn}, #{addrJuso.udrtYn}, #{addrJuso.buldMnnm}, #{addrJuso.buldSlno}, #{addrJuso.bdNm}, #{addrJuso.emdNm}, #{addrJuso.entX}, #{addrJuso.entY}, #{addrJuso.zipNo},
 			#{telNo}, #{hospUrl},
-			#{email}, #{ceoName}, #{estDate}, #{tdrCnt}, #{gdrCnt}, #{idrCnt}, #{rdrCnt}, #{sdrCnt}, #{xPos}, #{yPos}, #{logoUrl},
+			#{email}, #{ceoName}, #{estDate}, #{tdrCnt}, #{gdrCnt}, #{idrCnt}, #{rdrCnt}, #{sdrCnt}, #{xPos}, #{yPos}, #{logoImageName},
 			#{hospitalTypeCode}, #{hospitalTypeText},
 			#{holidayJson}, #{holidayText}, #{workingTimeWeekdayStart}, #{workingTimeWeekdayEnd}, #{workingTimeWeekendStart}, #{workingTimeWeekendEnd}, #{workingTimeText}, #{lunchTimeStart}, #{lunchTimeEnd},
 			#{clinicSubject}, #{totalMemberCnt},
@@ -41,7 +53,7 @@
 			JIBUN_ADDR=#{addrJuso.jibunAddr}, ADM_CD=#{addrJuso.admCd}, RN_MGT_SN=#{addrJuso.rnMgtSn}, UDRT_YN=#{addrJuso.udrtYn}, BULD_MNNM=#{addrJuso.buldMnnm}, BULD_SLNO=#{addrJuso.buldSlno}, BD_NM=#{addrJuso.bdNm}, EMD_NM=#{addrJuso.emdNm}, ENT_X=#{addrJuso.entX}, ENT_Y=#{addrJuso.entY}, ZIP_NO=#{addrJuso.zipNo},
 			TEL_NO=#{telNo}, HOSP_URL=#{hospUrl},
 			EMAIL=#{email}, CEO_NAME=#{ceoName}, EST_DATE=#{estDate}, TDR_CNT=#{tdrCnt}, GDR_CNT=#{gdrCnt}, IDR_CNT=#{idrCnt}, RDR_CNT=#{rdrCnt}, SDR_CNT=#{sdrCnt},
-			LOGO_URL=#{logoUrl},
+			LOGO_IMAGE_NAME=#{logoImageName},
 			HOSPITAL_TYPE_CODE=#{hospitalTypeCode}, HOSPITAL_TYPE_TEXT=#{hospitalTypeText},
 			HOLIDAY_JSON=#{holidayJson}, HOLIDAY_TEXT=#{holidayText},
 			WORKING_TIME_WEEKDAY_START=#{workingTimeWeekdayStart}, WORKING_TIME_WEEKDAY_END=#{workingTimeWeekdayEnd}, 

@@ -23,6 +23,10 @@ public interface UserService {
 //	/* 사업자 회원 등록 */
 //	public BizUser createBizUser(String bizRegNo, String email, String password, String permLogin) throws Exception;
 	
+	/** 회원 기본 정보 수정 */
+	public User updateBasicInfo(User user) throws Exception;
+	public User getBasicInfoByUserId(Integer userId) throws Exception;
+	
 	public User createCommonUser(User user) throws Exception;
 	
 	

@@ -3,6 +3,121 @@
 
 <mapper namespace="dentiq.api.repository.ResumeMapper">
 
+	<!-- 병원 ID로 해당 병원에 지원한 이력서를 리스팅 -->
+	<select id="listResumeAppliedToHospital" resultType="dentiq.api.model.Resume">
+		select A.JOB_AD_ID as JOB_AD_ID, R.ID as RESUME_ID, R.*, A.APPLY_DT
+		from
+			USER_APPLY A, USER_RESUME_VIEW R
+		where
+			A.USER_ID=R.USER_ID
+			and A.JOB_AD_ID in (
+				select ID from JOB_AD
+				where
+					HOSPITAL_ID=#{hospitalId}
+					-- HIRING_END_DATE, AD_STATUS 등을 조회해서 현재 살아있는 공고인지 확인할 것
+			)
+	</select>
+	
+	<!--  병원이 스크랩한 이력서의 ID를 리스팅 -->
+	<select id="listResumeIdScrappedByHospital" resultType="Integer">
+		select RESUME_ID from HOSPITAL_SCRAPPED_RESUME where HOSPITAL_ID=#{hospitalId}
+	</select>
+	
+	<insert id="insertScrappedResume">
+		insert into HOSPITAL_SCRAPPED_RESUME (HOSPITAL_ID, RESUME_ID)
+		values ( #{hospitalId}, #{resumeId} )
+	</insert>
+	<delete id="deleteScrappedResume">
+		delete from HOSPITAL_SCRAPPED_RESUME where HOSPITAL_ID=#{hospitalId} and RESUME_ID=#{resumeId}
+	</delete>
+	
+	
+	<!--  병원이 스크랩한 이력서를 리스팅 -->
+	<select id="listResumeScrappedByHospital" resultType="dentiq.api.model.Resume">
+		select R.*, true as scrapped_By_Hospital
+		from USER_RESUME_VIEW R, HOSPITAL_SCRAPPED_RESUME H
+		where
+			R.ID = H.RESUME_ID
+			and H.HOSPITAL_ID=#{hospitalId}
+	</select>
+	
+	
+	<!--  이력서 추천 -->
+	<select id="listResumeRecommended" resultType="dentiq.api.model.Resume">
+		select *
+		from USER_RESUME_VIEW
+		where ID in (
+			<!-- 이하의 결과는 중복된 ID를 리턴할 수 있음
+			    위의 문장에서 in 조건 외에 PRIOTY도 처리하여야 함 -->
+			select R_ID as ID from (
+		
+				<!-- 우리 병원 공고를 스크랩한 이력서들의 ID를 추출 -->
+				(
+					select distinct R.ID as R_ID, 1 as PRIOTY
+					from
+						USER_SCRAPPED_JOB_AD S, USER_RESUME_VIEW R
+					where
+						S.USER_ID=R.USER_ID
+						and S.JOB_AD_ID in (
+							select ID from JOB_AD where HOSPITAL_ID=#{hospitalId}
+						)
+				)
+				
+				union
+				
+				<!-- 우리 병원의 지역(locationCode)와 희망근무지역이 일치하는 이력서들의 ID를 추출 (APPLY_LOCATION_CODE_JSON) -->
+				(
+					select distinct R.ID as R_ID, 2 as PRIOTY
+					from
+						USER_RESUME_VIEW R
+					where
+						json_search(R.APPLY_LOCATION_CODE_JSON, 'one', (select LOCATION_CODE from HOSPITAL where ID=#{hospitalId}) ) is not null	
+						-- R.APPLY_LOCATION_CODE_JSON like concat('%', (select LOCATION_CODE from HOSPITAL where ID=1), '%')
+				)
+				
+				union
+				
+				<!-- 이력서의 희망근무지역이 특정 시구 전체일 때 일치하는 것 -->
+				(
+					select distinct R.ID as R_ID, 3 as PROITY
+					from
+						USER_RESUME_VIEW R
+					where
+						json_search(R.APPLY_LOCATION_CODE_JSON, 'one', (select SIDO_CODE from HOSPITAL where ID=#{hospitalId}) ) is not null	
+				)
+				
+				-- TODO 집이 근처인 아이들
+				
+			) COND
+			order by PRIOTY
+		)
+	</select>
+	
+	<select id="listResumeSearched" resultType="dentiq.api.model.Resume">
+		select * from USER_RESUME_VIEW;
+	</select>
+	
+	<!-- 
+	<select id="listResumeScrappedJobAdOfHospital" resultType="dentiq.api.model.Resume">
+		select S.JOB_AD_ID as JOB_AD_ID, R.ID as RESUME_ID, R.*
+		from
+			USER_SCRAPPED_JOB_AD S, USER_RESUME_VIEW R
+		where
+			S.USER_ID=R.USER_ID
+			and S.JOB_AD_ID in (
+				 select ID from JOB_AD
+				where
+					HOSPITAL_ID=#{hospitalId}
+					- HIRING_END_DATE, AD_STATUS 등을 조회해서 현재 살아있는 공고인지 확인할 것
+			)
+	
+	</select>
+	-->
+
+
+
+
+	<!-- 기존 코드임
 	<select id="countResume" resultType="int">
 		select count(1) from RESUME where USER_ID=#{userId}
 	</select>
@@ -33,6 +148,8 @@
 	<delete id="deleteResumeById">
 		delete from RESUME where ID=#{id}
 	</delete>
+	
+	-->
 	
 
 </mapper>

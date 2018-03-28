@@ -1,5 +1,6 @@
 package dentiq.api.controller;
 
+import java.io.File;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,8 +18,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import dentiq.api.ServerConfig;
 import dentiq.api.model.Hospital;
 import dentiq.api.model.JobAd;
+import dentiq.api.model.Resume;
 import dentiq.api.model.User;
 import dentiq.api.service.HospitalMemberService;
 import dentiq.api.service.HospitalService;
@@ -57,7 +60,7 @@ public class HospitalUserController {
 	 * @param userId
 	 * @throws Exception
 	 */
-	private void checkHospitalUserSession(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Integer userId)
+	private Integer checkHospitalUserSessionByUserId(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Integer userId)
 				throws Exception {
 		
 		UserSessionManager sesMan = UserSessionManager.get();
@@ -82,7 +85,351 @@ public class HospitalUserController {
 		if ( user.getUserType()==null || !user.getUserType().equals(User.USER_TYPE_HOSPITAL) ) {
 			throw new Exception("접근권한 없음 : 병원회원만 병원회원 정보에 접근 가능");
 		}
+		if ( user.getHospitalId() == null ) {
+			throw new Exception("접근권한 없음 : 병원회원 ID가 없음");
+		}
+		
+		return user.getHospitalId();
 	}
+	
+	private void checkHospitalUserSessionByHospitalId(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Integer hospitalId)
+				throws Exception {
+		UserSessionManager sesMan = UserSessionManager.get();
+		UserSession session = sesMan.verifyToken(httpRequest, httpResponse);
+		
+		Integer userType = session.getUserType();
+		if ( userType==null || !userType.equals(User.USER_TYPE_HOSPITAL) ) {
+			throw new Exception("접근권한 없음 : 병원회원만 사용이 가능합니다. [" + userType + "]");
+		}
+		
+		
+		Integer userId = session.getUserId();
+		
+		User user = userService.getUserById(userId);
+		if ( user == null ) {
+			throw new Exception("접근권한 없음 : 해당 사용자가 존재하지 않음 [" + userId + "]");
+		}
+		if ( user.getUserType()==null || !user.getUserType().equals(User.USER_TYPE_HOSPITAL) ) {
+			throw new Exception("접근권한 없음 : 병원회원만 병원회원 정보에 접근 가능");
+		}
+		
+		if ( user.getHospitalId() == null || !user.getHospitalId().equals(hospitalId) ) {
+			throw new Exception("해당 사용자(" + userId + ")는 요청된 병원(" + hospitalId + ")에 대한 접근 권한이 없습니다.");
+		}
+		
+	}
+	
+	
+	
+//	public String createUserResourceUrl(Integer userId, String userResourceFileName) {
+//		if ( userId == null || userResourceFileName == null || userResourceFileName.trim().equals("") ) return null;
+//		
+//		String USER_RESOURCE_URL_BASE	= appProperties.getUSER_RESOURCE_URL_BASE();
+//		String USER_RESOURCE_SERVER_URL	= appProperties.getUSER_RESOURCE_SERVER_URL();
+//		
+//		return USER_RESOURCE_SERVER_URL + "/" + USER_RESOURCE_URL_BASE + "/" + userId + "/" + userResourceFileName;
+//	}
+	
+	@RequestMapping(value="/user/{userId}/hospital/listAppliedResume/", method=RequestMethod.GET)
+	public ResponseEntity<JsonResponse<List<Resume>>> listAppliedResumeOfUser(
+						@PathVariable("userId") Integer userId,
+						HttpServletRequest httpRequest,
+						HttpServletResponse httpResponse		
+		) {
+	
+		JsonResponse<List<Resume>> res = new JsonResponse<List<Resume>>();
+		try {
+			Integer hospitalId = checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			
+			List<Resume> resumeList = hospitalMemberService.listResumeAppliedToHospital(hospitalId);
+//			for ( Resume resume : resumeList ) {
+//				resume.setProfileImageFullUrl( createUserResourceUrl(resume.getUserId(), resume.getProfileImageName()) );
+//			}
+						
+			res.setResponseData(resumeList);
+			
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		
+		return new ResponseEntity<JsonResponse<List<Resume>>>(res, HttpStatus.OK);	
+	}
+	
+	@RequestMapping(value="/user/{userId}/hospital/listResumeScrapped/", method=RequestMethod.GET)
+	public ResponseEntity<JsonResponse<List<Resume>>> listResumeScrapped(
+						@PathVariable("userId") Integer userId,
+						HttpServletRequest httpRequest,
+						HttpServletResponse httpResponse		
+			) {
+		
+		JsonResponse<List<Resume>> res = new JsonResponse<List<Resume>>();
+		try {
+			Integer hospitalId = checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			
+			//List<Resume> resumeList = hospitalMemberService.listResumeScrappedJobAdOfHospital(hospitalId);
+			List<Resume> resumeList = hospitalMemberService.listResumeScrappedByHospital(hospitalId);
+//			for ( Resume resume : resumeList ) {
+//				resume.setProfileImageFullUrl( createUserResourceUrl(resume.getUserId(), resume.getProfileImageName()) );
+//			}
+						
+			res.setResponseData(resumeList);
+		
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		
+		return new ResponseEntity<JsonResponse<List<Resume>>>(res, HttpStatus.OK);	
+	}
+	
+	@RequestMapping(value="/user/{userId}/hospital/addResumeScrapped/", method=RequestMethod.POST)
+	public ResponseEntity<JsonResponse<List<Resume>>> addResumeScrapped(
+						@PathVariable("userId") Integer userId,
+						@RequestParam(value="resumeId",	required=true) Integer resumeId,
+						HttpServletRequest httpRequest,
+						HttpServletResponse httpResponse		
+			) {
+		
+		JsonResponse<List<Resume>> res = new JsonResponse<List<Resume>>();
+		try {
+			Integer hospitalId = checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			
+			hospitalMemberService.addScrappedResumeId(hospitalId, resumeId);
+			
+			List<Resume> resumeList = hospitalMemberService.listResumeScrappedByHospital(hospitalId);
+//			for ( Resume resume : resumeList ) {
+//				resume.setProfileImageFullUrl( createUserResourceUrl(resume.getUserId(), resume.getProfileImageName()) );
+//			}
+						
+			res.setResponseData(resumeList);
+		
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		
+		return new ResponseEntity<JsonResponse<List<Resume>>>(res, HttpStatus.OK);	
+	}
+	@RequestMapping(value="/user/{userId}/hospital/deleteResumeScrapped/", method=RequestMethod.POST)
+	public ResponseEntity<JsonResponse<List<Resume>>> deleteResumeScrapped(
+						@PathVariable("userId") Integer userId,
+						@RequestParam(value="resumeId",	required=true) Integer resumeId,
+						HttpServletRequest httpRequest,
+						HttpServletResponse httpResponse		
+			) {
+		
+		JsonResponse<List<Resume>> res = new JsonResponse<List<Resume>>();
+		try {
+			Integer hospitalId = checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			
+			hospitalMemberService.deleteScrappedResumeId(hospitalId, resumeId);
+			
+			List<Resume> resumeList = hospitalMemberService.listResumeScrappedByHospital(hospitalId);
+//			for ( Resume resume : resumeList ) {
+//				resume.setProfileImageFullUrl( createUserResourceUrl(resume.getUserId(), resume.getProfileImageName()) );
+//			}
+						
+			res.setResponseData(resumeList);
+		
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		
+		return new ResponseEntity<JsonResponse<List<Resume>>>(res, HttpStatus.OK);	
+	}
+	
+	//TODO 수정해야 함
+	@RequestMapping(value="/user/{userId}/hospital/listResumeSearched/", method=RequestMethod.GET)
+	public ResponseEntity<JsonResponse<List<Resume>>> listResumeSearched(
+						@PathVariable("userId") Integer userId,
+						HttpServletRequest httpRequest,
+						HttpServletResponse httpResponse		
+			) {
+		
+		JsonResponse<List<Resume>> res = new JsonResponse<List<Resume>>();
+		try {
+			Integer hospitalId = checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			List<Resume> resumeList = hospitalMemberService.listResumeSearched(hospitalId, 1);
+//			for ( Resume resume : resumeList ) {
+//				resume.setProfileImageFullUrl( createUserResourceUrl(resume.getUserId(), resume.getProfileImageName()) );
+//			}
+						
+			res.setResponseData(resumeList);
+		
+		} catch(Exception ex) {
+		res.setException(ex);
+		}
+		
+		return new ResponseEntity<JsonResponse<List<Resume>>>(res, HttpStatus.OK);	
+	}
+	
+	
+	@RequestMapping(value="/user/{userId}/hospital/listResumeRecommended/", method=RequestMethod.GET)
+	public ResponseEntity<JsonResponse<List<Resume>>> listResumeRecommended(
+						@PathVariable("userId") Integer userId,
+						HttpServletRequest httpRequest,
+						HttpServletResponse httpResponse		
+			) {
+		
+		JsonResponse<List<Resume>> res = new JsonResponse<List<Resume>>();
+		try {
+			Integer hospitalId = checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			
+			List<Resume> resumeList = hospitalMemberService.listResumeRecommended(hospitalId);
+//			for ( Resume resume : resumeList ) {
+//				resume.setProfileImageFullUrl( createUserResourceUrl(resume.getUserId(), resume.getProfileImageName()) );
+//			}
+						
+			res.setResponseData(resumeList);
+		
+		} catch(Exception ex) {
+		res.setException(ex);
+		}
+		
+		return new ResponseEntity<JsonResponse<List<Resume>>>(res, HttpStatus.OK);	
+	}
+	
+	/*
+	 * 공고를 스크랩한 이력서를 찾는 것.
+	@RequestMapping(value="/user/{userId}/hospital/listResumeScrappedJobAdOfHospital/", method=RequestMethod.GET)
+	public ResponseEntity<JsonResponse<List<Resume>>> listResumeScrappedJobAdOfHospital(
+						@PathVariable("userId") Integer userId,
+						HttpServletRequest httpRequest,
+						HttpServletResponse httpResponse		
+		) {
+	
+		JsonResponse<List<Resume>> res = new JsonResponse<List<Resume>>();
+		try {
+			Integer hospitalId = checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			
+			List<Resume> resumeList = hospitalMemberService.listResumeScrappedJobAdOfHospital(hospitalId);
+//			for ( Resume resume : resumeList ) {
+//				resume.setProfileImageFullUrl( createUserResourceUrl(resume.getUserId(), resume.getProfileImageName()) );
+//			}
+						
+			res.setResponseData(resumeList);
+			
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		
+		return new ResponseEntity<JsonResponse<List<Resume>>>(res, HttpStatus.OK);	
+	}
+	*/
+	
+	
+	
+	@RequestMapping(value="/user/{userId}/basicHospitalInfo/", method=RequestMethod.GET)
+	public ResponseEntity<JsonResponse<Hospital>> getBasicHospitalInfoOfUser(
+				@PathVariable("userId") Integer userId,
+				HttpServletRequest httpRequest,
+				HttpServletResponse httpResponse
+			
+			) {
+		JsonResponse<Hospital> res = new JsonResponse<Hospital>();
+		try {
+			//checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);			
+			
+			Hospital hospital = hospitalService.getByUserId(userId);
+			hospital.filter();
+			
+//			if ( hospital.getLogoImageName()!=null && !hospital.getLogoImageName().trim().equals("") ) {
+//				String HOSPITAL_RESOURCE_SERVER_URL = appProperties.getHOSPITAL_RESOURCE_SERVER_URL();
+//				String HOSPITAL_RESOURCE_URL_BASE	= appProperties.getHOSPITAL_RESOURCE_URL_BASE();
+//				
+//				String hospitalLogoFullUrl = HOSPITAL_RESOURCE_SERVER_URL + "/" + HOSPITAL_RESOURCE_URL_BASE + "/" + hospital.getId() + "/" + hospital.getLogoImageName();
+//				//hospital.setLogoImageName(hospitalLogoFullUrl);
+//				hospital.setFullLogoUrl(hospitalLogoFullUrl);
+//			}
+						
+			res.setResponseData(hospital);			
+			System.out.println(hospital);
+			
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		
+		return new ResponseEntity<JsonResponse<Hospital>>(res, HttpStatus.OK);	
+	}
+	
+	
+	
+	/******************************************************************************************************************/
+	/*                                                                                                                */
+	/*                                         로고 등록                                                              */
+	/*                                                                                                                */
+	/******************************************************************************************************************/
+
+	//@Autowired private ApplicationPropertiesComponent appProperties;
+	
+	
+	/**
+	 * 병원 로고 등록
+	 * 로고 등록은 병원회원의 권한 확인이 필요하므로, /user/{userId} 경로를 사용한다.
+	 */
+	@RequestMapping(value="/hospital/{hospitalId}/logo/", method=RequestMethod.POST)
+	public ResponseEntity<JsonResponse<String>> uploadHospitalLogo(
+						@PathVariable("hospitalId") Integer hospitalId,
+						@RequestParam(value="file",		required=true) MultipartFile file,
+						HttpServletRequest httpRequest,
+						HttpServletResponse httpResponse
+					) {
+		
+		System.out.println("저장 시작");
+		
+		JsonResponse<String> res = new JsonResponse<String>();
+		try {
+			//checkHospitalUserSessionByHospitalId(httpRequest, httpResponse, hospitalId);
+			
+			
+			if ( file.isEmpty() )		throw new LogicalException("UH101", "업로드된 사진을 찾을 수 없습니다.");			
+			if ( file.getSize() <= 0 )	throw new LogicalException("UH102", "업로드된 사진의 크기가 유효하지 않습니다. (0 bytes)");
+				
+			try {
+				
+				ServerConfig serverConfig = ServerConfig.getInstance();
+				
+				String HOSPITAL_RESOURCE_URL_BASE		= serverConfig.get("HOSPITAL_RESOURCE_URL_BASE");
+				
+				String targetDir = serverConfig.get("HOSPITAL_RESOURCE_SAVED_DIR_ROOT") + "/" + HOSPITAL_RESOURCE_URL_BASE + "/" + hospitalId + "/";				
+				File dir = new File(targetDir);				
+				if ( !dir.exists() ) {
+					if ( !dir.mkdirs() ) {
+						throw new Exception("사용자 프로필 사진을 저장할 디렉토리 생성 실패");
+					}
+				}
+				
+				// 파일 내용 변경 ==> 로고 파일은 1개 뿐				
+				String fileName = "logo";				
+				String originalFileName = file.getOriginalFilename();
+				if ( originalFileName.lastIndexOf(".") > -1 ) {
+					fileName += "." + originalFileName.substring(originalFileName.lastIndexOf(".")+1, originalFileName.length());
+				}				
+				System.out.println("최종 저장 파일명 : " + fileName);
+				
+				
+				byte[] bytes = file.getBytes();
+				FileUtil.saveFile(targetDir, fileName, bytes);				
+	            
+				System.out.println("저장 완료");
+				// 웹서버의 상대 경로를 리턴해야 한다.
+				
+				String fileNameOnDb = hospitalService.updateHospitalLogoImageName(hospitalId, fileName);
+				
+				res.setResponseData(serverConfig.get("HOSPITAL_RESOURCE_SERVER_URL").trim() + "/" + HOSPITAL_RESOURCE_URL_BASE + "/" + hospitalId + "/" + fileNameOnDb);
+
+			} catch(Exception ex) {
+				ex.printStackTrace();
+				throw new LogicalException("UH103", "업로드된 사진을 저장한는 중에 오류가 발생했습니다. [" + ex + "]");
+			}
+			
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		
+		return new ResponseEntity<JsonResponse<String>>(res, HttpStatus.OK);		
+	}
+	
+	
+	
 	
 	/******************************************************************************************************************/
 	/*                                                                                                                */
@@ -184,7 +531,7 @@ public class HospitalUserController {
 		
 		JsonResponse<JobAd> res = new JsonResponse<JobAd>();
 		try {
-			checkHospitalUserSession(httpRequest, httpResponse, userId);
+			checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
 			
 						
 			System.out.println("요청된 신규 JOB AD 정보 " + jobAd);
@@ -209,7 +556,7 @@ public class HospitalUserController {
 		
 		JsonResponse<JobAd> res = new JsonResponse<JobAd>();
 		try {
-			checkHospitalUserSession(httpRequest, httpResponse, userId);
+			checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
 			
 			jobAd.setId(jobAdId);
 			
@@ -259,7 +606,7 @@ public class HospitalUserController {
 		JsonResponse<String> res = new JsonResponse<String>();
 		try {
 			
-			checkHospitalUserSession(httpRequest, httpResponse, userId);
+			checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
 			
 			hospitalMemberService.deleteJobAd(jobAdId);
 			res.setResponseData("OK");
@@ -277,52 +624,6 @@ public class HospitalUserController {
 	/******************************************************************************************************************/
 	
 	
-	public static final String HOSPITAL_LOGO_DIR = "c:\\work\\";
-	/**
-	 * 병원 로고 등록
-	 * @param file
-	 * @param userId
-	 * @param httpRequest
-	 * @param httpResponse
-	 * @return
-	 */
-	@RequestMapping(value="/user/{userId}/hospital/logo/", method=RequestMethod.POST)
-	public ResponseEntity<JsonResponse<String>> uploadHospitalLogo(
-						@PathVariable("userId") Integer userId,
-						@RequestParam(value="file",		required=true) MultipartFile file,
-						HttpServletRequest httpRequest,
-						HttpServletResponse httpResponse
-					) {
-		
-		
-		System.out.println("저장 시작");
-		
-		JsonResponse<String> res = new JsonResponse<String>();
-		try {
-			checkHospitalUserSession(httpRequest, httpResponse, userId);
-			
-			if ( file.isEmpty() )		throw new LogicalException("UH101", "업로드된 사진을 찾을 수 없습니다.");
-			
-			if ( file.getSize() <= 0 )	throw new LogicalException("UH102", "업로드된 사진의 크기가 유효하지 않습니다. (0 bytes)");
-				
-			try {
-				byte[] bytes = file.getBytes();
-				FileUtil.saveFile(HOSPITAL_LOGO_DIR, file.getOriginalFilename(), bytes);
-				//Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
-	            //Files.write(path, bytes);
-	            
-				//System.out.println("저장 완료 [" + path + "]");
-			} catch(Exception ex) {
-				ex.printStackTrace();
-				throw new LogicalException("UH103", "업로드된 사진을 저장한는 중에 오류가 발생했습니다. [" + ex + "]");
-			}
-			
-		} catch(Exception ex) {
-			res.setException(ex);
-		}
-		
-		return new ResponseEntity<JsonResponse<String>>(res, HttpStatus.OK);		
-	}
 	
 	
 	/**
@@ -346,7 +647,7 @@ public class HospitalUserController {
 		
 		JsonResponse<Hospital> res = new JsonResponse<Hospital>();
 		try {
-			checkHospitalUserSession(httpRequest, httpResponse, userId);
+			checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
 			
 			System.out.println("신규병원 등록 : " + hospital); 
 			Hospital newHospital = hospitalMemberService.createHospital(userId, hospital);
@@ -378,7 +679,7 @@ public class HospitalUserController {
 		
 		JsonResponse<Hospital> res = new JsonResponse<Hospital>();
 		try {
-			checkHospitalUserSession(httpRequest, httpResponse, userId);
+			checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
 			
 			
 			System.out.println("신규병원 등록 : " + hospital); 
@@ -405,7 +706,7 @@ public class HospitalUserController {
 		
 		JsonResponse<Hospital> res = new JsonResponse<Hospital>();
 		try {
-			checkHospitalUserSession(httpRequest, httpResponse, userId);
+			checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
 			
 			
 			Hospital hospital = hospitalMemberService.getHospitalByUserId(userId);			

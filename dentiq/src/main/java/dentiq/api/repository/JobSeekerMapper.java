@@ -8,7 +8,6 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import dentiq.api.model.AppliedJobAdInfo;
-import dentiq.api.model.Hospital;
 import dentiq.api.model.JobAd;
 import dentiq.api.model.LocationCode;
 import dentiq.api.model.Resume;
@@ -16,6 +15,10 @@ import dentiq.api.model.Resume;
 @Mapper
 @Repository
 public interface JobSeekerMapper {
+	
+	/* 개인회원 프로필 이미지 변경 */
+	public int updateUserProfileImageName(@Param("userId") Integer userId, @Param("profileImageName") String profileImageName) throws Exception;
+	public String getUserProfileImangeName(@Param("userId") Integer userId) throws Exception;
 	
 	/************************************ 이력서 ******************************************/
 	public Integer insertResume(Resume resume) throws Exception;

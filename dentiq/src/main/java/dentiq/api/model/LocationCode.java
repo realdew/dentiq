@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-import dentiq.api.service.exception.LogicalException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

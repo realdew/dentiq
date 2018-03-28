@@ -24,8 +24,15 @@ public class HospitalServiceImpl implements HospitalService {
 	private HospitalMapper hospitalMapper;
 	
 	
-	
-	
+	@Override
+	public String updateHospitalLogoImageName(Integer hospitalId, String fileName) throws Exception {
+		int updatedRows = hospitalMapper.updateHospitalLogoImageName(hospitalId, fileName);
+		if ( updatedRows != 1 ) {
+			throw new Exception("병원 로고 이미지 변경 실패 [" + updatedRows + "]");
+		}
+		
+		return hospitalMapper.getHospitalLogoImageName(hospitalId);
+	}
 	
 	/**
 	 * 병원 정보를 조회한다.
@@ -34,8 +41,13 @@ public class HospitalServiceImpl implements HospitalService {
 	 * @return	병원 정보
 	 */
 	@Override
-	public Hospital get(Integer id) throws Exception {
-		return hospitalMapper.readHospital(id);
+	public Hospital getById(Integer hospitalId) throws Exception {
+		return hospitalMapper.readHospital(hospitalId);
+	}
+	
+	@Override
+	public Hospital getByUserId(Integer userId) throws Exception {
+		return hospitalMapper.readHospitalByUserId(userId);
 	}
 	
 	

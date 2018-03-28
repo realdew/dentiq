@@ -52,6 +52,9 @@ public class NormalController {
 	
 	@Autowired private PersonalMemberService personalMemberService;		//TODO 나중에 변경할 것
 	
+	/**
+	 * 이력서 조회
+	 */
 	@RequestMapping(value="/resume/{resumeId}/", method=RequestMethod.GET)
 	public ResponseEntity<JsonResponse<Resume>> viewResume(
 								@PathVariable("resumeId")		Integer resumeId,
@@ -95,35 +98,7 @@ public class NormalController {
 				}
 			}
 			
-			
 			res.setResponseData(resume);
-						
-					
-			// checkUserAppliedToHospitalByResumeOwnerIdAndHosptailUserId(resumeOwnerId, hospitalUserId);
-					
-					
-					/*
-select count(1)
-from
-	(
-		select HOSPITAL_ID from USER
-		where ID=#{hospitalUserId} and USER_TYPE='2'
-	) U, 
-	(
-		select distinct(J.HOSPITAL_ID) as HOSPITAL_ID
-		from JOB_AD J, USER_APPLY UA 
-		where							
-			J.ID=UA.JOB_AD_ID and
-			UA.CANCEL_YN='N' and
-			J.USE_YN='Y' and
-			UA.USER_ID=#{resumeOwnerId}
-	) R1
-where
-	R1.HOSPITAL_ID = U.HOSPITAL_ID
-					
-					 */
-					
-
 			
 		} catch(Exception ex) {
 			res.setException(ex);
@@ -362,7 +337,7 @@ where
 	public ResponseEntity<JsonResponse<Hospital>> getHospital(@PathVariable("id") Integer id) {
 		JsonResponse<Hospital> res = new JsonResponse<Hospital>();
 		try {
-			Hospital hospital = hospitalService.get(id);
+			Hospital hospital = hospitalService.getById(id);
 			res.setResponseData(hospital);
 		} catch(Exception ex) {
 			res.setException(ex);

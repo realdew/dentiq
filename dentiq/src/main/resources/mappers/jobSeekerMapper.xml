@@ -3,9 +3,21 @@
 
 <mapper namespace="dentiq.api.repository.JobSeekerMapper">
 
-	<select id="getResumeByUserId" resultType="dentiq.api.model.Resume">
-		select * from USER_RESUME where USER_ID=#{userId}
+	<update id="updateUserProfileImageName">
+		update USER set
+			PROFILE_IMAGE_NAME=#{profileImageName}
+		where
+			ID=#{userId}
+	</update>
+	<select id="getUserProfileImangeName" resultType="string">
+		select PROFILE_IMAGE_NAME from USER where ID=#{userId}
 	</select>
+
+
+	<select id="getResumeByUserId" resultType="dentiq.api.model.Resume">
+		select * from USER_RESUME where USER_ID=#{userId}		 
+	</select>
+	
 	<select id="getResumeById" resultType="dentiq.api.model.Resume">
 		select * from USER_RESUME where ID=#{resumeId}
 	</select>

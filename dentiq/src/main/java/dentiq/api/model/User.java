@@ -5,6 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import dentiq.api.ServerConfig;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -34,6 +35,8 @@ public class User {
 	
 	@Getter @Setter private Integer userType;	// user type: '1':구직회원, '2':병원회원
 	public String getUserTypeString() {
+		if ( this.userType == null ) return null;
+		
 		if ( this.userType==USER_TYPE_PERSON ) {
 			return "구직(개인)회원";
 		} else if ( this.userType==USER_TYPE_HOSPITAL ) {
@@ -46,7 +49,7 @@ public class User {
 	
 	@Setter private String bizRegNo;	// 사업자 번호 (병원회원 only)
 	public String getBizRegNo() {
-		if ( this.userType==USER_TYPE_HOSPITAL ) {
+		if ( this.userType != null && this.userType==USER_TYPE_HOSPITAL ) {
 			return this.bizRegNo;
 		} else return null;
 	}
@@ -66,6 +69,29 @@ public class User {
 	@Getter @Setter private String agreementAdYn;			// 선택정보수신 동의 : 광고
 	
 	//@Getter @Setter private AddrJuso addrJuso;
+	
+	
+	@Getter @Setter private String addrMain;
+	@Getter @Setter private String addrDetail;
+	
+	
+	@Getter @Setter private String telNo;
+	@Getter @Setter private String birthday;
+	@Getter @Setter private String gender;
+	
+	@Getter @Setter private String profileImageName;
+	//@Getter @Setter private String profileImageFullUrl;
+	public String getProfileImageFullUrl() throws Exception {
+		if ( this.profileImageName == null ) return null;
+		
+		ServerConfig serverConfig = ServerConfig.getInstance();
+		String USER_RESOURCE_URL_BASE	= serverConfig.get("USER_RESOURCE_URL_BASE");
+		String USER_RESOURCE_SERVER_URL	= serverConfig.get("USER_RESOURCE_SERVER_URL");
+		
+		return USER_RESOURCE_SERVER_URL + "/" + USER_RESOURCE_URL_BASE + "/" + this.id + "/" + this.profileImageName;
+	}
+	
+	
 	
 	
 	@Getter @Setter private String token;						// 로그인 시에만 세팅 : 세션 토큰

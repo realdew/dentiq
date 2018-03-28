@@ -87,6 +87,8 @@ public class LoginController {
 //			response.addCookie(sessionCookie);
 			
 			// 임시.
+			System.out.println("로그아웃");
+			
 			User user = new User();
 			user.setId(id);
 			res.setResponseData(user);

@@ -1,8 +1,8 @@
 package dentiq.api.controller;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,19 +17,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+
+import dentiq.api.ServerConfig;
 import dentiq.api.model.AppliedJobAdInfo;
 import dentiq.api.model.JobAd;
 import dentiq.api.model.JobAdAttrGroup;
 import dentiq.api.model.JobAdDashboard;
 import dentiq.api.model.LocationCode;
-import dentiq.api.model.LoginInfo;
 import dentiq.api.model.NameCountPair;
 import dentiq.api.model.Resume;
 import dentiq.api.model.User;
 import dentiq.api.service.JobAdService;
 import dentiq.api.service.PersonalMemberService;
 import dentiq.api.service.UserService;
+import dentiq.api.service.exception.LogicalException;
+import dentiq.api.util.FileUtil;
 import dentiq.api.util.UserSession;
 import dentiq.api.util.UserSessionManager;
 
@@ -138,6 +142,163 @@ public class PersonalUserController {
 	}
 	
 	
+	/******************************************************************************************************************/
+	/*                                                                                                                */
+	/*                                         사진 등록                                                              */
+	/*                                                                                                                */
+	/******************************************************************************************************************/
+	
+	
+	//@Autowired private ApplicationPropertiesComponent appProperties;
+	
+	
+	@RequestMapping(value="/user/{userId}/pic/", method=RequestMethod.POST)
+	public ResponseEntity<JsonResponse<String>> registerUserPic(
+												@PathVariable("userId") Integer userId,
+												@RequestParam(value="file",		required=true) MultipartFile file,
+												HttpServletRequest httpRequest,
+												HttpServletResponse httpResponse			
+			) {
+		
+		System.out.println("회원 사진 저장 시작");
+		
+		
+		JsonResponse<String> res = new JsonResponse<String>();
+		try {
+			//checkPersonalUserSession(httpRequest, httpResponse, userId);
+			
+						
+			if ( file.isEmpty() )		throw new LogicalException("UH101", "업로드된 사진을 찾을 수 없습니다.");			
+			if ( file.getSize() <= 0 )	throw new LogicalException("UH102", "업로드된 사진의 크기가 유효하지 않습니다. (0 bytes)");
+				
+			try {
+				ServerConfig serverConfig = ServerConfig.getInstance();
+				
+				// String USER_RESOURCE_URL_BASE		=  appProperties.getUSER_RESOURCE_URL_BASE();
+				String USER_RESOURCE_URL_BASE		= serverConfig.get("USER_RESOURCE_URL_BASE");
+				
+				String targetDir = serverConfig.get("USER_RESOURCE_SAVED_DIR_ROOT") + "/" + USER_RESOURCE_URL_BASE + "/" + userId + "/";
+				File dir = new File(targetDir);
+				if ( !dir.exists() ) {
+					if ( !dir.mkdirs() ) {
+						throw new Exception("사용자 프로필 사진을 저장할 디렉토리 생성 실패");
+					}
+				}
+				
+				
+				// 파일 내용 변경 ==> 사용자 프로필 사진은 1개 뿐				
+				String fileName = "profile";				
+				String originalFileName = file.getOriginalFilename();
+				if ( originalFileName.lastIndexOf(".") > -1 ) {
+					fileName += "." + originalFileName.substring(originalFileName.lastIndexOf(".")+1, originalFileName.length());
+				}				
+				System.out.println("최종 저장 파일명 : " + fileName);
+								
+				
+				byte[] bytes = file.getBytes();
+				FileUtil.saveFile(targetDir, fileName, bytes);				
+	            
+				System.out.println("저장 완료");
+				// 웹서버의 상대 경로를 리턴해야 한다.
+				
+				String fileNameOnDb = personalMemberService.updateUserProfileImageName(userId, fileName);
+				
+				//res.setResponseData(USER_PIC_SERVER_BASE + "/" + USER_PIC_URL_BASE + "/" + userId + "/" + fileName);
+				res.setResponseData(serverConfig.get("USER_RESOURCE_SERVER_URL").trim() + "/" + USER_RESOURCE_URL_BASE + "/" + userId + "/" + fileNameOnDb);
+			} catch(Exception ex) {
+				ex.printStackTrace();
+				throw new LogicalException("UH103", "업로드된 사진을 저장한는 중에 오류가 발생했습니다. [" + ex + "]");
+			}
+			
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		
+		return new ResponseEntity<JsonResponse<String>>(res, HttpStatus.OK);
+	}
+	
+	
+	
+	/******************************************************************************************************************/
+	/*                                                                                                                */
+	/*                                         기본 정보                                                              */
+	/*                                                                                                                */
+	/******************************************************************************************************************/
+	
+	
+//	public String createUserResourceUrl(Integer userId, String userResourceFileName) throws Exception {
+//		if ( userId == null || userResourceFileName == null || userResourceFileName.trim().equals("") ) return null;
+//		
+//		ServerConfig serverConfig = ServerConfig.getInstance();
+//		String USER_RESOURCE_URL_BASE	= serverConfig.get("USER_RESOURCE_URL_BASE");
+//		String USER_RESOURCE_SERVER_URL	= serverConfig.get("USER_RESOURCE_SERVER_URL");
+//		
+//		return USER_RESOURCE_SERVER_URL + "/" + USER_RESOURCE_URL_BASE + "/" + userId + "/" + userResourceFileName;
+//	}
+	
+	/**
+	 * 자신의 기본 정보 조회
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value="/user/{userId}/basicInfo/", method=RequestMethod.GET)
+	public ResponseEntity<JsonResponse<User>> getBasicInfoByUserId(
+										@PathVariable("userId")		Integer userId,
+										HttpServletRequest httpRequest,
+										HttpServletResponse httpResponse
+			) {
+		
+		JsonResponse<User> res = new JsonResponse<User>();
+		try {
+			//checkPersonalUserSession(httpRequest, httpResponse, userId);			
+			
+			//User user = userService.getUserById(userId);
+			User user = userService.getBasicInfoByUserId(userId);
+			user.filter();
+			//user.setProfileImageFullUrl( createUserResourceUrl(userId, user.getProfileImageName()) );
+			
+			
+			
+			res.setResponseData(user);			
+			System.out.println(user);
+			
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		
+		return new ResponseEntity<JsonResponse<User>>(res, HttpStatus.OK);	
+	}
+	
+	@RequestMapping(value="/user/{userId}/basicInfo/", method=RequestMethod.PUT)
+	public ResponseEntity<JsonResponse<User>> updateBasicInfo(
+										@PathVariable("userId")		Integer userId,
+										@RequestBody User user,
+										HttpServletRequest httpRequest,
+										HttpServletResponse httpResponse
+			) {
+		
+		JsonResponse<User> res = new JsonResponse<User>();
+		try {
+			//checkPersonalUserSession(httpRequest, httpResponse, userId);
+			user.setId(userId);
+			
+			User updatedUser = userService.updateBasicInfo(user);
+			//updatedUser.setProfileImageFullUrl( createUserResourceUrl(userId, user.getProfileImageName()) );
+			updatedUser.filter();
+			
+			
+			res.setResponseData(updatedUser);
+			
+			System.out.println(updatedUser);
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		
+		return new ResponseEntity<JsonResponse<User>>(res, HttpStatus.OK);	
+	}
+	
+	
+	
 	
 	/******************************************************************************************************************/
 	/*                                                                                                                */
@@ -171,6 +332,7 @@ public class PersonalUserController {
 			System.out.println(resume);
 			
 			Resume newResume = personalMemberService.createOrUpdateResume(resume);
+			//resume.setProfileImageFullUrl( createUserResourceUrl(userId, resume.getProfileImageName()) );
 			
 			res.setResponseData(newResume);
 			
@@ -200,7 +362,10 @@ public class PersonalUserController {
 			checkPersonalUserSession(httpRequest, httpResponse, userId);
 			
 			
-			Resume resume = personalMemberService.getResumeByUserId(userId);			
+			Resume resume = personalMemberService.getResumeByUserId(userId);	
+//			if ( resume != null )
+//				resume.setProfileImageFullUrl( createUserResourceUrl(userId, resume.getProfileImageName()) );
+			
 			res.setResponseData(resume);			
 			System.out.println(resume);
 		} catch(Exception ex) {

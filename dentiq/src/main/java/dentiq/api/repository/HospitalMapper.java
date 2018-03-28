@@ -9,11 +9,16 @@ import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 import dentiq.api.model.Hospital;
+import dentiq.api.model.User;
 import dentiq.api.repository.criteria.PageCriteria;
 
 @Mapper
 @Repository
 public interface HospitalMapper {
+	
+	/* 병원 로고 이미지 변경 */
+	public int updateHospitalLogoImageName(@Param("hospitalId") Integer hospitalId, @Param("logoImageName") String logoImageName) throws Exception;
+	public String getHospitalLogoImageName(@Param("hospitalId") Integer hospitalId) throws Exception;
 	
 	// HIRA 병원 검색은 현재는 '병원명'만으로 검색 및 카운팅 
 	@Select("select	* from V_HIRA_HOSP_INFO where NAME like CONCAT('%',#{name},'%') limit #{pageCriteria.startIndexOnPage}, #{pageCriteria.itemCountPerPage}")

@@ -2,9 +2,7 @@ package dentiq.api.controller;
 
 
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,12 +22,9 @@ import dentiq.api.model.JobAd;
 import dentiq.api.model.JobAdAttrGroup;
 import dentiq.api.model.JobAdDashboard;
 import dentiq.api.model.JobAdWithHospital;
-import dentiq.api.model.LiveBoardResult;
-import dentiq.api.model.LocationCode;
 import dentiq.api.model.NameCountPair;
 import dentiq.api.service.HospitalService;
 import dentiq.api.service.JobAdService;
-import dentiq.api.service.PersonalMemberService;
 
 /**
  * 공고(JobAd)에 대한 Controller
@@ -64,7 +59,7 @@ public class JobAdController {
 			if ( jobAd == null ) {
 				throw new Exception("해당공고[" + jobAdId + "] 없음");
 			}
-			Hospital hospital = hospitalService.get(jobAd.getHospitalId());
+			Hospital hospital = hospitalService.getById(jobAd.getHospitalId());
 			if ( hospital == null ) {
 				throw new Exception("해당공고[" + jobAdId + "]의 병원 정보[" + jobAd.getHospitalId() + "] 없음");
 			}

@@ -11,6 +11,9 @@ import dentiq.api.model.Resume;
 
 public interface PersonalMemberService {
 	
+	public String getUserProfileImangeName(Integer userId) throws Exception;
+	public String updateUserProfileImageName(Integer userId, String profileImageName) throws Exception;
+	
 	/************************************ 이력서 ******************************************/
 	
 	public Resume getResumeByUserId(Integer userId) throws Exception;

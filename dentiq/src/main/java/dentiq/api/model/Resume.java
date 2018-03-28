@@ -1,6 +1,7 @@
 package dentiq.api.model;
 
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import dentiq.api.ServerConfig;
+import dentiq.api.util.DateUtil;
 import dentiq.api.util.JsonUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,7 +38,33 @@ public class Resume {
 	@Getter @Setter private String addrDetail;
 	
 	@Getter @Setter private String birthday;		// YYYYMMDD
+	public Integer getAge() {
+		if ( this.birthday == null || this.birthday.trim().length() != 8 ) {
+			return null;
+		}
+		
+		Integer age = null;
+		try {
+			age = DateUtil.calAge(this.birthday);
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		return age;
+	}
 	@Getter @Setter private String gender;			// M or F
+	@Getter @Setter private String profileImageName;
+	
+	//@Setter @Getter private String ProfileImageFullUrl;
+	public String getProfileImageFullUrl() throws Exception {
+		if ( this.profileImageName == null || this.userId == null ) return null;
+		
+		ServerConfig serverConfig = ServerConfig.getInstance();
+		String USER_RESOURCE_URL_BASE	= serverConfig.get("USER_RESOURCE_URL_BASE");
+		String USER_RESOURCE_SERVER_URL	= serverConfig.get("USER_RESOURCE_SERVER_URL");
+		
+		return USER_RESOURCE_SERVER_URL + "/" + USER_RESOURCE_URL_BASE + "/" + this.userId + "/" + this.profileImageName;
+	}
+	
 	// ========================
 	
 	// 고용형태, 채용부문, 담당업무
@@ -94,9 +123,19 @@ public class Resume {
 	
 	
 
-	@Getter @Setter private String content;	// 내용	
-	@Getter private String lastModDt;	
-	@Getter private String regDt;
+	@Getter @Setter private String content;	// 내용
+	
+	@Getter @Setter private Date lastModDt;
+	public String getLastModYYYYMMDD() {
+		if ( this.lastModDt == null ) return null;
+		else return DateUtil.parseToYYYYMMDD(this.lastModDt);
+	}
+	
+	@Getter @Setter private Date regDt;
+	public String getRegYYYYMMDD() {
+		if ( this.regDt == null ) return null;
+		else return DateUtil.parseToYYYYMMDD(this.regDt);
+	}
 	
 	
 	@Getter @Setter private String openYN;		// 이력서 공개 여부
@@ -106,6 +145,19 @@ public class Resume {
 	}
 	
 	
+	@Getter @Setter private boolean scrappedByHospital = false;		// 특정 병원에서 스크랩된 이력서인지의 여부 (hr_management에서 사용)
+	
+	
+	
+	/******************************************************************************************************************/
+	
+	@Getter @Setter private Date applyDt;	// 이력서를 가지고 특정 공고에 지원한 경우에, 지원일자
+	public String getApplyYYYYMMDD() {
+		if ( this.applyDt == null ) return null;
+		else return DateUtil.parseToYYYYMMDD(this.applyDt);
+	}
+	
+	@Getter @Setter public Long jobAdId;	// 병원에서 이력서를 조회할 경우에, 해당 이력서가 어떠한 공고에 지원했는지 알기 위한, 이력서의 ID
 	
 }
 

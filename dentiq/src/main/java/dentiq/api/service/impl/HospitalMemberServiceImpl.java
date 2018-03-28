@@ -11,10 +11,12 @@ import dentiq.api.model.Hospital;
 import dentiq.api.model.JobAd;
 import dentiq.api.model.JobAdAttr;
 import dentiq.api.model.LocationCode;
+import dentiq.api.model.Resume;
 import dentiq.api.model.User;
 import dentiq.api.repository.CodeMapper;
 import dentiq.api.repository.HospitalMapper;
 import dentiq.api.repository.JobAdMapper;
+import dentiq.api.repository.ResumeMapper;
 import dentiq.api.repository.UserMapper;
 import dentiq.api.service.HospitalMemberService;
 import dentiq.api.service.exception.LogicalException;
@@ -31,6 +33,8 @@ public class HospitalMemberServiceImpl implements HospitalMemberService {
 	@Autowired private CodeMapper codeMapper;
 	
 	@Autowired private UserMapper userMapper;
+	
+	@Autowired private ResumeMapper resumeMapper;
 	
 	
 
@@ -151,10 +155,102 @@ public class HospitalMemberServiceImpl implements HospitalMemberService {
 	
 	
 	
+	private void markScrapped(Integer hospitalId, List<Resume> resumeList) throws Exception {
+		if ( resumeList == null || resumeList.size() == 0 ) return;
+		
+		List<Integer> resumeIdScrappedList = resumeMapper.listResumeIdScrappedByHospital(hospitalId);
+		if ( resumeIdScrappedList==null ) return;
+		
+		
+		for ( Integer resumeIdSrapped : resumeIdScrappedList ) {
+			for ( Resume resume : resumeList ) {
+				if ( resume.getId().equals(resumeIdSrapped) ) {
+					resume.setScrappedByHospital(true);
+				}
+			}
+		}
+		
+	}
+	
+	/************************************ HR 관리(지원자 관리) : 내 병원 공고들에 지원한 회원들의 이력서들 조회 ******************************************/
+	@Override
+	public List<Resume> listResumeAppliedToHospital(Integer hospitalId) throws Exception {
+		
+		List<Resume> resumeAppliedList = resumeMapper.listResumeAppliedToHospital(hospitalId);		
+		markScrapped(hospitalId, resumeAppliedList);
+		
+		return resumeAppliedList;
+	}
+//	public List<Long> listAppliedResumeId(Integer hospitalId) throws Exception {
+//		
+//		return null;
+//	}
+	
+	/************************************ HR 관리(스크랩) : 병원이 스크랩한 이력서 조회 ******************************************/
+	@Override
+	public List<Resume> listResumeScrappedByHospital(Integer hospitalId) throws Exception {
+		return resumeMapper.listResumeScrappedByHospital(hospitalId);
+	}
+	@Override
+	public List<Integer> listScrappedResumeId(Integer hospitalId) throws Exception {
+		return resumeMapper.listResumeIdScrappedByHospital(hospitalId);
+	}
+	@Override
+	public List<Integer> addScrappedResumeId(Integer hospitalId, Integer resumeId) throws Exception {
+		try {
+			resumeMapper.insertScrappedResume(hospitalId, resumeId);
+		} catch(Exception ignore) {}
+		return resumeMapper.listResumeIdScrappedByHospital(hospitalId);
+	}
+	@Override
+	public List<Integer> deleteScrappedResumeId(Integer hospitalId, Integer resumeId) throws Exception {
+		try {
+			resumeMapper.deleteScrappedResume(hospitalId, resumeId);
+		} catch(Exception ignore) {}
+		return resumeMapper.listResumeIdScrappedByHospital(hospitalId);
+	}
+	
+	/************************************ HR 관리(스크랩) : 내 병원 공고를 스크랩한 회원들의 이력서 조회 ******************************************
+	public List<Resume> listResumeScrappedJobAdOfHospital(Integer hospitalId) throws Exception {
+		return resumeMapper.listResumeScrappedJobAdOfHospital(hospitalId);
+	}
+	*/
+	
+	/************************************ HR 관리(추천인재) : 해당 병원에 관련된 이력서들을 추천 ******************************************/
+	/*
+	 * 아마도 가장 코드가 길어질 것임
+	 * TODO 이거 이렇게 online 방식으로 하면, 나중에 끔직한 결과를 초래할 수 있음(속도문제)
+	 * 		향후 배치로 추천인재 테이블의 데이터를 생성하고 이를 리스팅하는 것이 맞음
+	 */
+	@Override
+	public List<Resume> listResumeRecommended(Integer hospitalId) throws Exception {
+		List<Resume> resumeRecommendedList = resumeMapper.listResumeRecommended(hospitalId);
+		markScrapped(hospitalId, resumeRecommendedList);
+		
+		return resumeRecommendedList;
+	}
+	
+	/************************************ HR 관리(인재열람) : 이력서들을 다양한 조건으로 검색 ******************************************/
+	/**
+	 * 병원에서 인재 열람
+	 * 다양한 검색 조건을 지원하여야 함.
+	 * 예: 지역코드, 거리, 지원속성, ... 등
+	 * @param page
+	 * @return
+	 */
+	@Override
+	public List<Resume> listResumeSearched(Integer hospitalId, Integer page) throws Exception {
+		List<Resume> resumeSearchedList = resumeMapper.listResumeSearched();
+		if ( hospitalId != null ) {
+			markScrapped(hospitalId, resumeSearchedList);
+		}
+		
+		return resumeSearchedList;
+	}
+	//TODO
+ 	
 	
 	
-	
-
 	
 	
 	@Override

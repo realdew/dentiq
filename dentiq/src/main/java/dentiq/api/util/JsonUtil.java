@@ -53,23 +53,23 @@ public class JsonUtil {
 }
 
 
-class JsonObject {
-	
-	private Object obj;
-	
-	public JsonObject(Object obj) {
-		this.obj = obj;
-	}
-	
-	public void set(String json) {
-		
-	}
-	
-	public String get() {
-		
-		return null;
-	}
-}
+//class JsonObject {
+//	
+//	private Object obj;
+//	
+//	public JsonObject(Object obj) {
+//		this.obj = obj;
+//	}
+//	
+//	public void set(String json) {
+//		
+//	}
+//	
+//	public String get() {
+//		
+//		return null;
+//	}
+//}
 
 
 /*

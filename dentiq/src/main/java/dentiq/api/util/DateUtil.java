@@ -31,4 +31,42 @@ public class DateUtil {
 		
 		return dayStr;
 	}
+	
+	public static String parseToYYYYMMDD(Date date) {
+		SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+		return fmt.format(date);
+	}
+	
+	/**
+	 * 만 나이 계산
+	 * @param birthYYYYMMDD	생일 YYYYMMDD 문자열
+	 * @return
+	 * @throws Exception
+	 */
+	public static int calAge(String birthYYYYMMDD) throws Exception {
+		if ( birthYYYYMMDD==null || birthYYYYMMDD.trim().length() != 8 ) {
+			throw new Exception("Number Format Exception : YYYYMMDD [" + birthYYYYMMDD + "]");
+		}
+		
+		int age = 0;
+		try {
+			Calendar current = Calendar.getInstance();
+			
+			Calendar birthMMDD = Calendar.getInstance();
+			birthMMDD.set(
+							current.get(Calendar.YEAR),
+							Integer.parseInt(birthYYYYMMDD.substring(4, 6)) - 1,
+							Integer.parseInt(birthYYYYMMDD.substring(6, 8))
+						);
+			if ( current.compareTo(birthMMDD) >= 0 ) {	// 오늘 날짜가 생월일과 동일하거나 이후이면,
+				age = current.get(Calendar.YEAR) - Integer.parseInt(birthYYYYMMDD.substring(0,  4));
+			} else {									// 오늘 날짜가 생월일 이전이면,
+				age = current.get(Calendar.YEAR) - Integer.parseInt(birthYYYYMMDD.substring(0,  4)) - 1;
+			}
+		} catch(Exception ex) {
+			throw new Exception("Number Format Exception : YYYYMMDD [" + birthYYYYMMDD + "] [" + ex + "]");
+		}
+		
+		return age;
+	}
 }
