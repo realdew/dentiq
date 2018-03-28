@@ -28,6 +28,7 @@ import dentiq.api.service.HospitalService;
 import dentiq.api.service.UserService;
 import dentiq.api.service.exception.LogicalException;
 import dentiq.api.util.FileUtil;
+import dentiq.api.util.ImageUtil;
 import dentiq.api.util.UserSession;
 import dentiq.api.util.UserSessionManager;
 
@@ -397,8 +398,8 @@ public class HospitalUserController {
 					}
 				}
 				
-				// 파일 내용 변경 ==> 로고 파일은 1개 뿐				
-				String fileName = "logo";				
+				// 원본 파일 내용 변경 ==> 로고 파일은 1개 뿐				
+				String fileName = "logo.original";				
 				String originalFileName = file.getOriginalFilename();
 				if ( originalFileName.lastIndexOf(".") > -1 ) {
 					fileName += "." + originalFileName.substring(originalFileName.lastIndexOf(".")+1, originalFileName.length());
@@ -407,11 +408,18 @@ public class HospitalUserController {
 				
 				
 				byte[] bytes = file.getBytes();
-				FileUtil.saveFile(targetDir, fileName, bytes);				
+				FileUtil.saveFile(targetDir, fileName, bytes);
 	            
 				System.out.println("저장 완료");
-				// 웹서버의 상대 경로를 리턴해야 한다.
+
 				
+				// 2018.03.28 이주현 추가. 이미지 리사이즈 처리함
+//				int resizeBase = ImageUtil.BASED_HEIGHT;
+//				int newSize    = 200;
+//				ImageUtil.resize(targetDir, fileName, resizeBase, newSize, ImageUtil.SCALE_FAST, ImageUtil.FORMAT_PNG, "logo.png");
+								
+				
+//				String fileNameOnDb = hospitalService.updateHospitalLogoImageName(hospitalId, "logo.png");
 				String fileNameOnDb = hospitalService.updateHospitalLogoImageName(hospitalId, fileName);
 				
 				res.setResponseData(serverConfig.get("HOSPITAL_RESOURCE_SERVER_URL").trim() + "/" + HOSPITAL_RESOURCE_URL_BASE + "/" + hospitalId + "/" + fileNameOnDb);

@@ -104,8 +104,40 @@ public class Resume {
 		return JsonUtil.toJson(this.career);
 	}
 	@JsonIgnore public void setCareerJson(String json) throws Exception {
-		this.career = JsonUtil.<List<Map<String, String>>>toGenericObject(json);;
+		this.career = JsonUtil.<List<Map<String, String>>>toGenericObject(json);
+		
+		// 2018.03.26 이주현 추가. 경력 기간 표시 추가
+		if ( this.career == null || this.career.size()<1 ) {
+			this.totalCareerLength = "신입";
+			return;
+		}
+		
+		long diffMonths = 0;
+		boolean inOffice = false;
+		for (Map<String, String> map : this.career ) {
+			String join   = map.get("joinYYYYMM");
+			String retire = map.get("retireYYYYMM");
+			
+			if ( join != null ) {
+				if ( retire != null ) {
+					diffMonths += DateUtil.diffMonths(join, retire);
+				} else {		// 퇴직일이 입력되지 않았으면, 재직중(현재날짜까지)으로 판단
+					
+					if ( inOffice ) throw new Exception("경력기간에 재직중은 1개 이상이 될 수 없음");
+
+					diffMonths += DateUtil.diffMonths(join, DateUtil.todayYYYYMM());
+					inOffice = true;
+				}
+			}
+		}
+		
+		if ( diffMonths < 12 ) this.totalCareerLength = "1년 미만";
+		else {
+			int years = (int) (diffMonths/12);
+			this.totalCareerLength = years + "년 이상";
+		}
 	}
+	@Getter private String totalCareerLength;		// 경력 기간 (년 단위, 1년 미만==>'1년 미만', 이후에는 'x년 이상')
 	
 	
 	@Getter @Setter private List<Map<String, String>> license;	// name, issuer, issueYYYYMM	

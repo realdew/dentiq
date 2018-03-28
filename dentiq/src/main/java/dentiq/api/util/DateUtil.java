@@ -37,6 +37,54 @@ public class DateUtil {
 		return fmt.format(date);
 	}
 	
+	public static long diffDays(String startYYYYMMDD, String endYYYYMMDD) throws Exception {
+		if ( startYYYYMMDD == null || startYYYYMMDD.length()!=8 || endYYYYMMDD==null || endYYYYMMDD.length()!=8 )
+			throw new Exception("Arguments Invalid [" + startYYYYMMDD + "] [" + endYYYYMMDD + "]");
+		
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+		Date startDate = format.parse(startYYYYMMDD);
+		Date endDate   = format.parse(endYYYYMMDD);
+		
+		long diff = endDate.getTime() - startDate.getTime();
+		
+		//long diffDays = diff / (24 * 60 * 60 * 1000);
+		
+		return (long) (diff / (24 * 60 * 60 * 1000));
+	}
+	
+	public static int diffMonths(String startYYYYMMDD, String endYYYYMMDD) throws Exception {
+		
+		if ( 	startYYYYMMDD == null || !(startYYYYMMDD.length()==6 || startYYYYMMDD.length()==8)
+			|| 	endYYYYMMDD == null   || !(endYYYYMMDD.length()==6   || endYYYYMMDD.length()==8) )
+					throw new Exception("Arguments Invalid [" + startYYYYMMDD + "] [" + endYYYYMMDD + "]");
+		
+		if ( startYYYYMMDD.length()==6 )	startYYYYMMDD = startYYYYMMDD + "01";
+		if ( endYYYYMMDD.length()==6 ) 		endYYYYMMDD = endYYYYMMDD + "01";
+		
+		long diffDays = diffDays(startYYYYMMDD, endYYYYMMDD);
+		
+		return (int) (diffDays / 30);
+	}
+	
+	
+	public static int diffYears(String startYYYYMMDD, String endYYYYMMDD) throws Exception {
+		long diffDays = diffDays(startYYYYMMDD, endYYYYMMDD);
+		
+		return (int) (diffDays / 365);
+	}
+	
+	public static String todayYYYYMMDD() {
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+		return format.format(new Date());
+	}
+	
+	public static String todayYYYYMM() {
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMM");
+		return format.format(new Date());
+	}
+	
+	
+	
 	/**
 	 * 만 나이 계산
 	 * @param birthYYYYMMDD	생일 YYYYMMDD 문자열
