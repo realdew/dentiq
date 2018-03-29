@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import dentiq.api.model.JobAd;
-import dentiq.api.model.JobAdAttrCounter;
 import dentiq.api.model.JobAdAttrGroup;
 import dentiq.api.model.JobAdDashboard;
 //import dentiq.api.model.JobAdCounter;
@@ -572,36 +571,36 @@ public class JobAdServiceImpl implements JobAdService {
 		return attrCountOnEmp;
 	}
 	*/
-	@Override
-	public List<JobAdAttrCounter> countJobAdsByEmpType() throws Exception {
-		// TODO Auto-generated method stub
-		// 두 개를 조합한다. 전체 건수 및 EMP Attr의 각 count
-		Long totalCount = mapper.countJobAds(null);
-		JobAdAttrCounter total = new JobAdAttrCounter();
-		total.setGroupId("EMP");
-		total.setCodeId("0");
-		total.setCodeName("전체");
-		total.setCodeDisplayOrder(0);
-		total.setCnt(totalCount);
-		
-		//TODO 관심지역, 우리 동네 합해야 하는데... 여기서 해야 하나?
-		/*
-		if ( userId != null ) {
-			
-		} else {
-			
-			
-			
-		}
-		*/
-		
-		
-		List<JobAdAttrCounter> attrCountOnEmp = mapper.countJobAdOnAttrGroup("EMP");
-		
-		attrCountOnEmp.add(0, total);
-		
-		return attrCountOnEmp;
-	}
+//	@Override
+//	public List<JobAdAttrCounter> countJobAdsByEmpType() throws Exception {
+//		// TODO Auto-generated method stub
+//		// 두 개를 조합한다. 전체 건수 및 EMP Attr의 각 count
+//		Long totalCount = mapper.countJobAds(null);
+//		JobAdAttrCounter total = new JobAdAttrCounter();
+//		total.setGroupId("EMP");
+//		total.setCodeId("0");
+//		total.setCodeName("전체");
+//		total.setCodeDisplayOrder(0);
+//		total.setCnt(totalCount);
+//		
+//		//TODO 관심지역, 우리 동네 합해야 하는데... 여기서 해야 하나?
+//		/*
+//		if ( userId != null ) {
+//			
+//		} else {
+//			
+//			
+//			
+//		}
+//		*/
+//		
+//		
+//		List<JobAdAttrCounter> attrCountOnEmp = mapper.countJobAdOnAttrGroup("EMP");
+//		
+//		attrCountOnEmp.add(0, total);
+//		
+//		return attrCountOnEmp;
+//	}
 
 
 	

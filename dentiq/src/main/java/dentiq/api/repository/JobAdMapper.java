@@ -1,7 +1,6 @@
 package dentiq.api.repository;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import dentiq.api.model.JobAd;
 import dentiq.api.model.JobAdAttr;
-import dentiq.api.model.JobAdAttrCounter;
+//import dentiq.api.model.JobAdAttrCounter;
 import dentiq.api.model.JobAdGroupByLocationCode;
 import dentiq.api.model.NameCountPair;
 import dentiq.api.repository.criteria.JobAdSearchCriteria;
@@ -101,7 +100,7 @@ public interface JobAdMapper {
 	//public long countJobAds2(@Param("searchCriteria") JobAdSearchCriteria2 searchCriteria) throws Exception;
 	
 	//public List<NameCountPair> countJobAdOnAttrGroup(@Param("jobAdAttrGroupId") String jobAdAttrGroupId) throws Exception;
-	public List<JobAdAttrCounter> countJobAdOnAttrGroup(@Param("jobAdAttrGroupId") String jobAdAttrGroupId) throws Exception;
+	//public List<JobAdAttrCounter> countJobAdOnAttrGroup(@Param("jobAdAttrGroupId") String jobAdAttrGroupId) throws Exception;
 	
 	
 	

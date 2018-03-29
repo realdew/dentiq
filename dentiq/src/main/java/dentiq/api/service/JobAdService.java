@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import dentiq.api.model.JobAd;
-import dentiq.api.model.JobAdAttrCounter;
 import dentiq.api.model.JobAdAttrGroup;
 import dentiq.api.model.JobAdDashboard;
 import dentiq.api.model.LiveBoardResult;
@@ -116,7 +115,7 @@ public interface JobAdService {
 	
 	
 	
-	public List<JobAdAttrCounter> countJobAdsByEmpType() throws Exception;
+	//public List<JobAdAttrCounter> countJobAdsByEmpType() throws Exception;
 
 	
 }
