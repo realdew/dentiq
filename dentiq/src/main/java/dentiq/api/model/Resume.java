@@ -34,6 +34,9 @@ public class Resume {
 	@Getter @Setter private String telNo;
 	@Getter @Setter private String email;
 	
+	@Getter @Setter private String locationCode;
+	@Getter @Setter private String sidoCode;
+	@Getter @Setter private String siguCode;
 	@Getter @Setter private String addrMain;
 	@Getter @Setter private String addrDetail;
 	

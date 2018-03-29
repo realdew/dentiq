@@ -86,9 +86,9 @@ public class HospitalUserController {
 		if ( user.getUserType()==null || !user.getUserType().equals(User.USER_TYPE_HOSPITAL) ) {
 			throw new Exception("접근권한 없음 : 병원회원만 병원회원 정보에 접근 가능");
 		}
-		if ( user.getHospitalId() == null ) {
-			throw new Exception("접근권한 없음 : 병원회원 ID가 없음");
-		}
+//		if ( user.getHospitalId() == null ) {
+//			throw new Exception("접근권한 없음 : 병원회원 ID가 없음");
+//		}
 		
 		return user.getHospitalId();
 	}
@@ -141,6 +141,7 @@ public class HospitalUserController {
 		JsonResponse<List<Resume>> res = new JsonResponse<List<Resume>>();
 		try {
 			Integer hospitalId = checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			if ( hospitalId == null ) throw new Exception("병원정보가 등록되지 않았습니다.");
 			
 			List<Resume> resumeList = hospitalMemberService.listResumeAppliedToHospital(hospitalId);
 //			for ( Resume resume : resumeList ) {
@@ -166,6 +167,7 @@ public class HospitalUserController {
 		JsonResponse<List<Resume>> res = new JsonResponse<List<Resume>>();
 		try {
 			Integer hospitalId = checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			if ( hospitalId == null ) throw new Exception("병원정보가 등록되지 않았습니다.");
 			
 			//List<Resume> resumeList = hospitalMemberService.listResumeScrappedJobAdOfHospital(hospitalId);
 			List<Resume> resumeList = hospitalMemberService.listResumeScrappedByHospital(hospitalId);
@@ -193,6 +195,7 @@ public class HospitalUserController {
 		JsonResponse<List<Resume>> res = new JsonResponse<List<Resume>>();
 		try {
 			Integer hospitalId = checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			if ( hospitalId == null ) throw new Exception("병원정보가 등록되지 않았습니다.");
 			
 			hospitalMemberService.addScrappedResumeId(hospitalId, resumeId);
 			
@@ -220,6 +223,7 @@ public class HospitalUserController {
 		JsonResponse<List<Resume>> res = new JsonResponse<List<Resume>>();
 		try {
 			Integer hospitalId = checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			if ( hospitalId == null ) throw new Exception("병원정보가 등록되지 않았습니다.");
 			
 			hospitalMemberService.deleteScrappedResumeId(hospitalId, resumeId);
 			
@@ -248,6 +252,7 @@ public class HospitalUserController {
 		JsonResponse<List<Resume>> res = new JsonResponse<List<Resume>>();
 		try {
 			Integer hospitalId = checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			if ( hospitalId == null ) throw new Exception("병원정보가 등록되지 않았습니다.");
 			List<Resume> resumeList = hospitalMemberService.listResumeSearched(hospitalId, 1);
 //			for ( Resume resume : resumeList ) {
 //				resume.setProfileImageFullUrl( createUserResourceUrl(resume.getUserId(), resume.getProfileImageName()) );
@@ -273,6 +278,7 @@ public class HospitalUserController {
 		JsonResponse<List<Resume>> res = new JsonResponse<List<Resume>>();
 		try {
 			Integer hospitalId = checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			if ( hospitalId == null ) throw new Exception("병원정보가 등록되지 않았습니다.");
 			
 			List<Resume> resumeList = hospitalMemberService.listResumeRecommended(hospitalId);
 //			for ( Resume resume : resumeList ) {
@@ -539,7 +545,8 @@ public class HospitalUserController {
 		
 		JsonResponse<JobAd> res = new JsonResponse<JobAd>();
 		try {
-			checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			Integer hospitalId = checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			if ( hospitalId == null ) throw new Exception("병원정보가 등록되지 않았습니다.");
 			
 						
 			System.out.println("요청된 신규 JOB AD 정보 " + jobAd);
@@ -564,7 +571,8 @@ public class HospitalUserController {
 		
 		JsonResponse<JobAd> res = new JsonResponse<JobAd>();
 		try {
-			checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			Integer hospitalId = checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			if ( hospitalId == null ) throw new Exception("병원정보가 등록되지 않았습니다.");
 			
 			jobAd.setId(jobAdId);
 			
@@ -614,7 +622,8 @@ public class HospitalUserController {
 		JsonResponse<String> res = new JsonResponse<String>();
 		try {
 			
-			checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			Integer hospitalId = checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			if ( hospitalId == null ) throw new Exception("병원정보가 등록되지 않았습니다.");
 			
 			hospitalMemberService.deleteJobAd(jobAdId);
 			res.setResponseData("OK");
@@ -687,7 +696,8 @@ public class HospitalUserController {
 		
 		JsonResponse<Hospital> res = new JsonResponse<Hospital>();
 		try {
-			checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			Integer hospitalId = checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
+			if ( hospitalId == null ) throw new Exception("병원정보가 등록되지 않았습니다.");
 			
 			
 			System.out.println("신규병원 등록 : " + hospital); 

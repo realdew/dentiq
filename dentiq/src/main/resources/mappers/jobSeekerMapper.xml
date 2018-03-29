@@ -15,11 +15,11 @@
 
 
 	<select id="getResumeByUserId" resultType="dentiq.api.model.Resume">
-		select * from USER_RESUME where USER_ID=#{userId}		 
+		select * from USER_RESUME_VIEW where USER_ID=#{userId}		 
 	</select>
 	
 	<select id="getResumeById" resultType="dentiq.api.model.Resume">
-		select * from USER_RESUME where ID=#{resumeId}
+		select * from USER_RESUME_VIEW where ID=#{resumeId}
 	</select>
 	<insert id="insertResume" useGeneratedKeys="true" keyProperty="id" parameterType="dentiq.api.model.Resume">
 		insert into USER_RESUME (
