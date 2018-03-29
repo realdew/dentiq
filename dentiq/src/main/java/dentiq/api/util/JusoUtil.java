@@ -30,10 +30,14 @@ public class JusoUtil {
 	
 	public static void main(String[] args) throws Exception {
 		JusoUtil util = new JusoUtil();
-		//util.searchAddr("역삼동 999-40");
+		util.searchAddr("역삼동 725-40");
+		
+		// entX=959392.6806814834, entY=1944538.8317065234, bdNm=해오름주택
 		
 		util.testCoordinate();
 		//util.searchCoordinateWithKakao("역삼동 725-40");
+		util.transCoordinateByKakao("959392.6806814834", "1944538.8317065234", "WTM", "WGS84");
+		//util.searchAddressByKakao("서울대", 1, 10);
 		
 	}
 	
@@ -128,6 +132,63 @@ public class JusoUtil {
 		System.out.println(result);
 		
 		return result;
+	}
+	
+	public KakaoCoordinateResult searchAddressByKakao(String keyword, int page, int size) throws Exception {
+		
+		String apiUrl = "https://dapi.kakao.com/v2/local/search/address.json" + "?query=" + keyword + "&page=" + page + "&size=" + size;
+		
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Authorization", "KakaoAK fc69e613b0c227749e5ea6c183261477");
+
+		HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
+		
+		//ResponseEntity<String> result = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
+		ResponseEntity<KakaoCoordinateResult> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, KakaoCoordinateResult.class);
+		KakaoCoordinateResult result = response.getBody();
+		
+		//KakaocoordinateDocument resultDoc = null;
+		if ( result!=null && result.getDocuments()!=null ) {
+			for ( KakaocoordinateDocument resultDoc : result.getDocuments() ) {
+				System.out.println(resultDoc);
+			}			
+		}
+		
+		System.out.println("\n\n" + result);
+		
+		return result;
+	}
+	
+	public void transCoordinateByKakao(String x, String y, String inputCoord, String outputCoord) throws Exception {
+		
+//		"https://dapi.kakao.com/v2/local/geo/transcoord.json?x=160710.37729270622&y=-4388.879299157299&input_coord=WTM&output_coord=WGS84" \
+//		-H "Authorization: KakaoAK kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"
+		
+		String apiUrl = "https://dapi.kakao.com/v2/local/geo/transcoord.json" + "?"
+								+ "x=" + x + "&y=" + y + "&input_coord=" + inputCoord + "&output_coord=" + outputCoord;
+		
+		
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Authorization", "KakaoAK fc69e613b0c227749e5ea6c183261477");
+
+		HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
+		
+		//ResponseEntity<String> result = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
+		ResponseEntity<KakaoCoordinateResult> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, KakaoCoordinateResult.class);
+		KakaoCoordinateResult result = response.getBody();
+		
+		KakaocoordinateDocument resultDoc = null;
+		if ( result!=null && result.getDocuments()!=null && result.getDocuments().size() > 0 ) {
+			resultDoc = result.getDocuments().get(0);
+		}
+		System.out.println(resultDoc);
+		
+		
+		//System.out.println(result);
+		
+		//return result;
 	}
 	
 	
