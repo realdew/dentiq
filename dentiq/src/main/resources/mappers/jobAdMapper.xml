@@ -755,6 +755,7 @@
 			
 			
 			<!-- 나중에 이것은 IN 조건에 걸리는 것을 적게 하기 위해서 공고 상태와 공고 마감기간을 넣어야 한다. -->
+			<!-- 참고 : 별도 테이블을 사용하지 않을 경우 : select id, attr_json from job_ad where json_contains(attr_json, '"TASK.1"') and json_contains(attr_json, '"TASK.2"') -->
 			<if test="searchCriteria !=null and searchCriteria.attrGroupList != null">
 				<trim prefix="and J.ID in  ( select distinct JOB_AD_ID from ( " prefixOverrides="AND |OR"  suffix=" ) TEMP_TABLE)">
 					<foreach item="attrGroup" index="index" collection="searchCriteria.attrGroupList" open="(" separator=" intersect " close=")">
