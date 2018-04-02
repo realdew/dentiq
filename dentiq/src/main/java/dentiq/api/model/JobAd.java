@@ -177,6 +177,9 @@ public class JobAd {
 	@Getter @Setter private String sidoCode;
 	@Getter @Setter private String siguCode;
 	
+	@Getter @Setter private String entX;
+	@Getter @Setter private String entY;
+	
 	
 	
 }
