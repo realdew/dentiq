@@ -14,13 +14,13 @@
 	</select>
 	
 	
-
+	<!-- 2018.04.03 이주현 추가. UTMK_POINT 컬럼 추가 -->
 	<insert id="createHospital" useGeneratedKeys="true" keyProperty="id" parameterType="dentiq.api.model.Hospital">
 		insert into HOSPITAL (
 			BIZ_REG_NO, BIZ_REG_NAME, Y_KIHO, USER_ID, NAME, CL_CODE, CL_CODE_NAME, 
 			LOCATION_CODE, SIDO_CODE, SIDO_NAME, SIGU_CODE, SIGU_NAME, 
 			ADDR_MAIN, ADDR_DETAIL, 
-			JIBUN_ADDR, ADM_CD, RN_MGT_SN, UDRT_YN, BULD_MNNM, BULD_SLNO, BD_NM, EMD_NM, ENT_X, ENT_Y, ZIP_NO,
+			JIBUN_ADDR, ADM_CD, RN_MGT_SN, UDRT_YN, BULD_MNNM, BULD_SLNO, BD_NM, EMD_NM, ENT_X, ENT_Y, UTMK_POINT, ZIP_NO,
 			TEL_NO, HOSP_URL, 
 			EMAIL, CEO_NAME, EST_DATE, TDR_CNT, GDR_CNT, IDR_CNT, RDR_CNT, SDR_CNT, X_POS, Y_POS, LOGO_IMAGE_NAME, 
 			HOSPITAL_TYPE_CODE, HOSPITAL_TYPE_TEXT,			
@@ -32,7 +32,7 @@
 			#{bizRegNo}, #{bizRegName}, #{yKiho}, #{userId}, #{name}, #{clCode}, #{clCodeName}, 
 			#{locationCode}, #{sidoCode}, #{sidoName}, #{siguCode}, #{siguName},
 			#{addrMain}, #{addrDetail}, 
-			#{addrJuso.jibunAddr}, #{addrJuso.admCd}, #{addrJuso.rnMgtSn}, #{addrJuso.udrtYn}, #{addrJuso.buldMnnm}, #{addrJuso.buldSlno}, #{addrJuso.bdNm}, #{addrJuso.emdNm}, #{addrJuso.entX}, #{addrJuso.entY}, #{addrJuso.zipNo},
+			#{addrJuso.jibunAddr}, #{addrJuso.admCd}, #{addrJuso.rnMgtSn}, #{addrJuso.udrtYn}, #{addrJuso.buldMnnm}, #{addrJuso.buldSlno}, #{addrJuso.bdNm}, #{addrJuso.emdNm}, #{addrJuso.entX}, #{addrJuso.entY}, POINT(#{addrJuso.entX}, #{addrJuso.entY})#{addrJuso.zipNo},
 			#{telNo}, #{hospUrl},
 			#{email}, #{ceoName}, #{estDate}, #{tdrCnt}, #{gdrCnt}, #{idrCnt}, #{rdrCnt}, #{sdrCnt}, #{xPos}, #{yPos}, #{logoImageName},
 			#{hospitalTypeCode}, #{hospitalTypeText},
@@ -43,6 +43,7 @@
 	</insert>
 	
 	<!--  병원정보 수정 : 사업자번호, 사업장명, 요양기관암호화번호, 사용자ID, 병원명, 종별코드는 수정 불가 -->
+	<!-- 2018.04.03 이주현 추가. UTMK_POINT 컬럼 추가 -->
 	<update id="updateHospital" parameterType="dentiq.api.model.Hospital">
 		update HOSPITAL
 		set
@@ -50,7 +51,7 @@
 			BIZ_REG_NAME=#{bizRegName}, NAME=#{name},
 			LOCATION_CODE=#{locationCode}, SIDO_CODE=#{sidoCode}, SIDO_NAME=#{sidoName}, SIGU_CODE=#{siguCode}, SIGU_NAME=#{siguName}, 
 			ADDR_MAIN=#{addrMain}, ADDR_DETAIL=#{addrDetail}, 
-			JIBUN_ADDR=#{addrJuso.jibunAddr}, ADM_CD=#{addrJuso.admCd}, RN_MGT_SN=#{addrJuso.rnMgtSn}, UDRT_YN=#{addrJuso.udrtYn}, BULD_MNNM=#{addrJuso.buldMnnm}, BULD_SLNO=#{addrJuso.buldSlno}, BD_NM=#{addrJuso.bdNm}, EMD_NM=#{addrJuso.emdNm}, ENT_X=#{addrJuso.entX}, ENT_Y=#{addrJuso.entY}, ZIP_NO=#{addrJuso.zipNo},
+			JIBUN_ADDR=#{addrJuso.jibunAddr}, ADM_CD=#{addrJuso.admCd}, RN_MGT_SN=#{addrJuso.rnMgtSn}, UDRT_YN=#{addrJuso.udrtYn}, BULD_MNNM=#{addrJuso.buldMnnm}, BULD_SLNO=#{addrJuso.buldSlno}, BD_NM=#{addrJuso.bdNm}, EMD_NM=#{addrJuso.emdNm}, ENT_X=#{addrJuso.entX}, ENT_Y=#{addrJuso.entY}, UTMK_POINT(#{addrJuso.entX}, #{addrJuso.entY}), ZIP_NO=#{addrJuso.zipNo},
 			TEL_NO=#{telNo}, HOSP_URL=#{hospUrl},
 			EMAIL=#{email}, CEO_NAME=#{ceoName}, EST_DATE=#{estDate}, TDR_CNT=#{tdrCnt}, GDR_CNT=#{gdrCnt}, IDR_CNT=#{idrCnt}, RDR_CNT=#{rdrCnt}, SDR_CNT=#{sdrCnt},
 			LOGO_IMAGE_NAME=#{logoImageName},

@@ -30,13 +30,15 @@ public class JusoUtil {
 	
 	public static void main(String[] args) throws Exception {
 		JusoUtil util = new JusoUtil();
-		util.searchAddr("역삼동 725-40");
+		//util.searchAddr("역삼동 725-40");
+		
+		util.searchAddr("인천광역시 연수구 컨벤시아대로 81 701,704호 (송도동, 드림시티)");
 		
 		// entX=959392.6806814834, entY=1944538.8317065234, bdNm=해오름주택
 		
-		util.testCoordinate();
+		//util.testCoordinate();
 		//util.searchCoordinateWithKakao("역삼동 725-40");
-		util.transCoordinateByKakao("959392.6806814834", "1944538.8317065234", "WTM", "WGS84");
+		//util.transCoordinateByKakao("959392.6806814834", "1944538.8317065234", "WTM", "WGS84");
 		//util.searchAddressByKakao("서울대", 1, 10);
 		
 	}

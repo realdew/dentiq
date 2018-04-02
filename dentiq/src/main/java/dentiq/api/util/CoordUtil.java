@@ -11,6 +11,15 @@ import org.osgeo.proj4j.ProjCoordinate;
  * 
  * 현재는 UTM-K 좌표(GRS80 기반)를 경위도 좌표(WGS84)로 변환하는 기능만 제공한다.
  * 
+ * 내부에서 proj4의 java 버전인 proj4j를 사용한다. 이를 위하여 maven 설정에 의존성을 추가하여야 한다.
+ * 
+ * proj4j의 좌표변환 기능 사용 방법은 다음을 참고함.
+ * 		https://github.com/jdeolive/proj4j/blob/master/src/test/java/org/osgeo/proj4j/ExampleTest.java
+ * 
+ * proj4에서 좌표계 변환 방법은 다음을 참고함.
+ * 		https://mrchypark.wordpress.com/2014/10/23/좌표계-변환-proj4-라이브러리/
+ * 		http://windingroad.tistory.com/27
+ * 
  * @author		jhlee
  * @startedAt	2018.03.30
  * @lastUpdated	2018.03.30 by jhlee
@@ -21,7 +30,7 @@ public class CoordUtil {
 	//private static CRSFactory csFactory = new CRSFactory();
 	
 	
-	private static final String GRS80_PARAM = "+proj=tmerc +lat_0=38 +lon_0=127.5 +k=0.9996 +x_0=1000000 +y_0=2000000 +ellps=GRS80 +units=m +no_defs";
+	private static final String GRS80_PARAM = "+proj=tmerc +lat_0=38 +lon_0=127.5 +k=0.9996 +x_0=1000000 +y_0=2000000 +ellps=GRS80 +units=m +no_defs";	// UTM-K 보정
 	private static final String WGS84_PARAM = "+proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees +no_defs";
 	
 	

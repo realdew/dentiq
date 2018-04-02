@@ -100,11 +100,11 @@ public class LoginController {
 	}
 }
 
-class ClientSession {
-	private String sessionKey;
-	
-	//JsonIgnore
-	private Integer userId;
-	private int userType;
-	private int keepingLoginType;	
-}
+//class ClientSession {
+//	private String sessionKey;
+//	
+//	//JsonIgnore
+//	private Integer userId;
+//	private int userType;
+//	private int keepingLoginType;	
+//}

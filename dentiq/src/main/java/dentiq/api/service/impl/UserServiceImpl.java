@@ -7,8 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
-import dentiq.api.model.Hospital;
-import dentiq.api.model.JobAd;
+
 import dentiq.api.model.LocationCode;
 import dentiq.api.model.User;
 import dentiq.api.model.juso.AddrJuso;

@@ -124,26 +124,7 @@ public class JobAd {
 	
 	
 	
-	@Getter @Setter private String hospitalName;
-	
-	@Getter @Setter private String xPos;
-	
-	@Getter @Setter private String yPos;
-	
-	@Getter @Setter private String logoImageName;
-	public String getFullLogoUrl() throws Exception {
-		if ( this.logoImageName == null || this.logoImageName.trim().equals("") ) return null;
-		
-		ServerConfig serverConfig = ServerConfig.getInstance();
-		String HOSPITAL_RESOURCE_URL_BASE	= serverConfig.get("HOSPITAL_RESOURCE_URL_BASE");
-		String HOSPITAL_RESOURCE_SERVER_URL	= serverConfig.get("HOSPITAL_RESOURCE_SERVER_URL");
-		
-		return HOSPITAL_RESOURCE_SERVER_URL + "/" + HOSPITAL_RESOURCE_URL_BASE + "/" + this.hospitalId + "/" + this.logoImageName;
-	}
-	
-	@Getter @Setter private String locationCode;
-	@Getter @Setter private String sidoCode;
-	@Getter @Setter private String siguCode;
+
 	
 	
 	//@Getter @Setter private String attr;		// WEB에서 입출력 되는 값
@@ -178,63 +159,24 @@ public class JobAd {
         
 	}
 	
-//	@JsonIgnore
-//	private String attrVal;		// JOB_AD 테이블에 있는 컬럼 값	
-//	
-//	// DB에서 읽어 올때
-//	@JsonIgnore
-//	private void setAttrVal(String val) throws Exception {
-//		if ( val==null || val.trim().length()<0 ) return;
-//		
-//		String[] tokens = val.trim().split(",");
-//		if ( tokens==null || tokens.length<1 ) return;
-//		
-//		this.attr = new ArrayList<String>();
-//		for ( int i=0; i<tokens.length; i++ ) {
-//			this.attr.add(tokens[i].trim());
-//		}
-//		
-//		//this.attr = Arrays.asList(val.split(","));
-//	}
-//	
-//	// DB에 쓸 때
-//	@JsonIgnore
-//	private String getAttrVal() {
-//		if ( this.attr==null || this.attr.size()==0 ) return null;
-//		
-//		//return String.join(",", this.attr);		
-//		return this.attr.stream().map(String::trim).collect(Collectors.joining(","));
-//	}
+	
+	@Getter @Setter private String hospitalName;
+	
+	@Getter @Setter private String logoImageName;
+	public String getFullLogoUrl() throws Exception {
+		if ( this.logoImageName == null || this.logoImageName.trim().equals("") ) return null;
+		
+		ServerConfig serverConfig = ServerConfig.getInstance();
+		String HOSPITAL_RESOURCE_URL_BASE	= serverConfig.get("HOSPITAL_RESOURCE_URL_BASE");
+		String HOSPITAL_RESOURCE_SERVER_URL	= serverConfig.get("HOSPITAL_RESOURCE_SERVER_URL");
+		
+		return HOSPITAL_RESOURCE_SERVER_URL + "/" + HOSPITAL_RESOURCE_URL_BASE + "/" + this.hospitalId + "/" + this.logoImageName;
+	}
+	
+	@Getter @Setter private String locationCode;
+	@Getter @Setter private String sidoCode;
+	@Getter @Setter private String siguCode;
 	
 	
-//	// DB에서 읽어 올 때
-//	@JsonIgnore
-//	private void setAttrVal(String val) throws Exception {
-//		// 예: EMP.1, EMP.2, AREA.1
-//		if ( val==null || val.trim().length()<0 ) return;
-//		
-//		String[] tokens = val.trim().split(",");
-//		if ( tokens==null || tokens.length<1 ) return;
-//		
-//		this.attr = new ArrayList<JobAdAttr>();
-//		for ( String token : tokens ) {
-//			this.attr.add(new JobAdAttr(token));
-//		}
-//	}
-//	
-//	// DB에 쓸 때
-//	@JsonIgnore
-//	private String getAttrVal() {
-//		if ( this.attr==null || this.attr.size()==0 ) return null;
-//		
-//		String val = "";
-//		int len = this.attr.size();
-//		for ( int i=0; i<len; i++ ) {
-//			val += this.attr.get(i).getCodeId();
-//			if ( i<len-1 ) val += ", ";
-//		}
-//		
-//		return val;
-//	}
 	
 }

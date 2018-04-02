@@ -1,9 +1,9 @@
 package dentiq.api.model.juso;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+//import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import dentiq.api.model.LocationCode;
-import dentiq.api.service.exception.LogicalException;
+//import dentiq.api.model.LocationCode;
+//import dentiq.api.service.exception.LogicalException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -40,8 +40,12 @@ public class AddrJuso {
 	@Getter @Setter private	String	addrMain;		// 주 주소 - 화면으로부터 입력됨
 	@Getter @Setter private	String	addrDetail;		// 상세주소 - 화면으로부터 입력됨	
 	
-	@Getter @Setter private String entX;			//	입구 좌표 X
-	@Getter @Setter private String entY;			//	입구 좌표 Y
+	@Getter @Setter private String	entX;			//	입구 좌표 X		: from juso.go.kr 좌표 검색 API 결과
+	@Getter @Setter private String	entY;			//	입구 좌표 Y		: from juso.go.kr 좌표 검색 API 결과
+	
+	@Getter @Setter private String	latLonX;			// WGS84 좌표 X : CoordUtil의 좌표 변환 결과
+	@Getter @Setter private String	latLonY;			// WGS84 좌표 Y : CoordUtil의 좌표 변환 결과
+	
 	
 	
 	

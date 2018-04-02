@@ -125,7 +125,7 @@ public class PersonalUserController {
 			throw new Exception("접근권한 없음 : 사용자 ID 불일치 [" + userId + "] [" + session.getUserId() + "]");
 		}
 		
-		Integer userType = session.getUserType();
+		String userType = session.getUserType();
 		if ( userType==null || !userType.equals(User.USER_TYPE_PERSON) ) {
 			throw new Exception("접근권한 없음 : 개인(구직)회원만 사용이 가능합니다. [" + userType + "]");
 		}
@@ -415,6 +415,9 @@ public class PersonalUserController {
 			// ------------ 임시 : 지역코드를 관심지역의 코드로 대체한다. ---------------
 			List<String> locationCodeList = new ArrayList<String>();
 			List<LocationCode> locationCodes = personalMemberService.getConcernedLocationCodeList(userId);
+			if ( locationCodes == null || locationCodes.size()==0 ) {
+				throw new Exception("관심지역이 설정되지 않음");
+			}
 			for ( LocationCode loc : locationCodes ) {
 				locationCodeList.add(loc.getLocationCode());
 			}

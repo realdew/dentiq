@@ -8,20 +8,20 @@ public class DistanceCriteria {
 	// @Param("xPos") String xPos, @Param("yPos") String yPos, @Param("distance") int distance,
 	
 	@Getter
-	private String xPos;
+	private String x;
 	
 	@Getter
-	private String yPos;
+	private String y;
 	
 	@Getter
 	private int distance;
 	
-	public DistanceCriteria(String xPos, String yPos, Integer distance) throws Exception {
-		if ( !StringUtil.isNumberFormat(xPos) || !StringUtil.isNumberFormat(yPos) || distance==null || distance<=0 )
-			throw new Exception("DistanceCriteria Format Error xPos[" + xPos + "], yPos[" + yPos + "], distance[" + distance + "]");
+	public DistanceCriteria(String x, String y, Integer distance) throws Exception {
+		if ( !StringUtil.isNumberFormat(x) || !StringUtil.isNumberFormat(y) || distance==null || distance<=0 )
+			throw new Exception("DistanceCriteria Format Error xPos[" + x + "], yPos[" + y + "], distance[" + distance + "]");
 		
-		this.xPos = xPos;
-		this.yPos = yPos;
+		this.x = x;
+		this.y = y;
 		this.distance = distance;
 	}
 }

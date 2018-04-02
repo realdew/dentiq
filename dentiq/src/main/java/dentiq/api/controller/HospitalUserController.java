@@ -28,7 +28,6 @@ import dentiq.api.service.HospitalService;
 import dentiq.api.service.UserService;
 import dentiq.api.service.exception.LogicalException;
 import dentiq.api.util.FileUtil;
-import dentiq.api.util.ImageUtil;
 import dentiq.api.util.UserSession;
 import dentiq.api.util.UserSessionManager;
 
@@ -72,7 +71,7 @@ public class HospitalUserController {
 			throw new Exception("접근권한 없음 : 사용자 ID 불일치 [" + userId + "] [" + session.getUserId() + "]");
 		}
 		
-		Integer userType = session.getUserType();
+		String userType = session.getUserType();
 		if ( userType==null || !userType.equals(User.USER_TYPE_HOSPITAL) ) {
 			throw new Exception("접근권한 없음 : 병원회원만 사용이 가능합니다. [" + userType + "]");
 		}
@@ -98,7 +97,7 @@ public class HospitalUserController {
 		UserSessionManager sesMan = UserSessionManager.get();
 		UserSession session = sesMan.verifyToken(httpRequest, httpResponse);
 		
-		Integer userType = session.getUserType();
+		String userType = session.getUserType();
 		if ( userType==null || !userType.equals(User.USER_TYPE_HOSPITAL) ) {
 			throw new Exception("접근권한 없음 : 병원회원만 사용이 가능합니다. [" + userType + "]");
 		}

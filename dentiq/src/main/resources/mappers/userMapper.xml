@@ -16,15 +16,18 @@
 		where ID=#{userId}
 	</select>
 
-	
+	<!-- 2018.04.03 이주현 추가. UTMK_POINT 컬럼 추가 -->
 	<update id="updateUserAddr">
 		update USER set
 			ADDR_MAIN=#{juso.addrMain}, ADDR_DETAIL=#{juso.addrDetail},
+			
 			JIBUN_ADDR=#{juso.jibunAddr},
 			ADM_CD=#{juso.admCd}, RN_MGT_SN=#{juso.rnMgtSn}, UDRT_YN=#{juso.udrtYn}, BULD_MNNM=#{juso.buldMnnm}, BULD_SLNO=#{juso.buldSlno},
 			BD_NM=#{juso.bdNm}, EMD_NM=#{juso.emdNm},
 			ENT_X=#{juso.entX}, ENT_Y=#{juso.entY},
+			UTMK_POINT(#{juso.entX}, #{juso.entY})
 			ZIP_NO=#{juso.zipNo},
+			
 			LOCATION_CODE=#{locationCode.locationCode}, SIDO_CODE=#{locationCode.sidoCode}, SIGU_CODE=#{locationCode.siguCode}
 		where ID=#{userId}
 	</update>

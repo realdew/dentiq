@@ -4,16 +4,11 @@ import dentiq.api.service.BasicAuthService;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Hashtable;
 
 import dentiq.api.model.User;
 
 public class BasicAuthServiceImpl implements BasicAuthService {
 	
-//	public BasicUserAuth getByUserId(Integer userId) throws Exception {
-//		
-//		return null;
-//	}
 	
 	public static final long SESSION_TIMEOUT				= 30 * 60 * 1000;		// msec 단위
 	public static final long MOBILE_SESSION_TIMEOUT			= 30 * 60 * 1000;		// msec 단위
@@ -52,10 +47,10 @@ public class BasicAuthServiceImpl implements BasicAuthService {
 		
 		
 		// 3. 객체가 있으면, 검증 시작
-		if ( auth.getKeepingLoginType()==User.KEEPING_LOGIN_NONE ) {
+		if ( auth.getKeepingLoginType().equals(User.KEEPING_LOGIN_NONE) ) {
 			
 			
-		} else if ( auth.getKeepingLoginType()==User.KEPPING_LOGIN_SESSION ) {
+		} else if ( auth.getKeepingLoginType().equals(User.KEPPING_LOGIN_SESSION) ) {
 			
 			long lastLoginTime = auth.getLastLoginTime();
 			long currentTime   = auth.getCurrentTime();		//TODO DB에 조회하는 방식이어서 그럼. cache를 사용할 경우에는 주의 요함
@@ -73,7 +68,7 @@ public class BasicAuthServiceImpl implements BasicAuthService {
 				
 				// 추가작업 : authKey를 리프레쉬한다.
 			}
-		} else if ( auth.getKeepingLoginType()==User.KEEPING_LOGIN_PERM ) {
+		} else if ( auth.getKeepingLoginType().equals(User.KEEPING_LOGIN_PERM) ) {
 			long lastLoginTime = auth.getLastLoginTime();
 			long currentTime   = auth.getCurrentTime();		//TODO DB에 조회하는 방식이어서 그럼. cache를 사용할 경우에는 주의 요함
 			
@@ -111,7 +106,7 @@ class BasicUserAuth {
 	
 	@Getter @Setter private Integer userId;
 	
-	@Getter @Setter private Integer keepingLoginType = User.KEEPING_LOGIN_NONE;
+	@Getter @Setter private String keepingLoginType = User.KEEPING_LOGIN_NONE;
 	
 	@Getter @Setter private Integer userType;	// user type: '1':구직회원, '2':병원회원
 	@Getter @Setter private Integer hospitalId;	// 병원 ID (회원유형(userType)이 병원회원(2)인 경우에만 의미 있음) 값이 0이면 병원 등록을 안한 상태임

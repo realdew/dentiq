@@ -12,14 +12,14 @@ import lombok.ToString;
 
 @ToString
 @JsonInclude(Include.NON_NULL)
-public class User {
+public class User extends AddrJusoAssociated {
 	
-	public static final int USER_TYPE_PERSON		= 1;	// 회원 유형 (1: 구직(개인)회원)
-	public static final int USER_TYPE_HOSPITAL		= 2;	// 회원 유형 (2: 구인(병원)회원)
+	public static final String USER_TYPE_PERSON			= "1";	// 회원 유형 (1: 구직(개인)회원)
+	public static final String USER_TYPE_HOSPITAL		= "2";	// 회원 유형 (2: 구인(병원)회원)
 	
-	public static final int KEEPING_LOGIN_NONE		= 0;	// 로그인 유지 방식 (0:유지 안함. 디폴트값)
-	public static final int KEPPING_LOGIN_SESSION	= 1;	// 로그인 유지 방식 (1:timeout이 존재하는 일반 세션)
-	public static final int KEEPING_LOGIN_PERM		= 2;	// 로그인 유지 방식 (2:특정기간(예:30일 로그인상태유지)
+	public static final String KEEPING_LOGIN_NONE		= "0";	// 로그인 유지 방식 (0:유지 안함. 디폴트값)
+	public static final String KEPPING_LOGIN_SESSION	= "1";	// 로그인 유지 방식 (1:timeout이 존재하는 일반 세션)
+	public static final String KEEPING_LOGIN_PERM		= "2";	// 로그인 유지 방식 (2:특정기간(예:30일 로그인상태유지)
 	
 	
 	
@@ -31,15 +31,15 @@ public class User {
 	@Getter @Setter private String loginType;	// ?????
 	
 	// 로그인 유지 방식 (0:일회성 로그인, 1:영구 로그인, 2:특정기간 로그인상태유지)
-	@Getter @Setter private Integer keepingLoginType = KEEPING_LOGIN_NONE;
+	@Getter @Setter private String keepingLoginType = KEEPING_LOGIN_NONE;
 	
-	@Getter @Setter private Integer userType;	// user type: '1':구직회원, '2':병원회원
+	@Getter @Setter private String userType;	// user type: '1':구직회원, '2':병원회원
 	public String getUserTypeString() {
 		if ( this.userType == null ) return null;
 		
-		if ( this.userType==USER_TYPE_PERSON ) {
+		if ( this.userType.equals(USER_TYPE_PERSON) ) {
 			return "구직(개인)회원";
-		} else if ( this.userType==USER_TYPE_HOSPITAL ) {
+		} else if ( this.userType.equals(USER_TYPE_HOSPITAL) ) {
 			return "구인(병원)회원";
 		} else return null;
 	}
@@ -49,7 +49,7 @@ public class User {
 	
 	@Setter private String bizRegNo;	// 사업자 번호 (병원회원 only)
 	public String getBizRegNo() {
-		if ( this.userType != null && this.userType==USER_TYPE_HOSPITAL ) {
+		if ( this.userType != null && this.userType.equals(USER_TYPE_HOSPITAL) ) {
 			return this.bizRegNo;
 		} else return null;
 	}

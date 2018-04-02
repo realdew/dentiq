@@ -311,19 +311,7 @@ public class NormalController {
 	}
 	
 	
-	// 관리자용
-	@RequestMapping(value="/user/", method=RequestMethod.GET)
-	public ResponseEntity<JsonResponse<List<User>>> getUserList() {
-		
-		JsonResponse<List<User>> res = new JsonResponse<List<User>>();
-		try {
-			List<User> userList = userService.getUsers();
-			res.setResponseData(userList);
-		} catch(Exception ex) {
-			res.setException(ex);
-		}
-		return new ResponseEntity<JsonResponse<List<User>>>(res, HttpStatus.OK);
-	}
+
 	
 	
 	
