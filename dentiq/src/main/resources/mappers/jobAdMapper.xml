@@ -636,6 +636,7 @@
 				J.LOGO_IMAGE_NAME, J.ATTR_JSON, J.HASH_TAG_JSON,
 				J.HIRING_TERM_TYPE, J.HIRING_END_DATE
 				<if test="searchCriteria !=null and searchCriteria.distanceCriteria != null">
+					, J.ENT_X, J.ENT_Y, J.LAT_LON_X, J.LAT_LON_Y
 					, DISTANCE_VIEW.DISTANCE as DISTANCE
 				</if>
 		

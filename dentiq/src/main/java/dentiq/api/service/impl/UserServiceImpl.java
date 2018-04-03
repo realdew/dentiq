@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import dentiq.api.model.LocationCode;
 import dentiq.api.model.User;
+import dentiq.api.model.juso.AddrCoordinate;
 import dentiq.api.model.juso.AddrJuso;
 import dentiq.api.repository.CodeMapper;
 import dentiq.api.repository.UserMapper;
@@ -18,6 +19,8 @@ import dentiq.api.service.exception.ConflictUserException;
 import dentiq.api.service.exception.InvalidPasswordException;
 import dentiq.api.service.exception.LogicalException;
 import dentiq.api.service.exception.UserNotFoundException;
+import dentiq.api.util.CoordUtil;
+import dentiq.api.util.JusoUtil;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -85,7 +88,7 @@ public class UserServiceImpl implements UserService {
 			Long.parseLong(admCd);	// 숫자 형식 여부 확인
 			
 			String sidoCode = admCd.substring(0, 2);
-			String siguCode = admCd.substring(0,  5);			
+			String siguCode = admCd.substring(0, 5);			
 			String locCode = sidoCode + LocationCode.CODE_DELIMETER + siguCode;
 			
 			// 여기서 DB 검증 한번 하여야 한다.			
@@ -104,6 +107,34 @@ public class UserServiceImpl implements UserService {
 		//------------------------------------------------------------------------------
 		
 		
+		System.out.println("\n\n==============================");
+		System.out.println(juso);
+		System.out.println("==============================\n\n");
+		
+		// 좌표 검색 수행
+		if ( juso.getEntX()==null || juso.getEntX().trim().equals("") || juso.getEntY()==null || juso.getEntY().trim().equals("") ) {
+			try {
+				JusoUtil jusoUtil = new JusoUtil();
+				AddrCoordinate[] coordinates = jusoUtil.searchCoordinate(juso.getAdmCd(), juso.getRnMgtSn(), juso.getUdrtYn(), juso.getBuldMnnm(), juso.getBuldSlno());
+				if ( coordinates==null || coordinates.length < 1 ) {	//TODO 좌표가 2개 이상이면 어떻게 하나?
+					throw new Exception("좌표 조회에 실패했습니다.");
+				}
+				
+				juso.setEntX(coordinates[0].getEntX());
+				juso.setEntY(coordinates[0].getEntY());
+				
+			} catch(Exception ex) {
+				throw new Exception("좌표 조회에 실패했습니다.", ex);
+			}
+		}
+		
+		// 좌표 변환 수행
+		CoordUtil cUtil = new CoordUtil();
+		String[] newCoord = cUtil.transGRS80toWGS84(juso.getEntX(), juso.getEntY());
+		juso.setLatLonX(newCoord[0]);
+		juso.setLatLonY(newCoord[1]);
+		
+		// DB 업데이트 수행
 		if ( mapper.updateUserAddr(userId, juso, locationCode) != 1 ) throw new Exception("회원주소 업데이트가 1건이 아님");
 		
 	}
@@ -237,16 +268,25 @@ public class UserServiceImpl implements UserService {
 	public User updateBasicInfo(User user) throws Exception {
 		
 		int updatedRows = mapper.updateBasicInfo(user);
-		if ( updatedRows == 1 ) {
-			return mapper.getUserById(user.getId());
-		} else {
+		if ( updatedRows != 1 ) {
 			throw new Exception("회원기본정보 변경 실패 [" + updatedRows + "]");
 		}
+		
+//		AddrJuso juso = user.getAddrJuso();
+//		System.out.println("==========================");
+//		System.out.println("회원 기본 정보 변경 - 주소 : " + juso);
+//		System.out.println("==========================");;
+		
+		return getBasicInfoByUserId(user.getId());
 	}
 	
 	@Override
 	public User getBasicInfoByUserId(Integer userId) throws Exception {
-		return mapper.getBasicInfoByUserId(userId);
+		User userBasic = mapper.getBasicInfoByUserId(userId);
+//		AddrJuso juso = mapper.getUserAddr(userId);
+//		userBasic.setAddrJuso(juso);
+		
+		return userBasic;
 	}
 	
 	

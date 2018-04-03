@@ -180,6 +180,9 @@ public class JobAd {
 	@Getter @Setter private String entX;
 	@Getter @Setter private String entY;
 	
+	@Getter @Setter private String latLonX;
+	@Getter @Setter private String latLonY;
+	
 	
 	
 }

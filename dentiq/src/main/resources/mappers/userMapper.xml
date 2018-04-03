@@ -11,7 +11,9 @@
 	</update>
 	
 	<select id="getBasicInfoByUserId" resultType="dentiq.api.model.User">
-		select EMAIL, NAME, TEL_NO, BIRTHDAY, GENDER, PROFILE_IMAGE_NAME
+		select
+			EMAIL, NAME, TEL_NO, BIRTHDAY, GENDER,
+			PROFILE_IMAGE_NAME			
 		from USER
 		where ID=#{userId}
 	</select>
@@ -25,8 +27,9 @@
 			ADM_CD=#{juso.admCd}, RN_MGT_SN=#{juso.rnMgtSn}, UDRT_YN=#{juso.udrtYn}, BULD_MNNM=#{juso.buldMnnm}, BULD_SLNO=#{juso.buldSlno},
 			BD_NM=#{juso.bdNm}, EMD_NM=#{juso.emdNm},
 			ENT_X=#{juso.entX}, ENT_Y=#{juso.entY},
-			UTMK_POINT(#{juso.entX}, #{juso.entY})
+			UTMK_POINT=POINT(#{juso.entX}, #{juso.entY}),
 			ZIP_NO=#{juso.zipNo},
+			LAT_LON_X=#{juso.latLonX}, LAT_LON_Y=#{juso.latLonY},
 			
 			LOCATION_CODE=#{locationCode.locationCode}, SIDO_CODE=#{locationCode.sidoCode}, SIGU_CODE=#{locationCode.siguCode}
 		where ID=#{userId}
@@ -51,7 +54,9 @@
 			ADM_CD, RN_MGT_SN, UDRT_YN, BULD_MNNM, BULD_SLNO,
 			BD_NM, EMD_NM,
 			ZIP_NO,
-			ENT_X, ENT_Y
+			ENT_X, ENT_Y,
+			ZIP_NO,
+			LAT_LON_X, LAT_LON_Y
 		from USER
 		where ID=#{userId}
 	</select>

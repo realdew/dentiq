@@ -33,7 +33,21 @@ public class CoordUtil {
 	private static final String GRS80_PARAM = "+proj=tmerc +lat_0=38 +lon_0=127.5 +k=0.9996 +x_0=1000000 +y_0=2000000 +ellps=GRS80 +units=m +no_defs";	// UTM-K 보정
 	private static final String WGS84_PARAM = "+proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees +no_defs";
 	
-	
+	public String[] transGRS80toWGS84(String srcX, String srcY) throws Exception {
+		double x;
+		double y;
+		try {
+			x = Double.parseDouble(srcX);
+			y = Double.parseDouble(srcY);
+		} catch(Exception ex) {
+			throw new Exception("소스 좌표가 올바르지 않습니다. x:" + srcX + ", y:" + srcY);
+		}
+		
+		double[] retVal = transGRS80toWGS84(x, y);
+		
+		return new String[] {retVal[0]+"", retVal[1]+""};
+		
+	}
 	public double[] transGRS80toWGS84(double srcX, double srcY) throws Exception {
 		CRSFactory coordinateReferenceSystemFactory = new CRSFactory();
 		CoordinateReferenceSystem GRS80		= coordinateReferenceSystemFactory.createFromParameters("GRS80", GRS80_PARAM);

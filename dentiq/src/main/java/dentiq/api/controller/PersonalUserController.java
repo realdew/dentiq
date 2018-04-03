@@ -252,13 +252,8 @@ public class PersonalUserController {
 		try {
 			//checkPersonalUserSession(httpRequest, httpResponse, userId);			
 			
-			//User user = userService.getUserById(userId);
 			User user = userService.getBasicInfoByUserId(userId);
 			user.filter();
-			//user.setProfileImageFullUrl( createUserResourceUrl(userId, user.getProfileImageName()) );
-			
-			
-			
 			res.setResponseData(user);			
 			System.out.println(user);
 			
@@ -279,11 +274,12 @@ public class PersonalUserController {
 		
 		JsonResponse<User> res = new JsonResponse<User>();
 		try {
+			//System.out.println("updated basicInfo : " + addrJuso);
+			
 			//checkPersonalUserSession(httpRequest, httpResponse, userId);
 			user.setId(userId);
 			
 			User updatedUser = userService.updateBasicInfo(user);
-			//updatedUser.setProfileImageFullUrl( createUserResourceUrl(userId, user.getProfileImageName()) );
 			updatedUser.filter();
 			
 			
