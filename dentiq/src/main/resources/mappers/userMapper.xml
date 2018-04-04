@@ -14,7 +14,9 @@
 		select
 			ID, EMAIL,
 			NAME, TEL_NO, BIRTHDAY, GENDER,
-			PROFILE_IMAGE_NAME			
+			PROFILE_IMAGE_NAME,
+			LOCATION_CODE
+						
 		from USER
 		where ID=#{userId}
 	</select>
