@@ -121,8 +121,8 @@ public class Resume {
 			String join   = map.get("joinYYYYMM");
 			String retire = map.get("retireYYYYMM");
 			
-			if ( join != null ) {
-				if ( retire != null ) {
+			if ( join != null && !join.trim().equals("") ) {
+				if ( retire != null && !retire.trim().equals("") ) {
 					diffMonths += DateUtil.diffMonths(join, retire);
 				} else {		// 퇴직일이 입력되지 않았으면, 재직중(현재날짜까지)으로 판단
 					

@@ -12,7 +12,8 @@
 	
 	<select id="getBasicInfoByUserId" resultType="dentiq.api.model.User">
 		select
-			EMAIL, NAME, TEL_NO, BIRTHDAY, GENDER,
+			ID, EMAIL,
+			NAME, TEL_NO, BIRTHDAY, GENDER,
 			PROFILE_IMAGE_NAME			
 		from USER
 		where ID=#{userId}
