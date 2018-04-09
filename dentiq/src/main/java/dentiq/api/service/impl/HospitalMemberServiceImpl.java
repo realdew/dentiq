@@ -244,7 +244,7 @@ public class HospitalMemberServiceImpl implements HospitalMemberService {
 		
 		PageCriteria pageCriteria = new PageCriteria(page);
 				
-		List<Resume> resumeSearchedList = resumeMapper.listResumeSearched(hospitalId, pageCriteria);
+		List<Resume> resumeSearchedList = resumeMapper.listResumeSearched(pageCriteria);
 		if ( hospitalId != null ) {
 			markScrapped(hospitalId, resumeSearchedList);
 		}

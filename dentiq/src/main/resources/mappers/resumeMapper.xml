@@ -92,19 +92,14 @@
 			order by PRIOTY
 		)
 	</select>
-	<!--  현재 버전에서는 지원지역의 LOCATION_CODE가 병원의 LOCATION_CODE와 동일한 이력서만 추출한다 -->
+	<!--  현재 버전에서는 페이징만 지원한다. 
+	 -->
 	<select id="listResumeSearched" resultType="dentiq.api.model.Resume">
 		select * from USER_RESUME_VIEW
-		where 
-			json_search(R.APPLY_LOCATION_CODE_JSON, 'one', (select LOCATION_CODE from HOSPITAL where ID=#{hospitalId}) ) is not null
-			and
-			<if test="startIndex != null and endIndex != null">
-				limit #{startIndex}, #{endIndex}
-			</if>
-			<if test="startIndex ==null or endIndex == null">
-				limit 0, 10
-			</if>
-			
+		 
+			<!-- json_search(R.APPLY_LOCATION_CODE_JSON, 'one', (select LOCATION_CODE from HOSPITAL where ID=#{hospitalId}) ) is not null
+			 and -->
+						
 			<if test="pageCriteria != null">
 				limit #{pageCriteria.startIndexOnPage}, #{pageCriteria.itemCountPerPage}
 			</if>
