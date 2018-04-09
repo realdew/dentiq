@@ -2,7 +2,6 @@ package dentiq.api.service;
 
 import java.util.List;
 
-import org.apache.ibatis.annotations.Param;
 
 import dentiq.api.model.AppliedJobAdInfo;
 import dentiq.api.model.JobAd;
@@ -10,6 +9,8 @@ import dentiq.api.model.LocationCode;
 import dentiq.api.model.Resume;
 
 public interface PersonalMemberService {
+	
+	public String getUserLocationCode(Integer userId) throws Exception;
 	
 	public String getUserProfileImangeName(Integer userId) throws Exception;
 	public String updateUserProfileImageName(Integer userId, String profileImageName) throws Exception;

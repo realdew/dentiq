@@ -19,6 +19,14 @@ public class PersonalMemberServiceImpl implements PersonalMemberService {
 	private JobSeekerMapper mapper;
 	
 	@Override
+	public String getUserLocationCode(Integer userId) throws Exception {
+		// 회원의 존재 여부 ==> 권한확인에서 처리
+		
+		// LocationCode 등록 여부
+		return mapper.getUserLocationCode(userId);
+	}
+	
+	@Override
 	public String getUserProfileImangeName(Integer userId) throws Exception {
 		return mapper.getUserProfileImangeName(userId);
 	}

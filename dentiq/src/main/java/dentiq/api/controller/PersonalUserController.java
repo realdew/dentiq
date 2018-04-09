@@ -373,6 +373,68 @@ public class PersonalUserController {
 	
 	
 	
+	/******************************************************************************************************************/
+	/*                                                                                                                */
+	/*                                         우리동네                                                               */
+	/*                                                                                                                */
+	/******************************************************************************************************************/
+	@RequestMapping(value="/user/{userId}/homeLocationDash", method=RequestMethod.GET)
+	public ResponseEntity<JsonResponse<JobAdDashboard>> homeLocationDash(
+						@PathVariable("userId")		Integer userId,
+//						@RequestParam(value="location",		required=false)		List<String> locationCodeListRequested,
+//						@RequestParam(value="adType",		required=false)		Integer adType,
+//						@RequestParam(value="xPos",			required=false)		String xPos,
+//						@RequestParam(value="yPos",			required=false)		String yPos,
+//						@RequestParam(value="distance",		required=false)		Integer distance,
+//						@RequestParam(value="hospitalName", required=false)		String hospitalName,
+//						@RequestParam(value="hospitalAddr",	required=false)		String hospitalAddr,
+						@RequestParam(value="attr",			required=false)		List<String> attrStrList		
+			) {
+		
+		JsonResponse<JobAdDashboard> res = new JsonResponse<JobAdDashboard>();
+		try {
+			// 권한 확인 먼저 한다.
+			// 특히 사용자(회원)의 존재 여부 확인 필수
+			
+			List<JobAdAttrGroup> atrrGroupList = JobAdAttrGroup.createJobAdAttrGroupListForInput(attrStrList);
+			
+			// 지역코드를 우리동네의 지역코드로 대체한다.
+			String locationCode = personalMemberService.getUserLocationCode(userId);
+			if ( locationCode == null || locationCode.trim().equals("") ) {
+				throw new Exception("지역설정이 되어 있지 않음");
+			}
+			
+			List<String> locationCodeList = new ArrayList<String>();
+			locationCodeList.add(locationCode);
+				
+			
+			
+			long totalNormalCount = 0;
+			long totalPremierCount = 0;
+			
+			
+			List<NameCountPair> test = jobAdService.countJobAdsGroupByAdType(locationCodeList, null, null, null, null, null, null, atrrGroupList);
+			System.out.println(" ==========> 개수 MAP : " + test);
+						
+			
+			for ( NameCountPair nameCountPair : test ) {
+				String AD_TYPE = nameCountPair.getName();
+				if ( JobAd.AD_TYPE_NORMAL.equals(AD_TYPE) ) totalNormalCount = nameCountPair.getCnt();
+				else if ( JobAd.AD_TYPE_PREMIERE.equals(AD_TYPE) ) totalPremierCount = nameCountPair.getCnt();
+			} 
+			
+			JobAdDashboard dash = new JobAdDashboard(locationCodeList, null); 
+			
+			dash.setTotalCountNormal(totalNormalCount);
+			dash.setTotalCountPremier(totalPremierCount);
+			dash.setCnt(totalNormalCount + totalPremierCount);
+			
+			res.setResponseData(dash);
+		} catch(Exception ex) {
+			res.setException(ex);
+		}
+		return new ResponseEntity<JsonResponse<JobAdDashboard>>(res, HttpStatus.OK);
+	}
 	
 	
 

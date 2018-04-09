@@ -3,6 +3,11 @@
 
 <mapper namespace="dentiq.api.repository.JobSeekerMapper">
 
+	<select id="getUserLocationCode" resultType="string">
+		select LOCATION_CODE from USER where ID=#{userId}
+	</select>
+
+
 	<update id="updateUserProfileImageName">
 		update USER set
 			PROFILE_IMAGE_NAME=#{profileImageName}

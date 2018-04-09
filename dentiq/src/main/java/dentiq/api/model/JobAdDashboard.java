@@ -11,7 +11,7 @@ public class JobAdDashboard {
 	
 	
 	@Getter @Setter
-	private int cnt;
+	private Long cnt;
 	
 	@Getter @Setter
 	private List<JobAdGroupByLocationCode> jobAdGroupList;
@@ -20,7 +20,7 @@ public class JobAdDashboard {
 	private List<String> requestedLocationCodeList;		// 요청된 지역코드들
 	
 	@Getter @Setter
-	private int requestedCnt;
+	private Long requestedCnt;
 	
 	@Getter @Setter private long totalCountNormal;
 	@Getter @Setter private long totalCountPremier;
@@ -31,7 +31,7 @@ public class JobAdDashboard {
 //		this.cnt = cnt;
 //	}
 	
-	public JobAdDashboard(List<String> requestedLocationCodeList, List<JobAdGroupByLocationCode> jobAdGroupList, int cnt, int requestedCnt) {
+	public JobAdDashboard(List<String> requestedLocationCodeList, List<JobAdGroupByLocationCode> jobAdGroupList, long cnt, long requestedCnt) {
 		this.requestedLocationCodeList = requestedLocationCodeList;
 		this.jobAdGroupList = jobAdGroupList;
 		this.cnt = cnt;
@@ -42,10 +42,11 @@ public class JobAdDashboard {
 		this.requestedLocationCodeList = requestedLocationCodeList;
 		this.jobAdGroupList = jobAdGroupList;
 		
-		this.cnt = 0;
-		this.requestedCnt = 0;
+		this.cnt = (long) 0;
+		this.requestedCnt = (long) 0;
 			
 		
+		if ( jobAdGroupList == null ) return;
 		
 		for ( JobAdGroupByLocationCode resultItem : jobAdGroupList ) {
 			String resultLocationCode = resultItem.getLocationCode();
@@ -75,7 +76,8 @@ public class JobAdDashboard {
 	
 	public void updateRequestedLocation(List<String> newRequestedLocationCodeList) {
 		
-		this.requestedCnt = 0;
+		this.requestedCnt = (long) 0;
+		if ( this.jobAdGroupList == null ) return;
 		for ( JobAdGroupByLocationCode resultItem : this.jobAdGroupList ) {
 			
 			if ( newRequestedLocationCodeList==null || newRequestedLocationCodeList.size()==0 ) {	// 요청된 지역코드가 없는 경우. 즉, 전국인 경우.

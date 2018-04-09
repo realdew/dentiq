@@ -16,6 +16,8 @@ import dentiq.api.model.Resume;
 @Repository
 public interface JobSeekerMapper {
 	
+	public String getUserLocationCode(@Param("userId") Integer userId) throws Exception;
+	
 	/* 개인회원 프로필 이미지 변경 */
 	public int updateUserProfileImageName(@Param("userId") Integer userId, @Param("profileImageName") String profileImageName) throws Exception;
 	public String getUserProfileImangeName(@Param("userId") Integer userId) throws Exception;
