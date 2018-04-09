@@ -18,6 +18,7 @@ import dentiq.api.repository.HospitalMapper;
 import dentiq.api.repository.JobAdMapper;
 import dentiq.api.repository.ResumeMapper;
 import dentiq.api.repository.UserMapper;
+import dentiq.api.repository.criteria.PageCriteria;
 import dentiq.api.service.HospitalMemberService;
 import dentiq.api.service.exception.LogicalException;
 
@@ -240,7 +241,10 @@ public class HospitalMemberServiceImpl implements HospitalMemberService {
 	 */
 	@Override
 	public List<Resume> listResumeSearched(Integer hospitalId, Integer page) throws Exception {
-		List<Resume> resumeSearchedList = resumeMapper.listResumeSearched();
+		
+		PageCriteria pageCriteria = new PageCriteria(page);
+				
+		List<Resume> resumeSearchedList = resumeMapper.listResumeSearched(hospitalId, pageCriteria);
 		if ( hospitalId != null ) {
 			markScrapped(hospitalId, resumeSearchedList);
 		}

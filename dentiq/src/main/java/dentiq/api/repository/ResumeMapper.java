@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import dentiq.api.model.Resume;
+import dentiq.api.repository.criteria.PageCriteria;
 
 
 @Mapper
@@ -57,7 +58,8 @@ public interface ResumeMapper {
 	//public List<Resume> listResumeScrappedJobAdOfHospital(@Param("hospitalId") Integer hospitalId) throws Exception;
 	
 	
-	public List<Resume> listResumeSearched() throws Exception;
+	public List<Resume> listResumeSearched(@Param("hospitalId") Integer hospitalId,
+									@Param("pageCriteria") PageCriteria pageCriteria) throws Exception;
 	
 	
 	
