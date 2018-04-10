@@ -85,7 +85,7 @@ public class NormalController {
 			if ( !currentUserId.equals(session.getUserId()) ) {
 				
 				if ( resume.isOpened() ) {
-					if ( session.getUserType() != User.USER_TYPE_HOSPITAL )
+					if ( !session.getUserType().equals(User.USER_TYPE_HOSPITAL) )
 						throw new Exception("접근권한 없음 : 공개 이력서는 작성자 또는 병원회원만 조회할 수 있습니다.");
 				} else {
 					Integer resumeOnwerId = resume.getUserId();

@@ -227,9 +227,6 @@ public class HospitalUserController {
 			hospitalMemberService.deleteScrappedResumeId(hospitalId, resumeId);
 			
 			List<Resume> resumeList = hospitalMemberService.listResumeScrappedByHospital(hospitalId);
-//			for ( Resume resume : resumeList ) {
-//				resume.setProfileImageFullUrl( createUserResourceUrl(resume.getUserId(), resume.getProfileImageName()) );
-//			}
 						
 			res.setResponseData(resumeList);
 		
@@ -253,9 +250,6 @@ public class HospitalUserController {
 			Integer hospitalId = checkHospitalUserSessionByUserId(httpRequest, httpResponse, userId);
 			if ( hospitalId == null ) throw new Exception("병원정보가 등록되지 않았습니다.");
 			List<Resume> resumeList = hospitalMemberService.listResumeSearched(hospitalId, 1);
-//			for ( Resume resume : resumeList ) {
-//				resume.setProfileImageFullUrl( createUserResourceUrl(resume.getUserId(), resume.getProfileImageName()) );
-//			}
 						
 			res.setResponseData(resumeList);
 		
@@ -280,9 +274,6 @@ public class HospitalUserController {
 			if ( hospitalId == null ) throw new Exception("병원정보가 등록되지 않았습니다.");
 			
 			List<Resume> resumeList = hospitalMemberService.listResumeRecommended(hospitalId);
-//			for ( Resume resume : resumeList ) {
-//				resume.setProfileImageFullUrl( createUserResourceUrl(resume.getUserId(), resume.getProfileImageName()) );
-//			}
 						
 			res.setResponseData(resumeList);
 		
