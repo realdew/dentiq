@@ -2,6 +2,14 @@ package dentiq.api.util;
 
 public class StringUtil {
 	
+	public static String trim(String str) {
+		if ( str == null ) return "";
+		else return str.trim();
+	}
+	
+	
+	
+	
 	
 	public static boolean isPositiveNumberFormat(String str) {
 		if ( str == null ) return false;
